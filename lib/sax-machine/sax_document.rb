@@ -23,9 +23,10 @@ module SAXMachine
       new.parse(xml_text)
     end
     
-    def element(name)
-      sax_config.add_top_level_element(name)
-      attr_accessor name
+    def element(name, options = {})
+      options[:as] ||= name
+      sax_config.add_top_level_element(name, options)
+      attr_accessor options[:as]
     end
     
     def sax_config

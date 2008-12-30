@@ -21,7 +21,7 @@ module SAXMachine
     def end_element(name)
       if @value
         mark_as_parsed(name)
-        @object.send("#{name}=", @value)
+        @object.send(@object.class.sax_config.accessor_for_element(name), @value)
         @value = nil
       end
     end

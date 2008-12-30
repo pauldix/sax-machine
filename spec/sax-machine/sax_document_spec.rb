@@ -60,4 +60,24 @@ describe "SAXMachine" do
       document.title.should == "My Title"
     end
   end
+  
+  describe "when using options for parsing elements" do
+    before :each do
+      @klass = Class.new do
+        include SAXMachine
+        element :description, :as => :summary
+      end
+    end
+    
+    it "should provide an accessor using the 'as' name" do
+      document = @klass.new
+      document.summary = "a small summary"
+      document.summary.should == "a small summary"
+    end
+    
+    it "should save the element text into the 'as' accessor" do
+      document = @klass.parse("<description>here is a description</description>")
+      document.summary.should == "here is a description"
+    end
+  end
 end
