@@ -29,6 +29,13 @@ module SAXMachine
       attr_accessor options[:as]
     end
     
+    def elements(name, options = {})
+      options[:as] ||= name
+      sax_config.add_collection_element(name, options)
+      class_eval "def #{options[:as]}; @#{options[:as]} ||= []; end"
+      attr_writer options[:as]
+    end
+    
     def sax_config
       @sax_config ||= SAXConfig.new
     end
