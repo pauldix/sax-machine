@@ -13,16 +13,24 @@ module SAXMachine
     self
   end
   
+  def parse_element?(name)
+    self.class.sax_config.parse_element?(name)
+  end
+  
   module ClassMethods
-    
+
     def parse(xml_text)
       new.parse(xml_text)
     end
     
     def element(name)
+      sax_config.add_top_level_element(name)
       attr_accessor name
     end
     
+    def sax_config
+      @sax_config ||= SAXConfig.new
+    end
   end
   
 end
