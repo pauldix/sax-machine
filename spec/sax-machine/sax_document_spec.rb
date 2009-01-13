@@ -253,32 +253,34 @@ describe "SAXMachine" do
         document.entries.size.should == 1
         document.entries.first.title.should == "correct title"
       end
-    end
-    
-    describe "special cases" do
-      before :each do
-        @xml = File.read('spec/sax-machine/atom.xml')
-        @klass = Class.new do
-          include SAXMachine
-          element :title
-          element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
-          element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
-          elements :entry, {:as => :entries, :class => Class.new do
-            include SAXMachine
-            element :title
-            element :name, :as => :author
-            element "feedburner:origLink", :as => :url
-            element :summary
-            element :content
-            element :published
-          end}
-        end
-      end # before
-      
-      it "should parse the url" do
-        f = @klass.parse(@xml)
-        f.url.should == "http://www.pauldix.net/"
+    end    
+  end
+  
+  describe "full example" do
+    before :each do
+      @xml = File.read('spec/sax-machine/atom.xml')
+      class AtomEntry
+        include SAXMachine
+        element :title
+        element :name, :as => :author
+        element "feedburner:origLink", :as => :url
+        element :summary
+        element :content
+        element :published
       end
+        
+      class Atom
+        include SAXMachine
+        element :title
+        element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
+        element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
+        elements :entry, :as => :entries, :class => AtomEntry
+      end
+    end # before
+    
+    it "should parse the url" do
+      f = Atom.parse(@xml)
+      f.url.should == "http://www.pauldix.net/"
     end
   end
 end
