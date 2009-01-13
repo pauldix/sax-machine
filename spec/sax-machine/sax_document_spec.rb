@@ -98,8 +98,24 @@ describe "SAXMachine" do
           end
           
           it "should save the value of the first matching element" do
-            document = @klass.parse("<xml><link href='first' foo='bar'>asdf</link><link href='second' foo='bar'>jkl</link></xml>")
+            document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
             document.link.should == "first"
+          end
+          
+          describe "and the :as option" do
+            before :each do
+              @klass = Class.new do
+                include SAXMachine
+                element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
+                element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
+              end
+            end
+            
+            it "should save the value of the first matching element" do
+              document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
+              document.url.should == "first"
+              document.second_url.should == "second"
+            end            
           end
         end
         
@@ -236,6 +252,32 @@ describe "SAXMachine" do
         document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
         document.entries.size.should == 1
         document.entries.first.title.should == "correct title"
+      end
+    end
+    
+    describe "special cases" do
+      before :each do
+        @xml = File.read('spec/sax-machine/atom.xml')
+        @klass = Class.new do
+          include SAXMachine
+          element :title
+          element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
+          element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
+          elements :entry, {:as => :entries, :class => Class.new do
+            include SAXMachine
+            element :title
+            element :name, :as => :author
+            element "feedburner:origLink", :as => :url
+            element :summary
+            element :content
+            element :published
+          end}
+        end
+      end # before
+      
+      it "should parse the url" do
+        f = @klass.parse(@xml)
+        f.url.should == "http://www.pauldix.net/"
       end
     end
   end

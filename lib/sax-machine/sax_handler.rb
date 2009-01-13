@@ -50,10 +50,12 @@ module SAXMachine
         # if @object.class.sax_config.collection_element?(@current_element_name)
         #   @object.send(@object.class.sax_config.accessor_for_collection(name)) << @value
         # else
-          @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), @value)
+        @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), @value)
         # end
-        @value = nil
       end
+      @current_element_name = nil
+      @current_element_attrs = nil
+      @value = nil
     end
     
     def mark_as_parsed(name)
