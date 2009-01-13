@@ -161,28 +161,49 @@ describe "SAXMachine" do
   end
   
   describe "elements" do
-    describe "when parsing multiple elements" do
+    # I took this stuff out because I'm not sure yet if this is something I want to bother supporting.
+    
+    # describe "when parsing multiple elements" do
+    #   before :each do
+    #     @klass = Class.new do
+    #       include SAXMachine
+    #       elements :entry, :as => :entries
+    #     end
+    #   end
+    #   
+    #   it "should provide a collection accessor" do
+    #     document = @klass.new
+    #     document.entries << :foo
+    #     document.entries.should == [:foo]
+    #   end
+    #   
+    #   it "should parse a single element" do
+    #     document = @klass.parse("<entry>hello</entry>")
+    #     document.entries.should == ["hello"]
+    #   end
+    #   
+    #   it "should parse multiple elements" do
+    #     document = @klass.parse("<xml><entry>hello</entry><entry>world</entry></xml>")
+    #     document.entries.should == ["hello", "world"]
+    #   end
+    # end
+    
+    describe "when using the class option" do
       before :each do
+        class Foo
+          include SAXMachine
+          element :title
+        end
         @klass = Class.new do
           include SAXMachine
-          elements :entry, :as => :entries
+          elements :entry, :as => :entries, :class => Foo
         end
       end
       
-      it "should provide a collection accessor" do
-        document = @klass.new
-        document.entries << :foo
-        document.entries.should == [:foo]
-      end
-      
-      it "should parse a single element" do
-        document = @klass.parse("<entry>hello</entry>")
-        document.entries.should == ["hello"]
-      end
-      
-      it "should parse multiple elements" do
-        document = @klass.parse("<xml><entry>hello</entry><entry>world</entry></xml>")
-        document.entries.should == ["hello", "world"]
+      it "should parse a single element with children" do
+        document = @klass.parse("<entry><title>a title</title></entry>")
+        document.entries.size.should == 1
+        document.entries.first.title.should == "a title"
       end
     end
   end

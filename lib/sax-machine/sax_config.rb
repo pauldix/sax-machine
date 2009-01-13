@@ -35,7 +35,11 @@ module SAXMachine
     end
     
     def collection_element?(name)
-      @collection_elements.has_key? name
+      if @collection_elements.has_key? name
+        @collection_elements[name][:class] || name
+      else
+        false
+      end
     end
     
     # returns true if this tag with these attrs are one we're saving the attributes for
