@@ -83,7 +83,26 @@ describe "SAXMachine" do
         end
       end
       
-      describe "using the 'with' option" do
+      describe "using the :with option" do
+        describe "and the :value option" do
+          before :each do
+            @klass = Class.new do
+              include SAXMachine
+              element :link, :value => :href, :with => {:foo => "bar"}
+            end
+          end
+          
+          it "should save the value of a matching element" do
+            document = @klass.parse("<link href='test' foo='bar'>asdf</link>")
+            document.link.should == "test"
+          end
+          
+          it "should save the value of the first matching element" do
+            document = @klass.parse("<xml><link href='first' foo='bar'>asdf</link><link href='second' foo='bar'>jkl</link></xml>")
+            document.link.should == "first"
+          end
+        end
+        
         describe "with only one element" do
           before :each do
             @klass = Class.new do

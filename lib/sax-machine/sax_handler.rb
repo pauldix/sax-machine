@@ -12,12 +12,13 @@ module SAXMachine
     def characters(string)
       if @collection_parse
         @collection_parse.characters(string)
-      elsif parse_current_element?
+      elsif @capture_characters && parse_current_element?
         @value ||= string
       end
     end
     
     def start_element(name, attrs = [])
+      @capture_characters = true
       if @collection_parse
         @collection_parse.start_element(name, attrs)
       else
@@ -26,9 +27,12 @@ module SAXMachine
         if collection_class = @object.class.sax_config.collection_element?(@current_element_name)
           @collection_parse = SAXHandler.new(collection_class.new)
         elsif element = @object.class.sax_config.attribute_value_element?(@current_element_name, @current_element_attrs)
-          mark_as_parsed(name)
-          @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
-            @current_element_attrs[@current_element_attrs.index(element[:value]) + 1])
+          @capture_characters = false
+          unless value_element_parsed?(element)
+            mark_as_parsed(name)
+            @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
+              @current_element_attrs[@current_element_attrs.index(element[:value]) + 1])
+          end
         end
       end
     end
@@ -64,6 +68,29 @@ module SAXMachine
     def current_element_parsed?
       @parsed_elements.has_key?(@current_element_name) &&
         @parsed_elements[@current_element_name].detect {|attrs| attrs == @current_element_attrs}
+    end
+    
+    def value_element_parsed?(element)
+      if @parsed_elements.has_key?(@current_element_name)
+        if element.has_key?(:with)
+          intersects = @parsed_elements[@current_element_name].collect {|attrs| element[:with] & attrs}
+          current_attrs_without_value = Array.new(@current_element_attrs)
+          i = @current_element_attrs.index(element[:value])
+          current_attrs_without_value.delete_at i
+          current_attrs_without_value.delete_at i
+          intersects.detect {|attrs| attrs == current_attrs_without_value}
+        else
+          true
+        end
+      else
+        false
+      end
+    end
+    
+    def remove_value_element(element)
+      i = @current_element_attrs.index(element[:value])
+      @current_element_attrs.delete_at i
+      @current_element_attrs.delete_at i
     end
   end
 end
