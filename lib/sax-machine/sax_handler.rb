@@ -17,6 +17,11 @@ module SAXMachine
     def start_element(name, attrs = [])
       @current_element_name = name
       @current_element_attrs = attrs
+      if element = @object.class.sax_config.attribute_value_element?(@current_element_name, @current_element_attrs)
+        mark_as_parsed(name)
+        @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
+          @current_element_attrs[@current_element_attrs.index(element[:value]) + 1])
+      end
     end
     
     def end_element(name)
@@ -24,9 +29,6 @@ module SAXMachine
         mark_as_parsed(name)
         if @object.class.sax_config.collection_element?(@current_element_name)
           @object.send(@object.class.sax_config.accessor_for_collection(name)) << @value
-        elsif element = @object.class.sax_config.attribute_value_element?(@current_element_name, @current_element_attrs)
-          @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
-            @current_element_attrs[@current_element_attrs.index(element[:value]) + 1])
         else
           @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), @value)
         end

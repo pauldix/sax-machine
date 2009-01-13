@@ -146,6 +146,16 @@ describe "SAXMachine" do
           document = @klass.parse("<link foo='test'>hello</link>")
           document.link.should == 'test'
         end
+        
+        it "should save the attribute value when there is no text enclosed by the tag" do
+          document = @klass.parse("<link foo='test'></link>")
+          document.link.should == 'test'
+        end
+        
+        it "should save the attribute value when the tag close is in the open" do
+          document = @klass.parse("<link foo='test'/>")
+          document.link.should == 'test'
+        end
       end
     end
   end

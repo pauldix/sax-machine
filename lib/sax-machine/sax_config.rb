@@ -40,7 +40,7 @@ module SAXMachine
     
     # returns true if this tag with these attrs are one we're saving the attributes for
     def attribute_value_element?(name, attrs)
-      @top_level_elements[name].detect {|element| element.has_key?(:value) && attrs_match?(element, attrs)}
+      @top_level_elements.has_key?(name) && @top_level_elements[name].detect {|element| element.has_key?(:value) && attrs_match?(element, attrs)}
     end
     
     def value_for_attribute_value_element(name, attrs)
