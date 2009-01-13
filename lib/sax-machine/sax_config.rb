@@ -9,6 +9,7 @@ module SAXMachine
     def add_top_level_element(name, options)
       # stringify the :with options for faster comparisons later
       options[:with] = options[:with].to_a.flatten.collect {|o| o.to_s} if options.has_key?(:with)
+      options[:value] = options[:value].to_s if options.has_key?(:value)
       @top_level_elements[name.to_s] << options
     end
     
@@ -27,7 +28,7 @@ module SAXMachine
     def attrs_match?(element, attrs)
       with = element[:with]
       if with
-        with == attrs
+        with == (with & attrs)
       else
         true
       end
@@ -35,6 +36,16 @@ module SAXMachine
     
     def collection_element?(name)
       @collection_elements.has_key? name
+    end
+    
+    # returns true if this tag with these attrs are one we're saving the attributes for
+    def attribute_value_element?(name, attrs)
+      @top_level_elements[name].detect {|element| element.has_key?(:value) && attrs_match?(element, attrs)}
+    end
+    
+    def value_for_attribute_value_element(name, attrs)
+      element = @top_level_elements[name].detect {|element| element.has_key?(:value) && attrs_match?(element, attrs)}
+      attrs[attrs.index(element[:value]) + 1]
     end
     
     def setter_for_element(name, attrs)

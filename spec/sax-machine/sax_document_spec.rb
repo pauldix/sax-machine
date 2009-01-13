@@ -106,6 +106,11 @@ describe "SAXMachine" do
             document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
             document.link.should == "match"          
           end
+          
+          it "should save the text of an element that has matching attributes plus a few more" do
+            document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
+            document.link.should == "match"
+          end
         end
         
         describe "with multiple elements of same tag" do
@@ -126,6 +131,20 @@ describe "SAXMachine" do
             document = @klass.parse("<xml><link>no match</link><link foo='bar'>first match</link><link asdf='jkl'>second match</link><link>hi</link></xml>")
             document.second.should == "second match"
           end
+        end
+      end # using the 'with' option
+      
+      describe "using the 'value' option" do
+        before :each do
+          @klass = Class.new do
+            include SAXMachine
+            element :link, :value => :foo
+          end
+        end
+        
+        it "should save the attribute value" do
+          document = @klass.parse("<link foo='test'>hello</link>")
+          document.link.should == 'test'
         end
       end
     end
