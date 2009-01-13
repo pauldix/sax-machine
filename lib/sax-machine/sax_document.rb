@@ -13,8 +13,8 @@ module SAXMachine
     self
   end
   
-  def parse_element?(name)
-    self.class.sax_config.parse_element?(name)
+  def parse_element?(name, attrs)
+    self.class.sax_config.parse_element?(name, attrs)
   end
   
   module ClassMethods
