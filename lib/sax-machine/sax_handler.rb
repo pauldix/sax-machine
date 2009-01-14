@@ -19,19 +19,23 @@ module SAXMachine
     
     def start_element(name, attrs = [])
       @capture_characters = true
+      
       if @collection_parse
         @collection_parse.start_element(name, attrs)
       else
         @current_element_name = name
         @current_element_attrs = attrs
+        
         if collection_class = @object.class.sax_config.collection_element?(@current_element_name)
           @collection_parse = SAXHandler.new(collection_class.new)
-        elsif element = @object.class.sax_config.attribute_value_element?(@current_element_name, @current_element_attrs)
+          
+        elsif element_config = @object.class.sax_config.attribute_value_element?(@current_element_name, @current_element_attrs)
+          
           @capture_characters = false
-          unless value_element_parsed?(element)
+          unless value_element_parsed?(element_config)
             mark_as_parsed(name)
             @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
-              @current_element_attrs[@current_element_attrs.index(element.value) + 1])
+              @current_element_attrs[@current_element_attrs.index(element_config.value) + 1])
           end
         end
       end

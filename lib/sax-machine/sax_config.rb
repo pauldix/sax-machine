@@ -80,11 +80,6 @@ module SAXMachine
       top_level_element_matching_name_and_attrs(name, attrs)
     end
     
-    def value_for_attribute_value_element(name, attrs)
-      element = top_level_element_matching_name_and_attrs(name, attrs)
-      attrs[attrs.index(element[:value]) + 1]
-    end
-    
     def setter_for_element(name, attrs)
       "#{@top_level_elements[name].detect { |element_config| element_config.attrs_match?(attrs) }.as}="
     end
