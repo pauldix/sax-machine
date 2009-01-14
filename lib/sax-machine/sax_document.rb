@@ -32,7 +32,13 @@ module SAXMachine
     def elements(name, options = {})
       options[:as] ||= name
       sax_config.add_collection_element(name, options)
-      class_eval "def #{options[:as]}; @#{options[:as]} ||= []; end"
+      
+      class_eval <<-SRC
+        def #{options[:as]}
+          @#{options[:as]} ||= []
+        end
+      SRC
+      
       attr_writer options[:as]
     end
     
