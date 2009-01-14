@@ -31,7 +31,7 @@ module SAXMachine
           unless value_element_parsed?(element)
             mark_as_parsed(name)
             @object.send(@object.class.sax_config.setter_for_element(name, @current_element_attrs), 
-              @current_element_attrs[@current_element_attrs.index(element[:value]) + 1])
+              @current_element_attrs[@current_element_attrs.index(element.value) + 1])
           end
         end
       end
@@ -72,12 +72,12 @@ module SAXMachine
         @parsed_elements[@current_element_name].detect {|attrs| attrs == @current_element_attrs}
     end
     
-    def value_element_parsed?(element)
+    def value_element_parsed?(element_config)
       if @parsed_elements.has_key?(@current_element_name)
-        if element.has_key?(:with)
-          intersects = @parsed_elements[@current_element_name].collect {|attrs| element[:with] & attrs}
+        if element_config.has_with?
+          intersects = @parsed_elements[@current_element_name].collect {|attrs| element_config.with & attrs}
           current_attrs_without_value = Array.new(@current_element_attrs)
-          i = @current_element_attrs.index(element[:value])
+          i = @current_element_attrs.index(element_config.value)
           current_attrs_without_value.delete_at i
           current_attrs_without_value.delete_at i
           intersects.detect {|attrs| attrs == current_attrs_without_value}
