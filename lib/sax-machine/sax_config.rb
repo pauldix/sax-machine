@@ -45,7 +45,6 @@ module SAXMachine
     def initialize()
       @top_level_elements   = Hash.new { |h, k| h[k] = [] }
       @collection_elements  = {}
-      @captured_elements    = {}
     end
     
     def add_top_level_element(name, options)
