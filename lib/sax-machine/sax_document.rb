@@ -13,10 +13,6 @@ module SAXMachine
     self
   end
   
-  def parse_element?(name, attrs)
-    self.class.sax_config.parse_element?(name, attrs)
-  end
-  
   module ClassMethods
 
     def parse(xml_text)

@@ -1,96 +1,38 @@
+require "sax-machine/sax_element_config"
+require "sax-machine/sax_collection_config"
+
 module SAXMachine
   class SAXConfig
-    
-    class ElementConfig
-      attr_reader :with
-      attr_reader :as
-      attr_reader :value
-      
-      def initialize(name, options)
-        @name = name
-        
-        if options.has_key?(:with)
-          # stringify the :with options for faster comparisons later
-          @with = options[:with].to_a.flatten.collect {|o| o.to_s}
-        else
-          @with = nil
-        end
-        
-        if options.has_key?(:value)
-          @value = options[:value].to_s
-        else
-          @value = nil
-        end
-        
-        @as = options[:as]
-      end
-
-      def attrs_match?(attrs)
-        if with
-          with == (with & attrs)
-        else
-          true
-        end
-      end
-      
-      def has_value_and_attrs_match?(attrs)
-        !@value.nil? && attrs_match?(attrs)
-      end
-      
-      def has_with?
-        !@with.nil?
-      end
-    end
-    
-    def initialize()
-      @top_level_elements   = Hash.new { |h, k| h[k] = [] }
-      @collection_elements  = {}
+    def initialize
+      @top_level_elements  = []
+      @collection_elements = []
     end
     
     def add_top_level_element(name, options)
-      @top_level_elements[name.to_s] << ElementConfig.new(name, options)
+      @top_level_elements << ElementConfig.new(name, options)
     end
     
     def add_collection_element(name, options)
-      @collection_elements[name.to_s] = options
+      @collection_elements << CollectionConfig.new(name, options)
     end
     
-    def parse_element?(name, attrs)
-      if @top_level_elements.has_key? name
-        @top_level_elements[name].detect do |element_config|
-          element_config.attrs_match?(attrs)
-        end
-      else
-        @collection_elements.has_key?(name)
-      end
+    def collection_config(name)
+      @collection_elements.detect { |ce| ce.name.to_s == name.to_s }
     end
-    
-    def collection_element?(name)
-      if @collection_elements.has_key? name
-        @collection_elements[name][:class] || name
-      else
-        false
-      end
-    end
-    
-    # returns true if this tag with these attrs are one we're saving the attributes for
-    def attribute_value_element?(name, attrs)
-      @top_level_elements.has_key?(name) &&
-      top_level_element_matching_name_and_attrs(name, attrs)
-    end
-    
-    def setter_for_element(name, attrs)
-      "#{@top_level_elements[name].detect { |element_config| element_config.attrs_match?(attrs) }.as}="
-    end
-    
-    def top_level_element_matching_name_and_attrs(name, attrs)
-      @top_level_elements[name].detect do |element_config|
+
+    def element_config_for_attribute(name, attrs)
+      @top_level_elements.detect do |element_config|
+        element_config.name.to_s == name.to_s &&
         element_config.has_value_and_attrs_match?(attrs)
       end
     end
-    
-    def accessor_for_collection(name)
-      @collection_elements[name][:as].to_s
+  
+    def element_config_for_tag(name, attrs)
+      @top_level_elements.detect do |element_config|
+        element_config.name.to_s == name.to_s &&
+        element_config.attrs_match?(attrs)
+      end
     end
+    
   end
 end
