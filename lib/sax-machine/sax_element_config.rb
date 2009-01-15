@@ -5,7 +5,7 @@ module SAXMachine
       attr_reader :name
       
       def initialize(name, options)
-        @name = name
+        @name = name.to_s
         
         if options.has_key?(:with)
           # for faster comparisons later

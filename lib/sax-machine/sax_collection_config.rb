@@ -5,9 +5,9 @@ module SAXMachine
       attr_reader :name
       
       def initialize(name, options)
-        @name   = name
+        @name   = name.to_s
         @class  = options[:class]
-        @as     = options[:as]
+        @as     = options[:as].to_s
       end
       
       def handler
@@ -15,7 +15,7 @@ module SAXMachine
       end
       
       def accessor
-        as.to_s
+        as
       end
       
     protected

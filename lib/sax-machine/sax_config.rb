@@ -22,14 +22,14 @@ module SAXMachine
 
     def element_config_for_attribute(name, attrs)
       @top_level_elements.detect do |element_config|
-        element_config.name.to_s == name.to_s &&
+        element_config.name == name &&
         element_config.has_value_and_attrs_match?(attrs)
       end
     end
   
     def element_config_for_tag(name, attrs)
       @top_level_elements.detect do |element_config|
-        element_config.name.to_s == name.to_s &&
+        element_config.name == name &&
         element_config.attrs_match?(attrs)
       end
     end

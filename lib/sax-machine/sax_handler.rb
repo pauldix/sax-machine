@@ -36,7 +36,7 @@ module SAXMachine
     end
     
     def end_element(name)
-      if parsing_collection? && @collection_config.name.to_s == name.to_s
+      if parsing_collection? && @collection_config.name == name
         @object.send(@collection_config.accessor) << @collection_handler.object
         reset_current_collection
         
