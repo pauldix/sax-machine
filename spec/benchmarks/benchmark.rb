@@ -2,47 +2,84 @@ require 'rubygems'
 require 'benchmark'
 require 'happymapper'
 require 'sax-machine'
+require 'rfeedparser'
 include Benchmark
 benchmark_iterations = 100
 
-class AtomEntry
-  include SAXMachine
-  element :title
-  element :name, :as => :author
-  element :summary  
-end
-class Atom
-  include SAXMachine
-  element :title
-  elements :entry, :as => :entries, :class => AtomEntry  
-end
-
-class Entry
-  include HappyMapper
-  element :title, String
-  element :name, String
-  element :summary, String
-end
-class Feed
-  include HappyMapper
-  element :title, String
-  has_many :entry, Entry
+module Feedzirra
+  class AtomEntry
+    include SAXMachine
+    element :title
+    element :name, :as => :author
+    element "feedburner:origLink", :as => :url
+    element :summary
+    element :content
+    element :published
+  end
+  
+  # Class for parsing Atom feeds
+  class Atom
+    include SAXMachine
+    element :title
+    element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
+    element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
+    elements :entry, :as => :entries, :class => AtomEntry
+  end
 end
 feed_text = File.read("spec/sax-machine/atom.xml")
 
 benchmark do |t|
-  t.report("sax-machine") do
+  t.report("feedzirra") do
     benchmark_iterations.times {
-      Atom.new.parse(feed_text)
+      Feedzirra::Atom.new.parse(feed_text)
     }
   end
   
-  t.report("happymapper") do
+  t.report("rfeedparser") do
     benchmark_iterations.times {
-      Feed.parse(feed_text)
+      FeedParser.parse(feed_text)
     }
   end
 end
+
+# class AtomEntry
+#   include SAXMachine
+#   element :title
+#   element :name, :as => :author
+#   element :summary  
+# end
+# class Atom
+#   include SAXMachine
+#   element :title
+#   elements :entry, :as => :entries, :class => AtomEntry  
+# end
+# 
+# class Entry
+#   include HappyMapper
+#   element :title, String
+#   element :name, String
+#   element :summary, String
+# end
+# class Feed
+#   include HappyMapper
+#   element :title, String
+#   has_many :entry, Entry
+# end
+# feed_text = File.read("spec/sax-machine/atom.xml")
+# 
+# benchmark do |t|
+#   t.report("sax-machine") do
+#     benchmark_iterations.times {
+#       Atom.new.parse(feed_text)
+#     }
+#   end
+#   
+#   t.report("happymapper") do
+#     benchmark_iterations.times {
+#       Feed.parse(feed_text)
+#     }
+#   end
+# end
 
 # xml = File.read("spec/benchmarks/public_timeline.xml")
 # class Status
