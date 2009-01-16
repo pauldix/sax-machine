@@ -5,37 +5,76 @@ require 'sax-machine'
 include Benchmark
 benchmark_iterations = 100
 
-xml = File.read("spec/benchmarks/public_timeline.xml")
-class Status
-  include HappyMapper
-
-  element :text, String
-  element :source, String
-end
-
-class Statuses
+class AtomEntry
   include SAXMachine
-  
-  elements :status, {:as => :statuses, :class => Class.new do
-    include SAXMachine
-    element :text
-    element :source
-  end}
+  element :title
+  element :name, :as => :author
+  element :summary  
 end
+class Atom
+  include SAXMachine
+  element :title
+  elements :entry, :as => :entries, :class => AtomEntry  
+end
+
+class Entry
+  include HappyMapper
+  element :title, String
+  element :name, String
+  element :summary, String
+end
+class Feed
+  include HappyMapper
+  element :title, String
+  has_many :entry, Entry
+end
+feed_text = File.read("spec/sax-machine/atom.xml")
 
 benchmark do |t|
-  t.report("happy mapper") do
+  t.report("sax-machine") do
     benchmark_iterations.times {
-      Status.parse(xml)
+      Atom.new.parse(feed_text)
     }
   end
   
-  t.report("sax-machine") do
+  t.report("happymapper") do
     benchmark_iterations.times {
-      Statuses.parse(xml)
+      Feed.parse(feed_text)
     }
   end
 end
+
+# xml = File.read("spec/benchmarks/public_timeline.xml")
+# class Status
+#   include HappyMapper
+# 
+#   element :text, String
+#   element :source, String
+# end
+# 
+# class Statuses
+#   include SAXMachine
+#   
+#   elements :status, {:as => :statuses, :class => Class.new do
+#     include SAXMachine
+#     element :text
+#     element :source
+#   end}
+# end
+# 
+# benchmark do |t|
+#   t.report("happy mapper") do
+#     benchmark_iterations.times {
+#       Status.parse(xml)
+#     }
+#   end
+#   
+#   t.report("sax-machine") do
+#     benchmark_iterations.times {
+#       Statuses.parse(xml)
+#     }
+#   end
+# end
 
 # xml = File.read("spec/benchmarks/amazon.xml")
 # class HItem
