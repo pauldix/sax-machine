@@ -1,14 +1,13 @@
-= SAX Machine
+h1. SAX Machine
 
-* http://github.com/pauldix/sax-machine/wikis
-* http://github.com/pauldix/sax-machine/tree/master
+"http://github.com/pauldix/sax-machine/wikis":http://github.com/pauldix/sax-machine/wikis
+"http://github.com/pauldix/sax-machine/tree/master":http://github.com/pauldix/sax-machine/tree/master
 
-== Description
+h2. Description
 
 A declarative SAX parsing library backed by Nokogiri
 
-== Demo
-
+h3. Usage
 <pre>
 require 'sax-machine'
 
@@ -49,13 +48,13 @@ feed.entries.first.url # => the permalink on the blog for this entry
 # etc ...
 </pre>
 
-== LICENSE
- 
+h2. LICENSE
+
 (The MIT License)
  
 Copyright (c) 2009:
  
-* {Paul Dix}[http://pauldix.net]
+"Paul Dix":http://pauldix.net
  
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
