@@ -1,4 +1,5 @@
 #include <search.h>
+#include <string.h>
 #include <stdio.h>
 #include <ruby.h>
 #include <stdlib.h>
@@ -9,6 +10,17 @@
 #include <libxml/xmlreader.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
+
+struct SAXMachineElement {
+	const char * name;
+	const char * method_name;
+	const char * value;
+};
+struct SAXMachineHandler {
+	SAXMachineElement elements[50];
+};
+
+const char * saxMachineTag;
 
 /*
  * call-seq:
@@ -42,23 +54,25 @@ static void end_document(void * ctx)
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-  VALUE self = (VALUE)ctx;
-  VALUE attributes = rb_ary_new();
-  const xmlChar * attr;
-  int i = 0;
-  if(atts) {
-    while((attr = atts[i]) != NULL) {
-      rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
-      i++;
-    }
-  }
+	if (strcmp((const char *)name, saxMachineTag) == 0) {
+	  VALUE self = (VALUE)ctx;
+	  VALUE attributes = rb_ary_new();
+	  const xmlChar * attr;
+	  int i = 0;
+	  if(atts) {
+	    while((attr = atts[i]) != NULL) {
+	      rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
+	      i++;
+	    }
+	  }
 
-  rb_funcall( self,
-              rb_intern("start_element"),
-              2,
-              rb_str_new2((const char *)name),
-              attributes
-  );
+	  rb_funcall( self,
+	              rb_intern("start_element"),
+	              2,
+	              rb_str_new2((const char *)name),
+	              attributes
+	  );
+	}
 }
 
 static void end_element(void * ctx, const xmlChar *name)
@@ -70,24 +84,21 @@ static void end_element(void * ctx, const xmlChar *name)
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = (VALUE)ctx;
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = rb_str_new((const char *)ch, (long)len);
-  rb_funcall(doc, rb_intern("characters"), 1, str);
+  rb_funcall(self, rb_intern("characters"), 1, str);
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = (VALUE)ctx;
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = rb_str_new2((const char *)value);
-  rb_funcall(doc, rb_intern("comment"), 1, str);
+  rb_funcall(self, rb_intern("comment"), 1, str);
 }
 
 #ifndef XP_WIN
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
 
   va_list args;
@@ -95,7 +106,7 @@ static void warning_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("warning"), 1, rb_str_new2(message));
+  rb_funcall(self, rb_intern("warning"), 1, rb_str_new2(message));
   free(message);
 }
 #endif
@@ -104,7 +115,6 @@ static void warning_func(void * ctx, const char *msg, ...)
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
 
   va_list args;
@@ -112,7 +122,7 @@ static void error_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("error"), 1, rb_str_new2(message));
+  rb_funcall(self, rb_intern("error"), 1, rb_str_new2(message));
   free(message);
 }
 #endif
@@ -120,9 +130,8 @@ static void error_func(void * ctx, const char *msg, ...)
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = (VALUE)ctx;
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE string = rb_str_new((const char *)value, (long)len);
-  rb_funcall(doc, rb_intern("cdata_block"), 1, string);
+  rb_funcall(self, rb_intern("cdata_block"), 1, string);
 }
 
 static void deallocate(xmlSAXHandlerPtr handler)
@@ -154,11 +163,18 @@ static VALUE allocate(VALUE klass)
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
 }
 
+static VALUE add_tag(VALUE self, VALUE tagName) {
+	saxMachineTag = StringValuePtr(tagName);
+	return tagName;
+}
+
 VALUE cNokogiriXmlSaxParser ;
-void init_parser()
+void Init_native()
 {
+  VALUE mSAXMachine = rb_const_get(rb_cObject, rb_intern("SAXMachine"));
   VALUE klass = cNokogiriXmlSaxParser =
-    rb_const_get(rb_cObject, rb_intern("Parser"));
+    rb_const_get(mSAXMachine, rb_intern("Parser"));
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
+  rb_define_method(klass, "add_tag", add_tag, 1);
 }

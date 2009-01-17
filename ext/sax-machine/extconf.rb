@@ -90,4 +90,4 @@ else
     )
 end
 
-create_makefile("parser")
+create_makefile("native")
