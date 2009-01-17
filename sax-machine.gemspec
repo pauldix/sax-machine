@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   s.name = %q{sax-machine}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
  
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Paul Dix"]
-  s.date = %q{2009-1-13}
-  s.email = %q{paul@pauldix.net}
+  s.date = "2009-1-13"
+  s.email = "paul@pauldix.net"
   s.files = [
     "lib/sax-machine.rb",
     "lib/sax-machine/sax_config.rb",
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "spec/spec.opts",
     "spec/spec_helper.rb",
-    "spec/sax-machine/sax_document_spec.rb",
+    "spec/sax-machine/sax_document_spec.rb"
   ]
   s.homepage = %q{http://github.com/pauldix/sax-machine}
   s.require_paths = ["lib"]
