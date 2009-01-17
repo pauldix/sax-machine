@@ -12,3 +12,7 @@ task :install do
   puts `gem build sax-machine.gemspec`
   puts `sudo gem install sax-machine-#{SAXMachine::VERSION}.gem`
 end
+
+task :build_ext do
+  `rm f ext/sax-machine`
+end

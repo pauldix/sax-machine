@@ -1,0 +1,143 @@
+find_header: checking for libxml/xmlversion.h in /opt/local/include,/opt/local/include/libxml2,/usr/local/include/libxml2,/usr/local/include,/usr/include/libxml2,/usr/local/include/libxml2... -------------------- yes
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline  conftest.c -o conftest.i"
+conftest.c:1:31: error: libxml/xmlversion.h: No such file or directory
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline -I/opt/local/include conftest.c -o conftest.i"
+conftest.c:1:31: error: libxml/xmlversion.h: No such file or directory
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline -I/opt/local/include/libxml2 conftest.c -o conftest.i"
+conftest.c:1:31: error: libxml/xmlversion.h: No such file or directory
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline -I/usr/local/include/libxml2 conftest.c -o conftest.i"
+conftest.c:1:31: error: libxml/xmlversion.h: No such file or directory
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline -I/usr/local/include conftest.c -o conftest.i"
+conftest.c:1:31: error: libxml/xmlversion.h: No such file or directory
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I.  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline -I/usr/include/libxml2 conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <libxml/xmlversion.h>
+/* end */
+
+--------------------
+
+find_header: checking for libxslt/xslt.h in /opt/local/include,/opt/local/include/libxml2,/usr/local/include/libxml2,/usr/local/include,/usr/include/libxml2,/usr/local/include/libxml2... -------------------- yes
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <libxslt/xslt.h>
+/* end */
+
+--------------------
+
+find_header: checking for libexslt/exslt.h in /opt/local/include,/opt/local/include/libxml2,/usr/local/include/libxml2,/usr/local/include,/usr/include/libxml2,/usr/local/include/libxml2... -------------------- yes
+
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include <libexslt/exslt.h>
+/* end */
+
+--------------------
+
+find_library: checking for xmlParseDoc() in -lxml2... -------------------- yes
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.      -lruby-static -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: error: ‘xmlParseDoc’ undeclared (first use in this function)
+conftest.c:3: error: (Each undeclared identifier is reported only once
+conftest.c:3: error: for each function it appears in.)
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { void ((*volatile p)()); p = (void ((*)()))xmlParseDoc; return 0; }
+/* end */
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.      -lruby-static -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: warning: implicit declaration of function ‘xmlParseDoc’
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { xmlParseDoc(); return 0; }
+/* end */
+
+--------------------
+
+find_library: checking for xsltParseStylesheetDoc() in -lxslt... -------------------- yes
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.     -lxml2  -lruby-static -lxslt -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: error: ‘xsltParseStylesheetDoc’ undeclared (first use in this function)
+conftest.c:3: error: (Each undeclared identifier is reported only once
+conftest.c:3: error: for each function it appears in.)
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { void ((*volatile p)()); p = (void ((*)()))xsltParseStylesheetDoc; return 0; }
+/* end */
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.     -lxml2  -lruby-static -lxslt -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: warning: implicit declaration of function ‘xsltParseStylesheetDoc’
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { xsltParseStylesheetDoc(); return 0; }
+/* end */
+
+--------------------
+
+find_library: checking for exsltFuncRegister() in -lexslt... -------------------- yes
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.     -lxslt -lxml2  -lruby-static -lexslt -lxslt -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: error: ‘exsltFuncRegister’ undeclared (first use in this function)
+conftest.c:3: error: (Each undeclared identifier is reported only once
+conftest.c:3: error: for each function it appears in.)
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { void ((*volatile p)()); p = (void ((*)()))exsltFuncRegister; return 0; }
+/* end */
+
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-darwin9.6.0 -I. -I/usr/include/libxml2  -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE   -g -O2 -pipe -fno-common    -g -DXP_UNIX -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/local/lib -L/opt/local/lib -L.     -lxslt -lxml2  -lruby-static -lexslt -lxslt -lxml2  -ldl -lobjc  "
+conftest.c: In function ‘t’:
+conftest.c:3: warning: implicit declaration of function ‘exsltFuncRegister’
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { exsltFuncRegister(); return 0; }
+/* end */
+
+--------------------
+
