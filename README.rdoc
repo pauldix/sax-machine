@@ -9,6 +9,7 @@ A declarative SAX parsing library backed by Nokogiri
 
 == Demo
 
+<pre>
 require 'sax-machine'
 
 # Class for parsing an atom entry out of a feedburner atom feed
@@ -46,6 +47,7 @@ feed.entries.first.title # => title of the first entry
 feed.entries.first.author # => the author of the first entry
 feed.entries.first.url # => the permalink on the blog for this entry
 # etc ...
+</pre>
 
 == LICENSE
  
