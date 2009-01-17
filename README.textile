@@ -7,7 +7,8 @@ h2. Description
 
 A declarative SAX parsing library backed by Nokogiri
 
-h3. Usage
+h2. Usage
+
 <pre>
 require 'sax-machine'
 
