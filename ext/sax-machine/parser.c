@@ -11,16 +11,109 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 
-struct SAXMachineElement {
-	const char * name;
-	const char * method_name;
-	const char * value;
-};
-struct SAXMachineHandler {
-	SAXMachineElement elements[50];
+#define SAX_HASH_SIZE 200
+#define false 0
+#define true 1
+
+// typedef struct saxMachineElement SAXMachineElement;
+
+typedef struct {
+	const char *tag_name;
+	const char *setter;
+	const char *value;
+} SAXMachineElement;
+
+typedef struct saxMachineHandler SAXMachineHandler;
+struct saxMachineHandler {
+	int numberOfElements;
+	short parseCurrentTag;
+	SAXMachineElement *elements[SAX_HASH_SIZE];
+	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
 };
 
+SAXMachineHandler *saxHandlersForClasses[SAX_HASH_SIZE];
+SAXMachineHandler *handlerStack[20];
+SAXMachineHandler *currentHandler;
+int handlerStackTop;
+
 const char * saxMachineTag;
+
+// hash algorithm from R. Sedgwick, Algorithms in C++
+static inline int hash_index(const char * key) {
+	int h = 0, a = 127, temp;
+	
+	for (; *key != 0; key++) {
+		temp = (a * h + *key);
+		if (temp < 0) temp = -temp;
+		h = temp % SAX_HASH_SIZE;
+	}
+	
+	return h;
+}
+
+static SAXMachineHandler *new_handler() {
+	SAXMachineHandler *handler = (SAXMachineHandler *) malloc(sizeof(SAXMachineHandler));
+	handler->numberOfElements = 0;
+	handler->parseCurrentTag = false;
+	int i;
+	for (i = 0; i < SAX_HASH_SIZE; i++) {
+		handler->childHandlers[i] = NULL;
+	}
+	return handler;
+}
+
+static SAXMachineElement * new_element() {
+	SAXMachineElement * element = (SAXMachineElement *) malloc(sizeof(SAXMachineElement));
+	element->tag_name = NULL;
+	element->setter = NULL;
+	element->value = NULL;
+	return element;	
+}
+
+static inline SAXMachineHandler * handler_for_class(const char *name) {
+	return saxHandlersForClasses[hash_index(name)];
+}
+
+static VALUE add_element(VALUE self, VALUE name, VALUE setter) {
+	// first create the sax handler for this class if it doesn't exist
+	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("class"), 0), rb_intern("to_s"), 0);
+	const char *className = StringValuePtr(klass);
+	int handlerIndex = hash_index(className);
+	if (saxHandlersForClasses[handlerIndex] == NULL) {
+		saxHandlersForClasses[handlerIndex] = new_handler();
+	}
+	SAXMachineHandler *handler = saxHandlersForClasses[handlerIndex];
+	
+	// now create the element and add it to the
+	SAXMachineElement * element = new_element();
+	element->tag_name = StringValuePtr(name);
+	element->setter = StringValuePtr(setter);
+	handler->elements[handler->numberOfElements++] = element;
+	return name;
+}
+
+static inline SAXMachineHandler * currentHandlerParent() {
+	if (handlerStackTop <= 0) {
+		return NULL;
+	}
+	else {
+		return handlerStack[handlerStackTop - 1];
+	}
+}
+
+static inline short tag_matches_element_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
+	// here's a string compare example
+	// strcmp((const char *)name, saxMachineTag) == 0
+	return handler->elements[hash_index((const char *)name)] != NULL;
+}
+
+static inline short tag_matches_child_handler_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
+	return handler->childHandlers[hash_index((const char *)name)] != NULL;
+}
+
+// static inline short tag_is_of_interest(SAXHandler * handler, const xmlChar *name, const xmlChar **atts) {
+// 	// first see if it's an element that matches
+// }
 
 /*
  * call-seq:
@@ -43,18 +136,25 @@ static VALUE parse_memory(VALUE self, VALUE data)
 static void start_document(void * ctx)
 {
   VALUE self = (VALUE)ctx;
-  rb_funcall(self, rb_intern("start_document"), 0);
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	const char * className = StringValuePtr(klass);
+	handlerStackTop = 0;
+	handlerStack[handlerStackTop] = handler_for_class(className);
+//  rb_funcall(self, rb_intern("start_document"), 0);
 }
 
 static void end_document(void * ctx)
 {
-  VALUE self = (VALUE)ctx;
-  rb_funcall(self, rb_intern("end_document"), 0);
+	handlerStack[0] = NULL;
+//  VALUE self = (VALUE)ctx;
+//  rb_funcall(self, rb_intern("end_document"), 0);
 }
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-	if (strcmp((const char *)name, saxMachineTag) == 0) {
+	if (tag_matches_element_in_handler(currentHandler, name, atts)) {
+		currentHandler->parseCurrentTag = true;
+		
 	  VALUE self = (VALUE)ctx;
 	  VALUE attributes = rb_ary_new();
 	  const xmlChar * attr;
@@ -77,22 +177,39 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 
 static void end_element(void * ctx, const xmlChar *name)
 {
-  VALUE self = (VALUE)ctx;
-  rb_funcall(self, rb_intern("end_element"), 1, rb_str_new2((const char *)name));
+	if (currentHandler->parseCurrentTag) {
+		currentHandler->parseCurrentTag = false;
+		
+	  VALUE self = (VALUE)ctx;
+		const char * cname = (const char *)name;
+	  rb_funcall(self, rb_intern("end_element"), 1, rb_str_new2(cname));
+		
+		// pop the stack if this is the end of a collection
+		SAXMachineHandler * parent = currentHandlerParent();
+		if (parent != NULL) {
+			if (tag_matches_child_handler_in_handler(parent, name)) {
+				handlerStack[handlerStackTop--] = NULL;
+			}
+		}
+	}
 }
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
-  VALUE self = (VALUE)ctx;
-  VALUE str = rb_str_new((const char *)ch, (long)len);
-  rb_funcall(self, rb_intern("characters"), 1, str);
+	if (currentHandler->parseCurrentTag) {
+	  VALUE self = (VALUE)ctx;
+	  VALUE str = rb_str_new((const char *)ch, (long)len);
+	  rb_funcall(self, rb_intern("characters"), 1, str);
+	}
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
-  VALUE self = (VALUE)ctx;
-  VALUE str = rb_str_new2((const char *)value);
-  rb_funcall(self, rb_intern("comment"), 1, str);
+	if (currentHandler->parseCurrentTag) {
+	  VALUE self = (VALUE)ctx;
+	  VALUE str = rb_str_new2((const char *)value);
+	  rb_funcall(self, rb_intern("comment"), 1, str);
+	}
 }
 
 #ifndef XP_WIN
@@ -129,9 +246,11 @@ static void error_func(void * ctx, const char *msg, ...)
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
-  VALUE self = (VALUE)ctx;
-  VALUE string = rb_str_new((const char *)value, (long)len);
-  rb_funcall(self, rb_intern("cdata_block"), 1, string);
+	if (currentHandler->parseCurrentTag) {
+	  VALUE self = (VALUE)ctx;
+	  VALUE string = rb_str_new((const char *)value, (long)len);
+	  rb_funcall(self, rb_intern("cdata_block"), 1, string);
+	}
 }
 
 static void deallocate(xmlSAXHandlerPtr handler)
@@ -168,13 +287,25 @@ static VALUE add_tag(VALUE self, VALUE tagName) {
 	return tagName;
 }
 
+static VALUE get_cl(VALUE self) {
+	return rb_funcall(self, rb_intern("class"), 0);
+}
+
 VALUE cNokogiriXmlSaxParser ;
 void Init_native()
 {
+	// we're storing the sax handler information for all the classes loaded. null it out to start
+	int i;
+	for (i = 0; i < SAX_HASH_SIZE; i++) {
+		saxHandlersForClasses[i] = NULL;
+	}
+	
   VALUE mSAXMachine = rb_const_get(rb_cObject, rb_intern("SAXMachine"));
   VALUE klass = cNokogiriXmlSaxParser =
     rb_const_get(mSAXMachine, rb_intern("Parser"));
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_method(klass, "add_tag", add_tag, 1);
+	rb_define_method(klass, "get_cl", get_cl, 0);
+	rb_define_method(klass, "add_element", add_element, 2);
 }
