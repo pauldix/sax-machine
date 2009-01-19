@@ -142,8 +142,17 @@ static inline SAXMachineHandler * currentHandlerParent() {
 }
 
 static inline short attributes_match_for_element(SAXMachineElement *element, const xmlChar **atts) {
-//	const xmlChar
-	return false;
+	if (atts == NULL) {
+		return element->attrs == NULL;
+	}
+	const char **subsetAtts = element->attrs;
+	short match = false;
+	int i = 0;
+	const xmlChar *att;
+	while((att = atts[i]) != NULL) {
+		
+	}
+	return match;
 }
 
 static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
@@ -158,8 +167,9 @@ static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *
 		do {
 			if (tag->elements[i]->attrs == NULL) {
 				noAttributeElement = tag->elements[i];
+				if (atts == NULL) { break; }
 			}
-			else  { // this is a possible attributes match
+			else { // this is a possible attributes match
 				if (attributes_match_for_element(tag->elements[i], atts)) {
 					element = tag->elements[i];
 					break;
