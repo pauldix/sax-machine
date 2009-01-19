@@ -100,7 +100,6 @@ static const char ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
 	for (i = 0; i < length; i++) {
 		VALUE a = rb_ary_entry(attrs, i);
 		xmlAttrs[i] = StringValuePtr(a);
-		printf("in c: %s\n", xmlAttrs[i]);
 	}
 	return xmlAttrs;
 }
@@ -146,18 +145,32 @@ static inline short attributes_match_for_element(SAXMachineElement *element, con
 		return element->attrs == NULL;
 	}
 	const char **subsetAtts = element->attrs;
-	short match = false;
+	const char * attName;
+	const char * attValue;
 	int i = 0;
-	const xmlChar *att;
-	while((att = atts[i]) != NULL) {
-		
+	
+	while((attName = subsetAtts[i]) != NULL) {
+		attValue = subsetAtts[++i];
+		short match = false;
+		int j = 0;
+		const xmlChar * xmlAttName;
+		while ((xmlAttName = atts[j]) != NULL) {
+			const xmlChar * xmlAttValue = atts[++j];
+			if (strcmp(attName, (const char *)xmlAttName) == 0 && strcmp(attValue, (const char *)xmlAttValue) == 0) {
+				match = true;
+				break;
+			}
+			j++;
+		}
+		if (match == false) {
+			return false;
+		}
+		i++;
 	}
-	return match;
+	return true;
 }
 
 static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
-	// here's a string compare example
-	// strcmp((const char *)name, saxMachineTag) == 0
 	int tag_index = hash_index((const char *)name);
 	if (handler->tags[tag_index] != NULL && strcmp(handler->tags[tag_index]->name, (const char *)name) == 0) {
 		SAXMachineTag * tag = handler->tags[tag_index];
@@ -187,10 +200,6 @@ static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *
 static inline short tag_matches_child_handler_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
 	return handler->childHandlers[hash_index((const char *)name)] != NULL;
 }
-
-// static inline short tag_is_of_interest(SAXHandler * handler, const xmlChar *name, const xmlChar **atts) {
-// 	// first see if it's an element that matches
-// }
 
 /*
  * call-seq:
