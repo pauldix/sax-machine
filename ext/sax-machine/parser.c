@@ -19,7 +19,7 @@
 typedef struct {
 	const char *setter;
 	const char *value;
-	xmlChar **attrs;
+	const char **attrs;
 } SAXMachineElement;
 
 typedef struct {
@@ -89,17 +89,18 @@ static inline SAXMachineHandler * handler_for_class(const char *name) {
 	return saxHandlersForClasses[hash_index(name)];
 }
 
-static xmlChar ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
+static const char ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
 	int length = RARRAY(attrs)->len;
 	if (length == 0) {
 		return NULL;
 	}
 
-	xmlChar **xmlAttrs = (xmlChar **) malloc(length* sizeof(xmlChar *));
+	const char **xmlAttrs = (const char **) malloc(length * sizeof(char *));
 	int i;
 	for (i = 0; i < length; i++) {
 		VALUE a = rb_ary_entry(attrs, i);
-		xmlAttrs[i] = (xmlChar *)StringValuePtr(a);
+		xmlAttrs[i] = StringValuePtr(a);
+		printf("in c: %s\n", xmlAttrs[i]);
 	}
 	return xmlAttrs;
 }
@@ -141,6 +142,7 @@ static inline SAXMachineHandler * currentHandlerParent() {
 }
 
 static inline short attributes_match_for_element(SAXMachineElement *element, const xmlChar **atts) {
+	const xmlChar
 	return false;
 }
 
