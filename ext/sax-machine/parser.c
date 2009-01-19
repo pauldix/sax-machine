@@ -19,7 +19,7 @@
 typedef struct {
 	const char *setter;
 	const char *value;
-	const char **attrs;
+	xmlChar **attrs;
 } SAXMachineElement;
 
 typedef struct {
@@ -70,6 +70,7 @@ static SAXMachineElement * new_element() {
 	SAXMachineElement * element = (SAXMachineElement *) malloc(sizeof(SAXMachineElement));
 	element->setter = NULL;
 	element->value = NULL;
+	element->attrs = NULL;
 	return element;	
 }
 
@@ -88,7 +89,22 @@ static inline SAXMachineHandler * handler_for_class(const char *name) {
 	return saxHandlersForClasses[hash_index(name)];
 }
 
-static VALUE add_element(VALUE self, VALUE name, VALUE setter) {
+static xmlChar ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
+	int length = RARRAY(attrs)->len;
+	if (length == 0) {
+		return NULL;
+	}
+
+	xmlChar **xmlAttrs = (xmlChar **) malloc(length* sizeof(xmlChar *));
+	int i;
+	for (i = 0; i < length; i++) {
+		VALUE a = rb_ary_entry(attrs, i);
+		xmlAttrs[i] = (xmlChar *)StringValuePtr(a);
+	}
+	return xmlAttrs;
+}
+
+static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attrs) {
 	// first create the sax handler for this class if it doesn't exist
 	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("class"), 0), rb_intern("to_s"), 0);
 	const char *className = StringValuePtr(klass);
@@ -110,6 +126,7 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter) {
 	// now create the element and add it to the tag
 	SAXMachineElement * element = new_element();
 	element->setter = StringValuePtr(setter);
+	element->attrs  = convert_ruby_attrs_to_xml_attrs(attrs);
 	tag->elements[tag->numberOfElements++] = element;
 	return name;
 }
@@ -123,15 +140,35 @@ static inline SAXMachineHandler * currentHandlerParent() {
 	}
 }
 
-static inline short tag_matches_element_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
+static inline short attributes_match_for_element(SAXMachineElement *element, const xmlChar **atts) {
+	return false;
+}
+
+static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
 	// here's a string compare example
 	// strcmp((const char *)name, saxMachineTag) == 0
-	int i = hash_index((const char *)name);
-	if (handler->tags[i] != NULL && strcmp(handler->tags[i]->name, name) == 0) {
-		return true;		
+	int tag_index = hash_index((const char *)name);
+	if (handler->tags[tag_index] != NULL && strcmp(handler->tags[tag_index]->name, (const char *)name) == 0) {
+		SAXMachineTag * tag = handler->tags[tag_index];
+		SAXMachineElement * noAttributeElement = NULL;
+		SAXMachineElement * element = NULL;
+		int i = 0;
+		do {
+			if (tag->elements[i]->attrs == NULL) {
+				noAttributeElement = tag->elements[i];
+			}
+			else  { // this is a possible attributes match
+				if (attributes_match_for_element(tag->elements[i], atts)) {
+					element = tag->elements[i];
+					break;
+				}
+			}
+			i++;
+		} while (tag->elements[i] != NULL);
+		return element == NULL ? noAttributeElement : element;
 	}
 	else {
-		return false;
+		return NULL;
 	}
 }
 
@@ -181,7 +218,8 @@ static void end_document(void * ctx)
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-	if (tag_matches_element_in_handler(currentHandler, name, atts)) {
+	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts);
+	if (element != NULL) {
 		currentHandler->parseCurrentTag = true;
 		
 	  VALUE self = (VALUE)ctx;
@@ -336,5 +374,5 @@ void Init_native()
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_method(klass, "add_tag", add_tag, 1);
 	rb_define_method(klass, "get_cl", get_cl, 0);
-	rb_define_method(klass, "add_element", add_element, 2);
+	rb_define_method(klass, "add_element", add_element, 3);
 }
