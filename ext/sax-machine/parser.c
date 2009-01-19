@@ -142,7 +142,7 @@ static inline SAXMachineHandler * currentHandlerParent() {
 }
 
 static inline short attributes_match_for_element(SAXMachineElement *element, const xmlChar **atts) {
-	const xmlChar
+//	const xmlChar
 	return false;
 }
 
