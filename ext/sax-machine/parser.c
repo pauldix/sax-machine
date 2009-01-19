@@ -25,7 +25,6 @@ typedef struct {
 
 typedef struct saxMachineHandler SAXMachineHandler;
 struct saxMachineHandler {
-	int numberOfElements;
 	short parseCurrentTag;
 	SAXMachineElement *elements[SAX_HASH_SIZE];
 	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
@@ -53,10 +52,10 @@ static inline int hash_index(const char * key) {
 
 static SAXMachineHandler *new_handler() {
 	SAXMachineHandler *handler = (SAXMachineHandler *) malloc(sizeof(SAXMachineHandler));
-	handler->numberOfElements = 0;
 	handler->parseCurrentTag = false;
 	int i;
 	for (i = 0; i < SAX_HASH_SIZE; i++) {
+		handler->elements[i] = NULL;
 		handler->childHandlers[i] = NULL;
 	}
 	return handler;
@@ -88,7 +87,7 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter) {
 	SAXMachineElement * element = new_element();
 	element->tag_name = StringValuePtr(name);
 	element->setter = StringValuePtr(setter);
-	handler->elements[handler->numberOfElements++] = element;
+	handler->elements[hash_index(element->tag_name)] = element;
 	return name;
 }
 
@@ -104,7 +103,13 @@ static inline SAXMachineHandler * currentHandlerParent() {
 static inline short tag_matches_element_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
 	// here's a string compare example
 	// strcmp((const char *)name, saxMachineTag) == 0
-	return handler->elements[hash_index((const char *)name)] != NULL;
+	int i = hash_index((const char *)name);
+	if (handler->elements[i] != NULL && strcmp(handler->elements[i]->tag_name, name) == 0) {
+		return true;		
+	}
+	else {
+		return false;
+	}
 }
 
 static inline short tag_matches_child_handler_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
@@ -136,10 +141,11 @@ static VALUE parse_memory(VALUE self, VALUE data)
 static void start_document(void * ctx)
 {
   VALUE self = (VALUE)ctx;
-	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("class"), 0), rb_intern("to_s"), 0);
 	const char * className = StringValuePtr(klass);
 	handlerStackTop = 0;
 	handlerStack[handlerStackTop] = handler_for_class(className);
+	currentHandler = handlerStack[handlerStackTop];
 //  rb_funcall(self, rb_intern("start_document"), 0);
 }
 
