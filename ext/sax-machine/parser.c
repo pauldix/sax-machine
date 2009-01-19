@@ -12,21 +12,26 @@
 #include <libxml/HTMLtree.h>
 
 #define SAX_HASH_SIZE 200
+#define MAX_TAGS 20
 #define false 0
 #define true 1
 
-// typedef struct saxMachineElement SAXMachineElement;
-
 typedef struct {
-	const char *tag_name;
 	const char *setter;
 	const char *value;
+	const char **attrs;
 } SAXMachineElement;
+
+typedef struct {
+	const char *name;
+	int numberOfElements;
+	SAXMachineElement *elements[MAX_TAGS];
+} SAXMachineTag;
 
 typedef struct saxMachineHandler SAXMachineHandler;
 struct saxMachineHandler {
 	short parseCurrentTag;
-	SAXMachineElement *elements[SAX_HASH_SIZE];
+	SAXMachineTag *tags[SAX_HASH_SIZE];
 	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
 };
 
@@ -55,7 +60,7 @@ static SAXMachineHandler *new_handler() {
 	handler->parseCurrentTag = false;
 	int i;
 	for (i = 0; i < SAX_HASH_SIZE; i++) {
-		handler->elements[i] = NULL;
+		handler->tags[i] = NULL;
 		handler->childHandlers[i] = NULL;
 	}
 	return handler;
@@ -63,10 +68,20 @@ static SAXMachineHandler *new_handler() {
 
 static SAXMachineElement * new_element() {
 	SAXMachineElement * element = (SAXMachineElement *) malloc(sizeof(SAXMachineElement));
-	element->tag_name = NULL;
 	element->setter = NULL;
 	element->value = NULL;
 	return element;	
+}
+
+static SAXMachineTag * new_tag(const char * name) {
+	SAXMachineTag * tag = (SAXMachineTag *) malloc(sizeof(SAXMachineTag));
+	int i;
+	for (i = 0; i < MAX_TAGS; i++) {
+		tag->elements[i] = NULL;
+	}
+	tag->numberOfElements = 0;
+	tag->name = name;
+	return tag;
 }
 
 static inline SAXMachineHandler * handler_for_class(const char *name) {
@@ -83,11 +98,19 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter) {
 	}
 	SAXMachineHandler *handler = saxHandlersForClasses[handlerIndex];
 	
-	// now create the element and add it to the
+	// now create the tag if it's not there yet
+	const char *tag_name = StringValuePtr(name);
+	int tag_index = hash_index(tag_name);
+	if (handler->tags[tag_index] == NULL) {
+		handler->tags[tag_index] = new_tag(tag_name);
+	}
+	
+	SAXMachineTag *tag = handler->tags[tag_index];
+	
+	// now create the element and add it to the tag
 	SAXMachineElement * element = new_element();
-	element->tag_name = StringValuePtr(name);
 	element->setter = StringValuePtr(setter);
-	handler->elements[hash_index(element->tag_name)] = element;
+	tag->elements[tag->numberOfElements++] = element;
 	return name;
 }
 
@@ -104,7 +127,7 @@ static inline short tag_matches_element_in_handler(SAXMachineHandler *handler, c
 	// here's a string compare example
 	// strcmp((const char *)name, saxMachineTag) == 0
 	int i = hash_index((const char *)name);
-	if (handler->elements[i] != NULL && strcmp(handler->elements[i]->tag_name, name) == 0) {
+	if (handler->tags[i] != NULL && strcmp(handler->tags[i]->name, name) == 0) {
 		return true;		
 	}
 	else {
