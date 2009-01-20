@@ -98,18 +98,19 @@ static const char ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
 		return NULL;
 	}
 
-	const char **xmlAttrs = (const char **) malloc(length * sizeof(char *));
+	const char **xmlAttrs = (const char **) malloc((length +1) * sizeof(char *));
 	int i;
 	for (i = 0; i < length; i++) {
 		VALUE a = rb_ary_entry(attrs, i);
 		xmlAttrs[i] = StringValuePtr(a);
 	}
+	xmlAttrs[i] = NULL;
 	return xmlAttrs;
 }
 
 static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_holding_value, VALUE attrs) {
 	// first create the sax handler for this class if it doesn't exist
-	VALUE klass = rb_funcall(self, rb_intern("parser_class"), 0);
+	VALUE klass = rb_funcall(self, rb_intern("parser_class_id"), 0);
 	const char *className = StringValuePtr(klass);
 	int handlerIndex = hash_index(className);
 	if (saxHandlersForClasses[handlerIndex] == NULL) {
@@ -130,9 +131,9 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_h
 	SAXMachineElement * element = new_element();
 	element->setter = StringValuePtr(setter);
 	element->attrs  = convert_ruby_attrs_to_xml_attrs(attrs);
-	// if (attribute_holding_value != Qnil) {
-	// 	element->value = StringValuePtr(attribute_holding_value);
-	// }
+	if (attribute_holding_value != Qnil) {
+		element->value = StringValuePtr(attribute_holding_value);
+	}
 	tag->elements[tag->numberOfElements++] = element;
 	return name;
 }
@@ -236,7 +237,7 @@ static VALUE parse_memory(VALUE self, VALUE data)
 static void start_document(void * ctx)
 {
   VALUE self = (VALUE)ctx;
-	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("parser_class"), 0), rb_intern("to_s"), 0);
+	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("parser_class_id"), 0), rb_intern("to_s"), 0);
 	const char * className = StringValuePtr(klass);
 	handlerStackTop = 0;
 	handlerStack[handlerStackTop] = handler_for_class(className);
@@ -286,7 +287,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 				int i = 0;
 				while ((att = atts[i]) != NULL) {
 					if (strcmp((const char *)att, element->value) == 0) {
-						rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(element->value));
+						rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(atts[i+1]));
 						break;
 					}
 					i++;

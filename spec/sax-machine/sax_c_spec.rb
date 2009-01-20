@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe "SAXCMachine" do
   describe "element" do
     describe "when parsing a single element" do
-      before :all do
+      before :each do
         @klass = Class.new do
           include SAXCMachine
           element :title
@@ -46,78 +46,78 @@ describe "SAXCMachine" do
       end
     end
 
-    # describe "when parsing multiple elements" do
-    #   before :each do
-    #     @klass = Class.new do
-    #       include SAXCMachine
-    #       element :title
-    #       element :name
-    #     end
-    #   end
-    # 
-    #   it "should save the element text for a second tag" do
-    #     document = @klass.parse("<xml><title>My Title</title><name>Paul</name></xml>")
-    #     document.name.should == "Paul"
-    #     document.title.should == "My Title"
-    #   end
-    # end
+    describe "when parsing multiple elements" do
+      before :each do
+        @klass = Class.new do
+          include SAXCMachine
+          element :title
+          element :name
+        end
+      end
+    
+      it "should save the element text for a second tag" do
+        document = @klass.parse("<xml><title>My Title</title><name>Paul</name></xml>")
+        document.name.should == "Paul"
+        document.title.should == "My Title"
+      end
+    end
 
     describe "when using options for parsing elements" do
-      # describe "using the 'as' option" do
-      #   before :each do
-      #     @klass = Class.new do
-      #       include SAXCMachine
-      #       element :description, :as => :summary
-      #     end
-      #   end
-      # 
-      #   it "should provide an accessor using the 'as' name" do
-      #     document = @klass.new
-      #     document.summary = "a small summary"
-      #     document.summary.should == "a small summary"
-      #   end
-      # 
-      #   it "should save the element text into the 'as' accessor" do
-      #     document = @klass.parse("<description>here is a description</description>")
-      #     document.summary.should == "here is a description"
-      #   end
-      # end
+      describe "using the 'as' option" do
+        before :each do
+          @klass = Class.new do
+            include SAXCMachine
+            element :description, :as => :summary
+          end
+        end
       
-      # describe "using the :with option" do
-      #   describe "and the :value option" do
-      #     before :each do
-      #       @klass = Class.new do
-      #         include SAXCMachine
-      #         element :link, :value => :href, :with => {:foo => "bar"}
-      #       end
-      #     end
-      #     
-      #     it "should save the value of a matching element" do
-      #       document = @klass.parse("<link href='test' foo='bar'>asdf</link>")
-      #       document.link.should == "test"
-      #     end
-      #     
-      #     it "should save the value of the first matching element" do
-      #       document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
-      #       document.link.should == "first"
-      #     end
-      #     
-      #     describe "and the :as option" do
-      #       before :each do
-      #         @klass = Class.new do
-      #           include SAXCMachine
-      #           element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
-      #           element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
-      #         end
-      #       end
-      #       
-      #       it "should save the value of the first matching element" do
-      #         document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
-      #         document.url.should == "first"
-      #         document.second_url.should == "second"
-      #       end            
-      #     end
-      #   end
+        it "should provide an accessor using the 'as' name" do
+          document = @klass.new
+          document.summary = "a small summary"
+          document.summary.should == "a small summary"
+        end
+      
+        it "should save the element text into the 'as' accessor" do
+          document = @klass.parse("<description>here is a description</description>")
+          document.summary.should == "here is a description"
+        end
+      end
+      
+      describe "using the :with option" do
+        describe "and the :value option" do
+          before :each do
+            @klass = Class.new do
+              include SAXCMachine
+              element :link, :value => :href, :with => {:foo => "bar"}
+            end
+          end
+          
+          it "should save the value of a matching element" do
+            document = @klass.parse("<link href='test' foo='bar'>asdf</link>")
+            document.link.should == "test"
+          end
+          
+          # it "should save the value of the first matching element" do
+          #   document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
+          #   document.link.should == "first"
+          # end
+          
+          # describe "and the :as option" do
+          #   before :each do
+          #     @klass = Class.new do
+          #       include SAXCMachine
+          #       element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
+          #       element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
+          #     end
+          #   end
+          #   
+          #   it "should save the value of the first matching element" do
+          #     document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
+          #     document.url.should == "first"
+          #     document.second_url.should == "second"
+          #   end            
+          # end
+        end
         
         # describe "with only one element" do
         #   before :each do
@@ -167,7 +167,7 @@ describe "SAXCMachine" do
       #       document.second.should == "second match"
       #     end
       #   end
-      # end # using the 'with' option
+      end # using the 'with' option
       
       # describe "using the 'value' option" do
       #   before :each do

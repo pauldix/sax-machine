@@ -1,9 +1,9 @@
 module SAXCMachine
   class SAXCParser
-    attr_reader :parser_class
+    attr_reader :parser_class_id
     
     def initialize(klass)
-      @parser_class = klass.to_s
+      @parser_class_id = klass.object_id.to_s
     end
     
     def set_value_from_attribute(setter, value)
