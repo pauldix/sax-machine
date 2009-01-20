@@ -34,6 +34,7 @@ struct saxMachineHandler {
 	SAXMachineElement *currentElement;
 	SAXMachineTag *tags[SAX_HASH_SIZE];
 	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
+	int calledSetters[SAX_HASH_SIZE];
 };
 
 SAXMachineHandler *saxHandlersForClasses[SAX_HASH_SIZE];
@@ -63,6 +64,7 @@ static SAXMachineHandler *new_handler() {
 	for (i = 0; i < SAX_HASH_SIZE; i++) {
 		handler->tags[i] = NULL;
 		handler->childHandlers[i] = NULL;
+		handler->calledSetters[i] = 0;
 	}
 	return handler;
 }
@@ -201,6 +203,14 @@ static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *
 	}
 }
 
+static void reset_handler_state(SAXMachineHandler *handler) {
+	handler->currentElement = NULL;
+	int i;
+	for (i = 0; i < SAX_HASH_SIZE; i++) {
+		handler->calledSetters[i] = 0;
+	}
+}
+
 static inline short tag_matches_child_handler_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
 	return handler->childHandlers[hash_index((const char *)name)] != NULL;
 }
@@ -231,6 +241,7 @@ static void start_document(void * ctx)
 	handlerStackTop = 0;
 	handlerStack[handlerStackTop] = handler_for_class(className);
 	currentHandler = handlerStack[handlerStackTop];
+	reset_handler_state(currentHandler);
 //  rb_funcall(self, rb_intern("start_document"), 0);
 }
 
@@ -245,38 +256,43 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
 	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts);
 	if (element != NULL) {
-	  VALUE self = (VALUE)ctx;
-		if (element->value == NULL) {
-			currentHandler->currentElement = element;
-			rb_funcall(self, rb_intern("start_tag"), 1, rb_str_new2(element->setter));
-		  // VALUE attributes = rb_ary_new();
-		  // const xmlChar * attr;
-		  // int i = 0;
-		  // if(atts) {
-		  //   while((attr = atts[i]) != NULL) {
-		  //     rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
-		  //     i++;
-		  //   }
-		  // }
-		  // 
-		  // rb_funcall( self,
-		  //             rb_intern("start_element"),
-		  //             2,
-		  //             rb_str_new2((const char *)name),
-		  //             attributes
-		  // );
-		}
-		else {
-			const xmlChar * att;
-			int i = 0;
-			while ((att = atts[i]) != NULL) {
-				if (strcmp((const char *)att, element->value) == 0) {
-					rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(element->value));
-					break;
-				}
-				i++;
+		// only call if we haven't set this one before
+		int setterIndex = hash_index(element->setter);
+		if (currentHandler->calledSetters[setterIndex] == 0) {
+			currentHandler->calledSetters[setterIndex] = 1;
+		  VALUE self = (VALUE)ctx;
+			if (element->value == NULL) {
+				currentHandler->currentElement = element;
+				rb_funcall(self, rb_intern("start_tag"), 1, rb_str_new2(element->setter));
+			  // VALUE attributes = rb_ary_new();
+			  // const xmlChar * attr;
+			  // int i = 0;
+			  // if(atts) {
+			  //   while((attr = atts[i]) != NULL) {
+			  //     rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
+			  //     i++;
+			  //   }
+			  // }
+			  // 
+			  // rb_funcall( self,
+			  //             rb_intern("start_element"),
+			  //             2,
+			  //             rb_str_new2((const char *)name),
+			  //             attributes
+			  // );
 			}
-		}
+			else {
+				const xmlChar * att;
+				int i = 0;
+				while ((att = atts[i]) != NULL) {
+					if (strcmp((const char *)att, element->value) == 0) {
+						rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(element->value));
+						break;
+					}
+					i++;
+				}
+			}
+		} // if (currentHandler->calledSetters)
 	}
 }
 

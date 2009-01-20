@@ -30,20 +30,20 @@ describe "SAXCMachine" do
         document.title.should == "New title"
       end
       
-      # it "should save the element text into an accessor" do
-      #   document = @klass.parse("<title>My Title</title>")
-      #   document.title.should == "My Title"
-      # end
-      # 
-      # it "should save the element text into an accessor when there are multiple elements" do
-      #   document = @klass.parse("<xml><title>My Title</title><foo>bar</foo></xml>")
-      #   document.title.should == "My Title"
-      # end
-      # 
-      # it "should save the first element text when there are multiple of the same element" do
-      #   document = @klass.parse("<xml><title>My Title</title><title>bar</title></xml>")
-      #   document.title.should == "My Title"    
-      # end
+      it "should save the element text into an accessor" do
+        document = @klass.parse("<title>My Title</title>")
+        document.title.should == "My Title"
+      end
+      
+      it "should save the element text into an accessor when there are multiple elements" do
+        document = @klass.parse("<xml><title>My Title</title><foo>bar</foo></xml>")
+        document.title.should == "My Title"
+      end
+      
+      it "should save the first element text when there are multiple of the same element" do
+        document = @klass.parse("<xml><title>My Title</title><title>bar</title></xml>")
+        document.title.should == "My Title"    
+      end
     end
 
     # describe "when parsing multiple elements" do
