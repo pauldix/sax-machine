@@ -13,6 +13,8 @@ task :install do
   puts `sudo gem install sax-machine-#{SAXMachine::VERSION}.gem`
 end
 
-task :build_ext do
-  `rm f ext/sax-machine`
+task :remove_compiled_files do
+  puts `rm ext/sax-machine/native.bundle`
+  puts `rm ext/sax-machine/parser.o`
+  puts `rm lib/sax-machine/native.bundle`
 end

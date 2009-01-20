@@ -128,9 +128,9 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_h
 	SAXMachineElement * element = new_element();
 	element->setter = StringValuePtr(setter);
 	element->attrs  = convert_ruby_attrs_to_xml_attrs(attrs);
-	if (attribute_holding_value != Qnil) {
-		element->value = StringValuePtr(attribute_holding_value);
-	}
+	// if (attribute_holding_value != Qnil) {
+	// 	element->value = StringValuePtr(attribute_holding_value);
+	// }
 	tag->elements[tag->numberOfElements++] = element;
 	return name;
 }
@@ -246,9 +246,8 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts);
 	if (element != NULL) {
 	  VALUE self = (VALUE)ctx;
-		if (element->value != NULL) {
+		if (element->value == NULL) {
 			currentHandler->currentElement = element;
-		
 			rb_funcall(self, rb_intern("start_tag"), 1, rb_str_new2(element->setter));
 		  // VALUE attributes = rb_ary_new();
 		  // const xmlChar * attr;
