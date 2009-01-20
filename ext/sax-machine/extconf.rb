@@ -90,4 +90,4 @@ else
     )
 end
 
-create_makefile("native")
+create_makefile("sax-machine/native")

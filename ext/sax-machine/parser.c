@@ -30,7 +30,8 @@ typedef struct {
 
 typedef struct saxMachineHandler SAXMachineHandler;
 struct saxMachineHandler {
-	short parseCurrentTag;
+	// short parseCurrentTag;
+	SAXMachineElement *currentElement;
 	SAXMachineTag *tags[SAX_HASH_SIZE];
 	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
 };
@@ -57,7 +58,7 @@ static inline int hash_index(const char * key) {
 
 static SAXMachineHandler *new_handler() {
 	SAXMachineHandler *handler = (SAXMachineHandler *) malloc(sizeof(SAXMachineHandler));
-	handler->parseCurrentTag = false;
+	handler->currentElement = NULL;
 	int i;
 	for (i = 0; i < SAX_HASH_SIZE; i++) {
 		handler->tags[i] = NULL;
@@ -104,9 +105,9 @@ static const char ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
 	return xmlAttrs;
 }
 
-static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attrs) {
+static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_holding_value, VALUE attrs) {
 	// first create the sax handler for this class if it doesn't exist
-	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("class"), 0), rb_intern("to_s"), 0);
+	VALUE klass = rb_funcall(self, rb_intern("parser_class"), 0);
 	const char *className = StringValuePtr(klass);
 	int handlerIndex = hash_index(className);
 	if (saxHandlersForClasses[handlerIndex] == NULL) {
@@ -127,6 +128,9 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attrs) {
 	SAXMachineElement * element = new_element();
 	element->setter = StringValuePtr(setter);
 	element->attrs  = convert_ruby_attrs_to_xml_attrs(attrs);
+	if (attribute_holding_value != Qnil) {
+		element->value = StringValuePtr(attribute_holding_value);
+	}
 	tag->elements[tag->numberOfElements++] = element;
 	return name;
 }
@@ -222,7 +226,7 @@ static VALUE parse_memory(VALUE self, VALUE data)
 static void start_document(void * ctx)
 {
   VALUE self = (VALUE)ctx;
-	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("class"), 0), rb_intern("to_s"), 0);
+	VALUE klass = rb_funcall(rb_funcall(self, rb_intern("parser_class"), 0), rb_intern("to_s"), 0);
 	const char * className = StringValuePtr(klass);
 	handlerStackTop = 0;
 	handlerStack[handlerStackTop] = handler_for_class(className);
@@ -241,37 +245,50 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
 	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts);
 	if (element != NULL) {
-		currentHandler->parseCurrentTag = true;
-		
 	  VALUE self = (VALUE)ctx;
-	  VALUE attributes = rb_ary_new();
-	  const xmlChar * attr;
-	  int i = 0;
-	  if(atts) {
-	    while((attr = atts[i]) != NULL) {
-	      rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
-	      i++;
-	    }
-	  }
-
-	  rb_funcall( self,
-	              rb_intern("start_element"),
-	              2,
-	              rb_str_new2((const char *)name),
-	              attributes
-	  );
+		if (element->value != NULL) {
+			currentHandler->currentElement = element;
+		
+			rb_funcall(self, rb_intern("start_tag"), 1, rb_str_new2(element->setter));
+		  // VALUE attributes = rb_ary_new();
+		  // const xmlChar * attr;
+		  // int i = 0;
+		  // if(atts) {
+		  //   while((attr = atts[i]) != NULL) {
+		  //     rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
+		  //     i++;
+		  //   }
+		  // }
+		  // 
+		  // rb_funcall( self,
+		  //             rb_intern("start_element"),
+		  //             2,
+		  //             rb_str_new2((const char *)name),
+		  //             attributes
+		  // );
+		}
+		else {
+			const xmlChar * att;
+			int i = 0;
+			while ((att = atts[i]) != NULL) {
+				if (strcmp((const char *)att, element->value) == 0) {
+					rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(element->value));
+					break;
+				}
+				i++;
+			}
+		}
 	}
 }
 
 static void end_element(void * ctx, const xmlChar *name)
 {
-	if (currentHandler->parseCurrentTag) {
-		currentHandler->parseCurrentTag = false;
+	if (currentHandler->currentElement != NULL) {
 		
 	  VALUE self = (VALUE)ctx;
-		const char * cname = (const char *)name;
-	  rb_funcall(self, rb_intern("end_element"), 1, rb_str_new2(cname));
+	  rb_funcall(self, rb_intern("end_tag"), 0);
 		
+		currentHandler->currentElement = NULL;
 		// pop the stack if this is the end of a collection
 		SAXMachineHandler * parent = currentHandlerParent();
 		if (parent != NULL) {
@@ -284,7 +301,7 @@ static void end_element(void * ctx, const xmlChar *name)
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
-	if (currentHandler->parseCurrentTag) {
+	if (currentHandler->currentElement != NULL) {
 	  VALUE self = (VALUE)ctx;
 	  VALUE str = rb_str_new((const char *)ch, (long)len);
 	  rb_funcall(self, rb_intern("characters"), 1, str);
@@ -293,7 +310,7 @@ static void characters_func(void * ctx, const xmlChar * ch, int len)
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
-	if (currentHandler->parseCurrentTag) {
+	if (currentHandler->currentElement == NULL) {
 	  VALUE self = (VALUE)ctx;
 	  VALUE str = rb_str_new2((const char *)value);
 	  rb_funcall(self, rb_intern("comment"), 1, str);
@@ -334,7 +351,7 @@ static void error_func(void * ctx, const char *msg, ...)
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
-	if (currentHandler->parseCurrentTag) {
+	if (currentHandler->currentElement == NULL) {
 	  VALUE self = (VALUE)ctx;
 	  VALUE string = rb_str_new((const char *)value, (long)len);
 	  rb_funcall(self, rb_intern("cdata_block"), 1, string);
@@ -388,12 +405,12 @@ void Init_native()
 		saxHandlersForClasses[i] = NULL;
 	}
 	
-  VALUE mSAXMachine = rb_const_get(rb_cObject, rb_intern("SAXMachine"));
+  VALUE mSAXMachine = rb_const_get(rb_cObject, rb_intern("SAXCMachine"));
   VALUE klass = cNokogiriXmlSaxParser =
-    rb_const_get(mSAXMachine, rb_intern("Parser"));
+    rb_const_get(mSAXMachine, rb_intern("SAXCParser"));
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_method(klass, "add_tag", add_tag, 1);
 	rb_define_method(klass, "get_cl", get_cl, 0);
-	rb_define_method(klass, "add_element", add_element, 3);
+	rb_define_method(klass, "add_element", add_element, 4);
 }

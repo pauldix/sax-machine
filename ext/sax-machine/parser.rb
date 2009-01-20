@@ -1,5 +1,27 @@
-module SAXMachine
-  class Parser
+module SAXCMachine
+  class SAXCParser
+    attr_reader :parser_class
+    
+    def initialize(klass)
+      @parser_class = klass.to_s
+    end
+    
+    def set_value_from_attribute(setter, value)
+      @target_object.send(setter, value)
+    end
+    
+    def start_tag(setter)
+      puts setter
+      @setter = setter
+    end
+    
+    def end_tag
+      puts "#{@setter}: #{@chars}"
+#      @target_object.send(@setter, @chars)
+      @setter = nil
+      @chars = nil
+    end
+
     ###
     # Called when document starts parsing
     def start_document
@@ -28,6 +50,8 @@ module SAXMachine
     # Characters read between a tag
     # +string+ contains the character data
     def characters string
+      @chars = string
+      puts "characters called with: #{string}"
     end
 
     ###

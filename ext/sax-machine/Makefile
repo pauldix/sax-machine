@@ -84,7 +84,7 @@ DISTCLEANFILES =
 
 extout = 
 extout_prefix = 
-target_prefix = 
+target_prefix = /sax-machine
 LOCAL_LIBS = 
 LIBS =  -lexslt -lxslt -lxml2  -ldl -lobjc  
 SRCS = parser.c
