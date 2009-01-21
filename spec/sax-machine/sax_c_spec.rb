@@ -97,123 +97,123 @@ describe "SAXCMachine" do
             document.link.should == "test"
           end
           
-          # it "should save the value of the first matching element" do
-          #   document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
-          #   document.link.should == "first"
-          # end
+          it "should save the value of the first matching element" do
+            document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
+            document.link.should == "first"
+          end
           
-          # describe "and the :as option" do
-          #   before :each do
-          #     @klass = Class.new do
-          #       include SAXCMachine
-          #       element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
-          #       element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
-          #     end
-          #   end
-          #   
-          #   it "should save the value of the first matching element" do
-          #     document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
-          #     document.url.should == "first"
-          #     document.second_url.should == "second"
-          #   end            
-          # end
+          describe "and the :as option" do
+            before :each do
+              @klass = Class.new do
+                include SAXCMachine
+                element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
+                element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
+              end
+            end
+            
+            it "should save the value of the first matching element" do
+              document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
+              document.url.should == "first"
+              document.second_url.should == "second"
+            end            
+          end
         end
         
-        # describe "with only one element" do
-        #   before :each do
-        #     @klass = Class.new do
-        #       include SAXCMachine
-        #       element :link, :with => {:foo => "bar"}
-        #     end
-        #   end
-        # 
-        #   it "should save the text of an element that has matching attributes" do
-        #     document = @klass.parse("<link foo=\"bar\">match</link>")
-        #     document.link.should == "match"
-        #   end
-        # 
-        #   it "should not save the text of an element that doesn't have matching attributes" do
-        #     document = @klass.parse("<link>no match</link>")
-        #     document.link.should be_nil
-        #   end
-        # 
-        #   it "should save the text of an element that has matching attributes when it is the second of that type" do
-        #     document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
-        #     document.link.should == "match"          
-        #   end
-        #   
-        #   it "should save the text of an element that has matching attributes plus a few more" do
-        #     document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
-        #     document.link.should == "match"
-        #   end
-        # end
+        describe "with only one element" do
+          before :each do
+            @klass = Class.new do
+              include SAXCMachine
+              element :link, :with => {:foo => "bar"}
+            end
+          end
         
-      #   describe "with multiple elements of same tag" do
-      #     before :each do
-      #       @klass = Class.new do
-      #         include SAXCMachine
-      #         element :link, :as => :first, :with => {:foo => "bar"}
-      #         element :link, :as => :second, :with => {:asdf => "jkl"}
-      #       end
-      #     end
-      #     
-      #     it "should match the first element" do
-      #       document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">first match</link><link>no match</link></xml>")
-      #       document.first.should == "first match"
-      #     end
-      #     
-      #     it "should match the second element" do
-      #       document = @klass.parse("<xml><link>no match</link><link foo='bar'>first match</link><link asdf='jkl'>second match</link><link>hi</link></xml>")
-      #       document.second.should == "second match"
-      #     end
-      #   end
+          it "should save the text of an element that has matching attributes" do
+            document = @klass.parse("<link foo=\"bar\">match</link>")
+            document.link.should == "match"
+          end
+        
+          it "should not save the text of an element that doesn't have matching attributes" do
+            document = @klass.parse("<link>no match</link>")
+            document.link.should be_nil
+          end
+        
+          it "should save the text of an element that has matching attributes when it is the second of that type" do
+            document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
+            document.link.should == "match"          
+          end
+          
+          it "should save the text of an element that has matching attributes plus a few more" do
+            document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
+            document.link.should == "match"
+          end
+        end
+        
+        describe "with multiple elements of same tag" do
+          before :each do
+            @klass = Class.new do
+              include SAXCMachine
+              element :link, :as => :first, :with => {:foo => "bar"}
+              element :link, :as => :second, :with => {:asdf => "jkl"}
+            end
+          end
+          
+          it "should match the first element" do
+            document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">first match</link><link>no match</link></xml>")
+            document.first.should == "first match"
+          end
+          
+          it "should match the second element" do
+            document = @klass.parse("<xml><link>no match</link><link foo='bar'>first match</link><link asdf='jkl'>second match</link><link>hi</link></xml>")
+            document.second.should == "second match"
+          end
+        end
       end # using the 'with' option
       
-      # describe "using the 'value' option" do
-      #   before :each do
-      #     @klass = Class.new do
-      #       include SAXCMachine
-      #       element :link, :value => :foo
-      #     end
-      #   end
-      #   
-      #   it "should save the attribute value" do
-      #     document = @klass.parse("<link foo='test'>hello</link>")
-      #     document.link.should == 'test'
-      #   end
-      #   
-      #   it "should save the attribute value when there is no text enclosed by the tag" do
-      #     document = @klass.parse("<link foo='test'></link>")
-      #     document.link.should == 'test'
-      #   end
-      #   
-      #   it "should save the attribute value when the tag close is in the open" do
-      #     document = @klass.parse("<link foo='test'/>")
-      #     document.link.should == 'test'
-      #   end
-      # end # using the 'value' option
+      describe "using the 'value' option" do
+        before :each do
+          @klass = Class.new do
+            include SAXCMachine
+            element :link, :value => :foo
+          end
+        end
+        
+        it "should save the attribute value" do
+          document = @klass.parse("<link foo='test'>hello</link>")
+          document.link.should == 'test'
+        end
+        
+        it "should save the attribute value when there is no text enclosed by the tag" do
+          document = @klass.parse("<link foo='test'></link>")
+          document.link.should == 'test'
+        end
+        
+        it "should save the attribute value when the tag close is in the open" do
+          document = @klass.parse("<link foo='test'/>")
+          document.link.should == 'test'
+        end
+      end # using the 'value' option
     end
   end
   
-  # describe "elements" do
-  #   describe "when using the class option" do
-  #     before :each do
-  #       class Foo
-  #         include SAXCMachine
-  #         element :title
-  #       end
-  #       @klass = Class.new do
-  #         include SAXCMachine
-  #         elements :entry, :as => :entries, :class => Foo
-  #       end
-  #     end
-  #     
-  #     it "should parse a single element with children" do
-  #       document = @klass.parse("<entry><title>a title</title></entry>")
-  #       document.entries.size.should == 1
-  #       document.entries.first.title.should == "a title"
-  #     end
-  #     
+  describe "elements" do
+    describe "when using the class option" do
+      before :each do
+        class Foo
+          include SAXCMachine
+          element :title
+        end
+        @klass = Class.new do
+          include SAXCMachine
+          elements :entry, :as => :entries, :class => Foo
+        end
+      end
+      
+      it "should parse a single element with children" do
+        document = @klass.parse("<entry><title>a title</title></entry>")
+        document.entries.size.should == 1
+        document.entries.first.title.should == "a title"
+      end
+      
   #     it "should parse multiple elements with children" do
   #       document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
   #       document.entries.size.should == 2
@@ -226,8 +226,8 @@ describe "SAXCMachine" do
   #       document.entries.size.should == 1
   #       document.entries.first.title.should == "correct title"
   #     end
-  #   end    
-  # end
+    end    
+  end
   # 
   # describe "full example" do
   #   before :each do

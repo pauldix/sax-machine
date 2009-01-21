@@ -11,7 +11,7 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 
-#define SAX_HASH_SIZE 200
+#define SAX_HASH_SIZE 1000
 #define MAX_TAGS 20
 #define false 0
 #define true 1
@@ -28,12 +28,19 @@ typedef struct {
 	SAXMachineElement *elements[MAX_TAGS];
 } SAXMachineTag;
 
+typedef struct {
+	int saxHandlerIndex;
+	const char * collectionSetter;
+	VALUE klass;
+} SAXMachineChildCollection;
+
 typedef struct saxMachineHandler SAXMachineHandler;
 struct saxMachineHandler {
 	// short parseCurrentTag;
 	SAXMachineElement *currentElement;
 	SAXMachineTag *tags[SAX_HASH_SIZE];
-	SAXMachineHandler *childHandlers[SAX_HASH_SIZE];
+	SAXMachineChildCollection *childCollections[SAX_HASH_SIZE];
+	VALUE childObject;
 	int calledSetters[SAX_HASH_SIZE];
 };
 
@@ -41,7 +48,9 @@ SAXMachineHandler *saxHandlersForClasses[SAX_HASH_SIZE];
 SAXMachineHandler *handlerStack[20];
 SAXMachineHandler *currentHandler;
 int handlerStackTop;
-
+VALUE currentChildObject;
+const char * currentChars;
+int currentLen;
 const char * saxMachineTag;
 
 // hash algorithm from R. Sedgwick, Algorithms in C++
@@ -63,7 +72,7 @@ static SAXMachineHandler *new_handler() {
 	int i;
 	for (i = 0; i < SAX_HASH_SIZE; i++) {
 		handler->tags[i] = NULL;
-		handler->childHandlers[i] = NULL;
+		handler->childCollections[i] = NULL;
 		handler->calledSetters[i] = 0;
 	}
 	return handler;
@@ -108,7 +117,7 @@ static const char ** convert_ruby_attrs_to_xml_attrs(VALUE attrs) {
 	return xmlAttrs;
 }
 
-static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_holding_value, VALUE attrs) {
+static SAXMachineHandler * create_handler_for_class(VALUE self) {
 	// first create the sax handler for this class if it doesn't exist
 	VALUE klass = rb_funcall(self, rb_intern("parser_class_id"), 0);
 	const char *className = StringValuePtr(klass);
@@ -116,7 +125,22 @@ static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_h
 	if (saxHandlersForClasses[handlerIndex] == NULL) {
 		saxHandlersForClasses[handlerIndex] = new_handler();
 	}
-	SAXMachineHandler *handler = saxHandlersForClasses[handlerIndex];
+	return saxHandlersForClasses[handlerIndex];	
+}
+
+static VALUE add_elements(VALUE self, VALUE name, VALUE setter, VALUE klass, VALUE klass_object_id) {
+	SAXMachineHandler *parentHandler = create_handler_for_class(self);
+	int klass_index = hash_index(StringValuePtr(klass_object_id));
+	SAXMachineChildCollection *child = (SAXMachineChildCollection *) malloc(sizeof(SAXMachineChildCollection));
+	child->saxHandlerIndex = klass_index;
+	child->klass = klass;
+	child->collectionSetter = StringValuePtr(setter);
+	parentHandler->childCollections[hash_index(StringValuePtr(name))] = child;
+	return name;
+}
+
+static VALUE add_element(VALUE self, VALUE name, VALUE setter, VALUE attribute_holding_value, VALUE attrs) {
+	SAXMachineHandler *handler = create_handler_for_class(self);
 	
 	// now create the tag if it's not there yet
 	const char *tag_name = StringValuePtr(name);
@@ -177,8 +201,7 @@ static inline short attributes_match_for_element(SAXMachineElement *element, con
 	return true;
 }
 
-static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts) {
-	int tag_index = hash_index((const char *)name);
+static inline SAXMachineElement * element_for_tag_in_handler(SAXMachineHandler *handler, const xmlChar *name, const xmlChar **atts, int tag_index) {
 	if (handler->tags[tag_index] != NULL && strcmp(handler->tags[tag_index]->name, (const char *)name) == 0) {
 		SAXMachineTag * tag = handler->tags[tag_index];
 		SAXMachineElement * noAttributeElement = NULL;
@@ -212,8 +235,8 @@ static void reset_handler_state(SAXMachineHandler *handler) {
 	}
 }
 
-static inline short tag_matches_child_handler_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
-	return handler->childHandlers[hash_index((const char *)name)] != NULL;
+static inline short tag_matches_child_collection_in_handler(SAXMachineHandler *handler, const xmlChar *name) {
+	return handler->childCollections[hash_index((const char *)name)] != NULL;
 }
 
 /*
@@ -255,7 +278,8 @@ static void end_document(void * ctx)
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts);
+	int tag_index = hash_index((const char *)name);
+	SAXMachineElement * element = element_for_tag_in_handler(currentHandler, name, atts, tag_index);
 	if (element != NULL) {
 		// only call if we haven't set this one before
 		int setterIndex = hash_index(element->setter);
@@ -287,7 +311,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 				int i = 0;
 				while ((att = atts[i]) != NULL) {
 					if (strcmp((const char *)att, element->value) == 0) {
-						rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2(atts[i+1]));
+						rb_funcall(self, rb_intern("set_value_from_attribute"), 2, rb_str_new2(element->setter), rb_str_new2((const char *)atts[i+1]));
 						break;
 					}
 					i++;
@@ -295,11 +319,30 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 			}
 		} // if (currentHandler->calledSetters)
 	}
+	else { // could be a child element
+		if (currentHandler->childCollections[tag_index] != NULL) {
+			handlerStack[++handlerStackTop] = saxHandlersForClasses[currentHandler->childCollections[tag_index]->saxHandlerIndex];
+			currentChildObject = rb_class_new_instance(0, NULL, currentHandler->childCollections[tag_index]->klass);
+			currentHandler = handlerStack[handlerStackTop];
+		}
+	}
 }
 
 static void end_element(void * ctx, const xmlChar *name)
 {
-	if (currentHandler->currentElement != NULL) {
+	if (handlerStackTop > 0) {
+		int index = hash_index((const char *)name);
+		if (handlerStack[0]->childCollections[index] != NULL) {
+		  VALUE self = (VALUE)ctx;
+			handlerStack[handlerStackTop--] = NULL;
+			currentHandler = handlerStack[handlerStackTop];
+			rb_funcall(self, rb_intern("add_object_to_collection"), 2, rb_str_new2(currentHandler->childCollections[index]->collectionSetter), currentChildObject);
+		}
+		else if (currentHandler->currentElement != NULL){
+			rb_funcall(currentChildObject, rb_intern(currentHandler->currentElement->setter), 1, rb_str_new(currentChars, currentLen));
+		}
+	}
+	else if (currentHandler->currentElement != NULL) {
 		
 	  VALUE self = (VALUE)ctx;
 	  rb_funcall(self, rb_intern("end_tag"), 0);
@@ -308,7 +351,7 @@ static void end_element(void * ctx, const xmlChar *name)
 		// pop the stack if this is the end of a collection
 		SAXMachineHandler * parent = currentHandlerParent();
 		if (parent != NULL) {
-			if (tag_matches_child_handler_in_handler(parent, name)) {
+			if (tag_matches_child_collection_in_handler(parent, name)) {
 				handlerStack[handlerStackTop--] = NULL;
 			}
 		}
@@ -317,7 +360,11 @@ static void end_element(void * ctx, const xmlChar *name)
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
-	if (currentHandler->currentElement != NULL) {
+	if (currentChildObject != 0 && currentHandler->currentElement != NULL) {
+		currentChars = (const char *)ch;
+		currentLen = len;
+	}
+	else if (currentHandler->currentElement != NULL) {
 	  VALUE self = (VALUE)ctx;
 	  VALUE str = rb_str_new((const char *)ch, (long)len);
 	  rb_funcall(self, rb_intern("characters"), 1, str);
@@ -429,4 +476,5 @@ void Init_native()
   rb_define_method(klass, "add_tag", add_tag, 1);
 	rb_define_method(klass, "get_cl", get_cl, 0);
 	rb_define_method(klass, "add_element", add_element, 4);
+	rb_define_method(klass, "add_elements", add_elements, 4);
 }

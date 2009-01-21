@@ -29,6 +29,22 @@ module SAXCMachine
       attr_accessor options[:as]
     end
     
+    def elements(name, options)
+      options[:as] ||= name
+      sax_c_parser.add_elements(name.to_s, "add_#{options[:as].to_s}_object", options[:class], options[:class].object_id.to_s)
+      class_eval <<-SRC
+        def #{options[:as]}
+          @#{options[:as]} ||= []
+        end
+        
+        def add_#{options[:as]}_object(val)
+          #{options[:as]} << val
+        end
+      SRC
+      
+      attr_writer options[:as]
+    end
+    
     def sax_c_parser
       @sax_c_parser ||= SAXCParser.new(self)
     end
