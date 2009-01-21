@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'benchmark'
 require 'happymapper'
-require 'sax-machine'
+require File.dirname(__FILE__) + '/../../lib/sax-machine.rb'
+# require 'sax-machine'
 require 'rfeedparser'
 include Benchmark
 benchmark_iterations = 100
@@ -28,13 +29,38 @@ module Feedzirra
 end
 feed_text = File.read("spec/sax-machine/atom.xml")
 
+class AtomCEntry
+  include SAXCMachine
+  element :title
+  element :name, :as => :author
+  element "feedburner:origLink", :as => :url
+  element :summary
+  element :content
+  element :published
+end
+
+# Class for parsing Atom feeds
+class AtomC
+  include SAXCMachine
+  element :title
+  element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
+  element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
+  elements :entry, :as => :entries, :class => AtomCEntry
+end
+
 benchmark do |t|
-  t.report("feedzirra") do
+  t.report("sax c") do
+    benchmark_iterations.times {
+      AtomC.new.parse(feed_text)
+    }
+  end
+
+  t.report("sax ruby") do
     benchmark_iterations.times {
       Feedzirra::Atom.new.parse(feed_text)
     }
   end
-  
+    
   t.report("rfeedparser") do
     benchmark_iterations.times {
       FeedParser.parse(feed_text)

@@ -214,46 +214,46 @@ describe "SAXCMachine" do
         document.entries.first.title.should == "a title"
       end
       
-  #     it "should parse multiple elements with children" do
-  #       document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
-  #       document.entries.size.should == 2
-  #       document.entries.first.title.should == "title 1"
-  #       document.entries.last.title.should == "title 2"
-  #     end
-  #     
-  #     it "should not parse a top level element that is specified only in a child" do
-  #       document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
-  #       document.entries.size.should == 1
-  #       document.entries.first.title.should == "correct title"
-  #     end
+      it "should parse multiple elements with children" do
+        document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
+        document.entries.size.should == 2
+        document.entries.first.title.should == "title 1"
+        document.entries.last.title.should == "title 2"
+      end
+      
+      it "should not parse a top level element that is specified only in a child" do
+        document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
+        document.entries.size.should == 1
+        document.entries.first.title.should == "correct title"
+      end
     end    
   end
   # 
-  # describe "full example" do
-  #   before :each do
-  #     @xml = File.read('spec/sax-machine/atom.xml')
-  #     class AtomEntry
-  #       include SAXCMachine
-  #       element :title
-  #       element :name, :as => :author
-  #       element "feedburner:origLink", :as => :url
-  #       element :summary
-  #       element :content
-  #       element :published
-  #     end
-  #       
-  #     class Atom
-  #       include SAXCMachine
-  #       element :title
-  #       element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
-  #       element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
-  #       elements :entry, :as => :entries, :class => AtomEntry
-  #     end
-  #   end # before
-  #   
-  #   it "should parse the url" do
-  #     f = Atom.parse(@xml)
-  #     f.url.should == "http://www.pauldix.net/"
-  #   end
-  # end
+  describe "full example" do
+    before :each do
+      @xml = File.read('spec/sax-machine/atom.xml')
+      class AtomEntry
+        include SAXCMachine
+        element :title
+        element :name, :as => :author
+        element "feedburner:origLink", :as => :url
+        element :summary
+        element :content
+        element :published
+      end
+        
+      class Atom
+        include SAXCMachine
+        element :title
+        element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
+        element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
+        elements :entry, :as => :entries, :class => AtomEntry
+      end
+    end # before
+    
+    it "should parse the url" do
+      f = Atom.parse(@xml)
+      f.url.should == "http://www.pauldix.net/"
+    end
+  end
 end
