@@ -49,23 +49,26 @@ class AtomC
 end
 
 benchmark do |t|
-  t.report("sax c") do
+  c = t.report("sax c") do
     benchmark_iterations.times {
       AtomC.new.parse(feed_text)
     }
   end
 
-  t.report("sax ruby") do
+  ruby = t.report("sax ruby") do
     benchmark_iterations.times {
       Feedzirra::Atom.new.parse(feed_text)
     }
   end
     
-  t.report("rfeedparser") do
+  rfeed = t.report("rfeedparser") do
     benchmark_iterations.times {
       FeedParser.parse(feed_text)
     }
   end
+  
+  puts "sax c is #{ruby.real/c.real} times faster than sax ruby and #{rfeed.real/c.real} times faster than rfeedparser"
+  puts "sax ruby is #{rfeed.real/ruby.real} times faster than rfeedparser"
 end
 
 # class AtomEntry

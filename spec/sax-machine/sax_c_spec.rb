@@ -9,13 +9,13 @@ describe "SAXCMachine" do
           element :title
         end
       end
-
+  
       it "should provide an accessor" do
         document = @klass.new
         document.title = "Title"
         document.title.should == "Title"
       end
-
+  
       it "should not overwrite the accessor when the element is not present" do
         document = @klass.new
         document.title = "Title"
@@ -45,7 +45,7 @@ describe "SAXCMachine" do
         document.title.should == "My Title"    
       end
     end
-
+  
     describe "when parsing multiple elements" do
       before :each do
         @klass = Class.new do
@@ -61,7 +61,7 @@ describe "SAXCMachine" do
         document.title.should == "My Title"
       end
     end
-
+  
     describe "when using options for parsing elements" do
       describe "using the 'as' option" do
         before :each do
@@ -196,39 +196,59 @@ describe "SAXCMachine" do
   end
   
   describe "elements" do
-    describe "when using the class option" do
-      before :each do
-        class Foo
-          include SAXCMachine
-          element :title
+    describe "when parsing a single child" do
+      describe "and the child has only 1 element" do
+        before :each do
+          @klass = Class.new do
+            include SAXCMachine
+            elements :entry, {:as => :entries, :class => Class.new do
+              include SAXCMachine
+              element :title
+            end}
+          end
         end
-        @klass = Class.new do
-          include SAXCMachine
-          elements :entry, :as => :entries, :class => Foo
+      
+        it "should parse a single element with children" do
+          document = @klass.parse("<entry><title>a title</title></entry>")
+          document.entries.size.should == 1
+          document.entries.first.title.should == "a title"
         end
-      end
+            
+        it "should parse multiple elements with children" do
+          document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
+          document.entries.size.should == 2
+          document.entries.first.title.should == "title 1"
+          document.entries.last.title.should == "title 2"
+        end
       
-      it "should parse a single element with children" do
-        document = @klass.parse("<entry><title>a title</title></entry>")
-        document.entries.size.should == 1
-        document.entries.first.title.should == "a title"
-      end
-      
-      it "should parse multiple elements with children" do
-        document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
-        document.entries.size.should == 2
-        document.entries.first.title.should == "title 1"
-        document.entries.last.title.should == "title 2"
-      end
-      
-      it "should not parse a top level element that is specified only in a child" do
-        document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
-        document.entries.size.should == 1
-        document.entries.first.title.should == "correct title"
+        it "should not parse a top level element that is specified only in a child" do
+          document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
+          document.entries.size.should == 1
+          document.entries.first.title.should == "correct title"
+        end
+      end # and the chid has only 1 element
+      describe "and the child has 2 elements" do
+        before :each do
+          @klass = Class.new do
+            include SAXCMachine
+            elements :entry, {:as => :entries, :class => Class.new do
+              include SAXCMachine
+              element :title
+              element :url
+            end}
+          end
+        end
+        
+        it "should parse multiple elments in a child" do
+          document = @klass.parse("<entry><title>a title</title><foo>hi</foo><url>a url</url></entry>")
+          document.entries.size.should == 1
+          document.entries.first.title.should == "a title"
+          document.entries.first.url.should == "a url"
+        end
       end
     end    
   end
-  # 
+
   describe "full example" do
     before :each do
       @xml = File.read('spec/sax-machine/atom.xml')
@@ -254,6 +274,7 @@ describe "SAXCMachine" do
     it "should parse the url" do
       f = Atom.parse(@xml)
       f.url.should == "http://www.pauldix.net/"
+#      puts f.entries.first.content
     end
   end
 end

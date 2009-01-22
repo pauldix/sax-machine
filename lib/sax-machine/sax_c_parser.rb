@@ -16,6 +16,7 @@ module SAXCMachine
     
     def start_tag(setter)
       @setter = setter
+      @chars = ""
     end
     
     def end_tag
@@ -52,7 +53,7 @@ module SAXCMachine
     # Characters read between a tag
     # +string+ contains the character data
     def characters string
-      @chars = string
+      @chars << string
     end
     # 
     # ###

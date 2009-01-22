@@ -15,6 +15,7 @@
 #define MAX_TAGS 20
 #define false 0
 #define true 1
+#define CHAR_BUFFER_SIZE 10000
 
 typedef struct {
 	const char *setter;
@@ -49,9 +50,12 @@ SAXMachineHandler *handlerStack[20];
 SAXMachineHandler *currentHandler;
 int handlerStackTop;
 VALUE currentChildObject;
-const char * currentChars;
-int currentLen;
+// VALUE rbCharBuffer;
+// const char * currentChars;
+// long currentLen;
+char smCharBuffer[CHAR_BUFFER_SIZE];
 const char * saxMachineTag;
+int currentBufferPosition = 0;
 
 // hash algorithm from R. Sedgwick, Algorithms in C++
 static inline int hash_index(const char * key) {
@@ -335,11 +339,30 @@ static void end_element(void * ctx, const xmlChar *name)
 		if (handlerStack[0]->childCollections[index] != NULL) {
 		  VALUE self = (VALUE)ctx;
 			handlerStack[handlerStackTop--] = NULL;
+			int i;
+			for (i = 0;i < SAX_HASH_SIZE; i++) {
+				currentHandler->calledSetters[i] = 0;
+			}
 			currentHandler = handlerStack[handlerStackTop];
 			rb_funcall(self, rb_intern("add_object_to_collection"), 2, rb_str_new2(currentHandler->childCollections[index]->collectionSetter), currentChildObject);
 		}
 		else if (currentHandler->currentElement != NULL){
-			rb_funcall(currentChildObject, rb_intern(currentHandler->currentElement->setter), 1, rb_str_new(currentChars, currentLen));
+			// rb_funcall(currentChildObject, rb_intern(currentHandler->currentElement->setter), 1, rbCharBuffer);
+			// rbCharBuffer = 0;
+		
+			// printf("<hr />end ** %s **<hr />", (const char *)name);
+			// int i;
+			// for (i = 0; i < currentLen; i++) {
+			// 	printf("%c", currentChars[i]);
+			// }
+			// rb_funcall(currentChildObject, rb_intern(currentHandler->currentElement->setter), 1, rb_str_new(currentChars, currentLen));
+			// currentChars = NULL;
+			// currentLen = 0;
+
+			rb_funcall(currentChildObject, rb_intern(currentHandler->currentElement->setter), 1, rb_str_new2((const char *)&smCharBuffer));
+			currentBufferPosition = 0;
+
+			currentHandler->currentElement = NULL;
 		}
 	}
 	else if (currentHandler->currentElement != NULL) {
@@ -348,21 +371,62 @@ static void end_element(void * ctx, const xmlChar *name)
 	  rb_funcall(self, rb_intern("end_tag"), 0);
 		
 		currentHandler->currentElement = NULL;
-		// pop the stack if this is the end of a collection
-		SAXMachineHandler * parent = currentHandlerParent();
-		if (parent != NULL) {
-			if (tag_matches_child_collection_in_handler(parent, name)) {
-				handlerStack[handlerStackTop--] = NULL;
-			}
-		}
+		// // pop the stack if this is the end of a collection
+		// SAXMachineHandler * parent = currentHandlerParent();
+		// if (parent != NULL) {
+		// 	if (tag_matches_child_collection_in_handler(parent, name)) {
+		// 		handlerStack[handlerStackTop--] = NULL;
+		// 	}
+		// }
+	}
+}
+
+static void reset_char_buffer() {
+	int i;
+	for (i = 0; i < CHAR_BUFFER_SIZE; i++) {
+		smCharBuffer[i] = '\0';
 	}
 }
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
 	if (currentChildObject != 0 && currentHandler->currentElement != NULL) {
-		currentChars = (const char *)ch;
-		currentLen = len;
+		
+// I tried this character capturing three different ways. The first way was to construct a ruby style string
+// and add to it. That was kind of slow. The second way is the one that would make sense but for some reason
+// it was cutting off the ends of character streams (only presented as a problem when characters would be)
+// called multiple times to output an element value. like feed content)
+// The final way was my ghetto method for getting this to run without intermediate calls to ruby to speed up
+// the benchmark. None of this should be used for real purposes.
+		
+		// method 1:
+		// if (rbCharBuffer == 0) {
+		// 	rbCharBuffer = rb_str_new((const char *)ch, len);
+		// }
+		// else {
+		// 	rb_funcall(rbCharBuffer, rb_intern("<<"), 1, rb_str_new((const char *)ch, len));
+		// }
+		
+		// method 2:
+		// if (currentChars == NULL) {
+		// 	currentChars = (const char *)ch;
+		// }
+		// currentLen = currentLen + len;
+		// VALUE s = rb_str_new((const char *)ch, len);
+		// printf("%s", StringValuePtr(s));
+		
+		// method 3:
+		if (currentBufferPosition == 0) {
+			reset_char_buffer();
+		}
+		int i;
+		int j = 0;
+		const char * c = (const char *)ch;
+		for (i = currentBufferPosition; i < currentBufferPosition + len; i++) {
+			smCharBuffer[i] = c[j];
+			j++;
+		}
+		currentBufferPosition = currentBufferPosition + len;
 	}
 	else if (currentHandler->currentElement != NULL) {
 	  VALUE self = (VALUE)ctx;
@@ -459,7 +523,7 @@ static VALUE get_cl(VALUE self) {
 	return rb_funcall(self, rb_intern("class"), 0);
 }
 
-VALUE cNokogiriXmlSaxParser ;
+VALUE cSAXMachineXmlSaxParser ;
 void Init_native()
 {
 	// we're storing the sax handler information for all the classes loaded. null it out to start
@@ -469,7 +533,7 @@ void Init_native()
 	}
 	
   VALUE mSAXMachine = rb_const_get(rb_cObject, rb_intern("SAXCMachine"));
-  VALUE klass = cNokogiriXmlSaxParser =
+  VALUE klass = cSAXMachineXmlSaxParser =
     rb_const_get(mSAXMachine, rb_intern("SAXCParser"));
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
