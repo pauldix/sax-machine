@@ -13,7 +13,7 @@ module SAXMachine
       if parsing_collection?
         @collection_handler.characters(string)
       elsif @element_config
-        @value = string
+        @value << string
       end
     end
     
@@ -31,6 +31,7 @@ module SAXMachine
         parse_element_attribute
         
       else
+        @value = ""
         @element_config = sax_config.element_config_for_tag(@name, @attrs)
       end
     end
@@ -52,7 +53,7 @@ module SAXMachine
     end
     
     def characaters_captured?
-      !@value.nil?
+      !@value.nil? && !@value.empty?
     end
     
     def parsing_collection?
