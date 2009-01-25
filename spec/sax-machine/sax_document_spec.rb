@@ -16,6 +16,19 @@ describe "SAXMachine" do
         document.title.should == "Title"
       end
 
+      it "should not overwrite the setter if there is already one present" do
+        @klass = Class.new do
+          def title=(val)
+            @title = "#{val} **"
+          end
+          include SAXMachine
+          element :title
+        end
+        document = @klass.new
+        document.title = "Title"
+        document.title.should == "Title **"
+      end
+      
       it "should not overwrite the accessor when the element is not present" do
         document = @klass.new
         document.title = "Title"
