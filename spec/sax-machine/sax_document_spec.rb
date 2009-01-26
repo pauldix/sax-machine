@@ -36,7 +36,7 @@ describe "SAXMachine" do
         document.title.should == "Title"
       end
 
-      it "should overwrite the accessor when the element is present" do
+      it "should overwrite the value when the element is present" do
         document = @klass.new
         document.title = "Old title"
         document.parse("<title>New title</title>")
@@ -46,6 +46,11 @@ describe "SAXMachine" do
       it "should save the element text into an accessor" do
         document = @klass.parse("<title>My Title</title>")
         document.title.should == "My Title"
+      end
+      
+      it "should save cdata into an accessor" do
+        document = @klass.parse("<title><![CDATA[A Title]]></title>")
+        document.title.should == "A Title"
       end
 
       it "should save the element text into an accessor when there are multiple elements" do

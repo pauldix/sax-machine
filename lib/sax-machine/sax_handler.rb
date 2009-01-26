@@ -17,6 +17,10 @@ module SAXMachine
       end
     end
     
+    def cdata_block(string)
+      characters(string)
+    end
+    
     def start_element(name, attrs = [])
       @name   = name
       @attrs  = attrs
