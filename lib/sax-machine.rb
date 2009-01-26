@@ -7,5 +7,5 @@ require "sax-machine/sax_handler"
 require "sax-machine/sax_config"
 
 module SAXMachine
-  VERSION = "0.0.6"
+  VERSION = "0.0.7"
 end
