@@ -48,6 +48,15 @@ feed.entries.first.title # => title of the first entry
 feed.entries.first.author # => the author of the first entry
 feed.entries.first.url # => the permalink on the blog for this entry
 # etc ...
+
+# you can also use the elements method without specifying a class like so
+class SomeServiceResponse
+  elements :message, :as => :messages
+end
+
+response = SomeServiceResponse.parse("<response><message>hi</message><message>world</message></response>")
+response.messages.first # => "hi"
+response.messages.last  # => "world"
 </pre>
 
 h2. LICENSE
