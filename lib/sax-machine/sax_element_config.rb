@@ -2,7 +2,7 @@ module SAXMachine
   class SAXConfig
     
     class ElementConfig
-      attr_reader :name
+      attr_reader :name, :setter
       
       def initialize(name, options)
         @name = name.to_s
@@ -21,14 +21,17 @@ module SAXMachine
         end
         
         @as = options[:as]
+        @collection = options[:collection]
+        
+        if @collection
+          @setter = "add_#{options[:as]}"
+        else
+          @setter = "#{@as}="
+        end
       end
 
       def value_from_attrs(attrs)
         attrs[attrs.index(@value) + 1]
-      end
-      
-      def setter
-        "#{@as}="
       end
       
       def attrs_match?(attrs)
@@ -41,6 +44,10 @@ module SAXMachine
       
       def has_value_and_attrs_match?(attrs)
         !@value.nil? && attrs_match?(attrs)
+      end
+      
+      def collection?
+        @collection
       end
     end
     

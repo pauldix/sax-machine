@@ -74,7 +74,7 @@ module SAXMachine
     end
     
     def mark_as_parsed
-      @parsed_configs[@element_config] = true
+      @parsed_configs[@element_config] = true unless @element_config.collection?
     end
     
     def parsed_config?

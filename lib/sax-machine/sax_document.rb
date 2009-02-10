@@ -35,7 +35,16 @@ module SAXMachine
     
     def elements(name, options = {})
       options[:as] ||= name
-      sax_config.add_collection_element(name, options)
+      if options[:class]
+        sax_config.add_collection_element(name, options)
+      else
+        class_eval <<-SRC
+          def add_#{options[:as]}(value)
+            #{options[:as]} << value
+          end
+        SRC
+        sax_config.add_top_level_element(name, options.merge(:collection => true))
+      end
       
       class_eval <<-SRC
         def #{options[:as]}
