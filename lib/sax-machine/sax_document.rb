@@ -23,14 +23,11 @@ module SAXMachine
       options[:as] ||= name
       sax_config.add_top_level_element(name, options)
       
-      # we only want to insert the setter if they haven't defined it from elsewhere.
+      # we only want to insert the getter and setter if they haven't defined it from elsewhere.
       # this is how we allow custom parsing behavior. So you could define the setter
       # and have it parse the string into a date or whatever.
-      if instance_methods.include?("#{options[:as]}=")
-        attr_reader options[:as]
-      else
-        attr_accessor options[:as]
-      end
+      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
+      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
     end
     
     def elements(name, options = {})
