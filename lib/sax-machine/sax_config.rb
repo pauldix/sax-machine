@@ -21,10 +21,11 @@ module SAXMachine
     end
 
     def element_config_for_attribute(name, attrs)
-      @top_level_elements.detect do |element_config|
+      element_configs = @top_level_elements.select do |element_config|
         element_config.name == name &&
         element_config.has_value_and_attrs_match?(attrs)
       end
+      element_configs.empty? ? nil : element_configs
     end
   
     def element_config_for_tag(name, attrs)

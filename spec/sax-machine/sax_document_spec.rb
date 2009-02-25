@@ -209,6 +209,17 @@ describe "SAXMachine" do
           document = @klass.parse("<link foo='test'/>")
           document.link.should == 'test'
         end
+        
+        it "should save two different attribute values on a single tag" do
+          @klass = Class.new do
+            include SAXMachine
+            element :link, :value => :foo, :as => :first
+            element :link, :value => :bar, :as => :second
+          end
+          document = @klass.parse("<link foo='foo value' bar='bar value'></link>")
+          document.first.should == "foo value"
+          document.second.should == "bar value"
+        end
       end
     end
   end

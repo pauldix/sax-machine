@@ -67,14 +67,16 @@ module SAXMachine
     def parse_element_attribute
       unless parsed_config?
         mark_as_parsed
-        @object.send(@element_config.setter, @element_config.value_from_attrs(@attrs))
+        @element_config.each do |config|
+          @object.send(config.setter, config.value_from_attrs(@attrs))
+        end
       end
       
       @element_config = nil
     end
     
     def mark_as_parsed
-      @parsed_configs[@element_config] = true unless @element_config.collection?
+      @parsed_configs[@element_config] = true unless (@element_config.respond_to?(:collection?) && @element_config.collection?)
     end
     
     def parsed_config?
