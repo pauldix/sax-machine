@@ -30,6 +30,7 @@ module SAXMachine
         
       elsif @collection_config = sax_config.collection_config(@name)
         @collection_handler = @collection_config.handler
+        @collection_handler.start_element(@name, @attrs)
         
       elsif @element_config = sax_config.element_config_for_attribute(@name, @attrs)
         parse_element_attribute

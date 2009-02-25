@@ -280,6 +280,16 @@ describe "SAXMachine" do
         document.entries.size.should == 1
         document.entries.first.title.should == "correct title"
       end
+      
+      it "should parse out an attribute value from the tag that starts the collection" do
+        class Foo
+          element :entry, :value => :href, :as => :url
+        end
+        document = @klass.parse("<xml><entry href='http://pauldix.net'><title>paul</title></entry></xml>")
+        document.entries.size.should == 1
+        document.entries.first.title.should == "paul"
+        document.entries.first.url.should == "http://pauldix.net"
+      end
     end    
   end
   
