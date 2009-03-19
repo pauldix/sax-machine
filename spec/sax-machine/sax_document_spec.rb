@@ -248,6 +248,15 @@ describe "SAXMachine" do
         document = @klass.parse("<xml><entry>hello</entry><entry>world</entry></xml>")
         document.entries.should == ["hello", "world"]
       end
+      
+      it "should parse multiple elements when taking an attribute value" do
+        attribute_klass = Class.new do
+          include SAXMachine
+          elements :entry, :as => :entries, :value => :foo
+        end
+        doc = attribute_klass.parse("<xml><entry foo='asdf' /><entry foo='jkl' /></xml>")
+        doc.entries.should == ["asdf", "jkl"]
+      end
     end
     
     describe "when using the class option" do

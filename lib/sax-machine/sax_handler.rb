@@ -77,7 +77,9 @@ module SAXMachine
     end
     
     def mark_as_parsed
-      @parsed_configs[@element_config] = true unless (@element_config.respond_to?(:collection?) && @element_config.collection?)
+      # TODO: make this code not suck like this
+      @parsed_configs[@element_config] = true unless (@element_config.respond_to?(:collection?) && @element_config.collection?) || 
+        (@element_config.class == Array && @element_config.first.collection?)
     end
     
     def parsed_config?
