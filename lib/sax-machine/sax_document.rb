@@ -43,13 +43,15 @@ module SAXMachine
         sax_config.add_top_level_element(name, options.merge(:collection => true))
       end
       
+      if !instance_methods.include?(options[:as].to_s)
       class_eval <<-SRC
-        def #{options[:as]}
-          @#{options[:as]} ||= []
-        end
-      SRC
+          def #{options[:as]}
+            @#{options[:as]} ||= []
+          end
+        SRC
+      end
       
-      attr_writer options[:as]
+      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
     end
     
     def sax_config
