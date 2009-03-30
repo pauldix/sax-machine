@@ -220,6 +220,17 @@ describe "SAXMachine" do
           document.first.should == "foo value"
           document.second.should == "bar value"
         end
+        
+        it "should not fail if one of the attribute hasn't been defined" do
+          @klass = Class.new do
+            include SAXMachine
+            element :link, :value => :foo, :as => :first
+            element :link, :value => :bar, :as => :second
+          end
+          document = @klass.parse("<link foo='foo value'></link>")
+          document.first.should == "foo value"
+          document.second.should be_nil
+        end
       end
     end
   end
