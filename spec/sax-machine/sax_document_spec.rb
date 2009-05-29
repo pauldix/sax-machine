@@ -232,6 +232,25 @@ describe "SAXMachine" do
           document.second.should be_nil
         end
       end
+      
+      describe "when desiring both the content and attributes of an element" do
+        before :each do
+          @klass = Class.new do
+            include SAXMachine
+            element :link
+            element :link, :value => :foo, :as => :link_foo
+            element :link, :value => :bar, :as => :link_bar
+          end
+        end
+
+        it "should parse the element and attribute values" do
+          document = @klass.parse("<link foo='test1' bar='test2'>hello</link>")
+          document.link.should == 'hello'
+          document.link_foo.should == 'test1'
+          document.link_bar.should == 'test2'
+        end
+      end
+      
     end
   end
   
