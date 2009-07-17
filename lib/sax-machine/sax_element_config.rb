@@ -2,7 +2,7 @@ module SAXMachine
   class SAXConfig
     
     class ElementConfig
-      attr_reader :name, :setter
+      attr_reader :name, :setter, :data_class
       
       def initialize(name, options)
         @name = name.to_s
@@ -28,6 +28,16 @@ module SAXMachine
         else
           @setter = "#{@as}="
         end
+        @data_class = options[:class]
+        @required = options[:required]
+      end
+
+      def column
+        @as || @name.to_sym
+      end
+
+      def required?
+        @required
       end
 
       def value_from_attrs(attrs)

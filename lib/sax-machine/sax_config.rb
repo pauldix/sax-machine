@@ -3,6 +3,8 @@ require "sax-machine/sax_collection_config"
 
 module SAXMachine
   class SAXConfig
+    attr_reader :top_level_elements, :collection_elements
+
     def initialize
       @top_level_elements  = []
       @collection_elements = []

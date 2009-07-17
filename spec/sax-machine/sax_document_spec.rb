@@ -15,6 +15,10 @@ describe "SAXMachine" do
         document.title = "Title"
         document.title.should == "Title"
       end
+      
+      it "should allow introspection of the elements" do
+        @klass.column_names.should =~ [:title]
+      end
 
       it "should not overwrite the setter if there is already one present" do
         @klass = Class.new do
@@ -27,6 +31,28 @@ describe "SAXMachine" do
         document = @klass.new
         document.title = "Title"
         document.title.should == "Title **"
+      end
+      describe "the class attribute" do
+        before(:each) do
+          @klass = Class.new do
+            include SAXMachine
+            element :date, :class => DateTime
+          end
+          @document = @klass.new
+          @document.date = DateTime.now.to_s
+        end
+        it "should be available" do
+          @klass.data_class(:date).should == DateTime
+        end
+      end
+      describe "the required attribute" do
+        it "should be available" do
+          @klass = Class.new do
+            include SAXMachine
+            element :date, :required => true
+          end
+          @klass.required?(:date).should be_true
+        end
       end
       
       it "should not overwrite the accessor when the element is not present" do

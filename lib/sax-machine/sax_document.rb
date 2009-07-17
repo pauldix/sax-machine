@@ -29,6 +29,26 @@ module SAXMachine
       attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
       attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
     end
+
+    def columns
+      sax_config.top_level_elements
+    end
+
+    def column(sym)
+      columns.select{|c| c.column == sym}[0]
+    end
+
+    def data_class(sym)
+      column(sym).data_class
+    end
+
+    def required?(sym)
+      column(sym).required?
+    end
+
+    def column_names
+      columns.map{|e| e.column}
+    end
     
     def elements(name, options = {})
       options[:as] ||= name
