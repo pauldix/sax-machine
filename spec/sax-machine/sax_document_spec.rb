@@ -315,6 +315,39 @@ describe "SAXMachine" do
       end
     end
     
+    describe "when using the with and class options" do
+      before :each do
+        class Bar
+          include SAXMachine
+          element :title
+        end
+        
+        class Foo
+          include SAXMachine
+          element :title
+        end
+        
+        class Item
+          include SAXMachine
+
+        end
+        @klass = Class.new do
+          include SAXMachine
+          elements :item, :as => :items, :with => {:type => 'Bar'}, :class => Bar
+          elements :item, :as => :items, :with => {:type => 'Foo'}, :class => Foo
+        end
+      end
+      
+      it "should cast into the correct class" do
+        document = @klass.parse("<items><item type=\"Bar\"><title>Bar title</title></item><item type=\"Foo\"><title>Foo title</title></item></items>")
+        document.items.size.should == 2
+        document.items.first.should be_a(Bar)
+        document.items.first.title.should == "Bar title"
+        document.items.last.should be_a(Foo)
+        document.items.last.title.should == "Foo title"
+      end
+    end
+    
     describe "when using the class option" do
       before :each do
         class Foo

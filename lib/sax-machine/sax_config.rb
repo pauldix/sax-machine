@@ -18,8 +18,8 @@ module SAXMachine
       @collection_elements << CollectionConfig.new(name, options)
     end
 
-    def collection_config(name)
-      @collection_elements.detect { |ce| ce.name.to_s == name.to_s }
+    def collection_config(name, attrs)
+      @collection_elements.detect { |ce| ce.name.to_s == name.to_s && ce.attrs_match?(attrs) }
     end
 
     def element_configs_for_attribute(name, attrs)

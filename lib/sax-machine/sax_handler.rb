@@ -28,7 +28,7 @@ module SAXMachine
       if parsing_collection?
         @collection_handler.start_element(@name, @attrs)
 
-      elsif @collection_config = sax_config.collection_config(@name)
+      elsif @collection_config = sax_config.collection_config(@name, @attrs)
         @collection_handler = @collection_config.handler
         @collection_handler.start_element(@name, @attrs)
 

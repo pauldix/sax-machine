@@ -8,6 +8,13 @@ module SAXMachine
         @name   = name.to_s
         @class  = options[:class]
         @as     = options[:as].to_s
+        
+        if options.has_key?(:with)
+          # for faster comparisons later
+          @with = options[:with].to_a.flatten.collect {|o| o.to_s}
+        else
+          @with = nil
+        end
       end
       
       def handler
@@ -16,6 +23,14 @@ module SAXMachine
       
       def accessor
         as
+      end
+      
+      def attrs_match?(attrs)
+        if @with
+          @with == (@with & attrs)
+        else
+          true
+        end
       end
       
     protected
