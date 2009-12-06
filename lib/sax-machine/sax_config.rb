@@ -9,6 +9,11 @@ module SAXMachine
       @top_level_elements  = []
       @collection_elements = []
     end
+    
+    def initialize_copy(sax_config)
+      @top_level_elements = sax_config.top_level_elements.clone
+      @collection_elements = sax_config.collection_elements.clone
+    end
 
     def add_top_level_element(name, options)
       @top_level_elements << ElementConfig.new(name, options)
@@ -35,6 +40,5 @@ module SAXMachine
         element_config.attrs_match?(attrs)
       end
     end
-
   end
 end

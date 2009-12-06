@@ -17,10 +17,6 @@ module SAXMachine
         end
       end
       
-      def handler
-        SAXHandler.new(@class.new)
-      end
-      
       def accessor
         as
       end
@@ -32,6 +28,10 @@ module SAXMachine
           true
         end
       end
+
+      def data_class
+        @class || @name
+      end      
       
     protected
       
@@ -39,9 +39,6 @@ module SAXMachine
         @as
       end
       
-      def class
-        @class || @name
-      end      
     end
     
   end

@@ -2,7 +2,7 @@ module SAXMachine
   class SAXConfig
     
     class ElementConfig
-      attr_reader :name, :setter, :data_class
+      attr_reader :name, :setter, :data_class, :collection
       
       def initialize(name, options)
         @name = name.to_s
