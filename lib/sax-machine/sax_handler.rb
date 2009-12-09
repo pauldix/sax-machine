@@ -21,22 +21,21 @@ module SAXMachine
     def start_element(name, attrs = [])
       object, config, value = stack.last
       sax_config = object.class.respond_to?(:sax_config) ? object.class.sax_config : nil
-      pushed = false
 
-      if sax_config && collection_config = sax_config.collection_config(name, attrs)
-        object = collection_config.data_class.new
-        sax_config = object.class.sax_config
-        stack.push [object, collection_config, ""]
-        pushed = true
-      end
-
-      if sax_config && (element_configs = sax_config.element_configs_for_attribute(name, attrs)).any?
-        parse_element_attributes(element_configs, object, attrs)
-      end
-
-      if !pushed && sax_config && element_config = sax_config.element_config_for_tag(name, attrs)
-        stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, ""]
-        pushed = true
+      if sax_config
+        if collection_config = sax_config.collection_config(name, attrs)
+          stack.push [object = collection_config.data_class.new, collection_config, ""]
+          object, sax_config, is_collection = object, object.class.sax_config, true
+        end
+        sax_config.element_configs_for_attribute(name, attrs).each do |ec|
+          unless parsed_config?(object, ec)
+            object.send(ec.setter, ec.value_from_attrs(attrs))
+            mark_as_parsed(object, ec)
+          end
+        end
+        if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
+          stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, ""]
+        end
       end
     end
 
@@ -54,15 +53,6 @@ module SAXMachine
         end
       end
       stack.pop
-    end
-
-    def parse_element_attributes(element_configs, object, attrs)
-      element_configs.each do |ec|
-        unless parsed_config?(object, ec)
-          object.send(ec.setter, ec.value_from_attrs(attrs))
-          mark_as_parsed(object, ec)
-        end
-      end
     end
 
     def mark_as_parsed(object, element_config)
