@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe "SAXMachine" do
   describe "element" do
@@ -19,7 +19,20 @@ describe "SAXMachine" do
       it "should allow introspection of the elements" do
         @klass.column_names.should =~ [:title]
       end
-
+      
+      it "should not overwrite the getter is there is already one present" do
+        @klass = Class.new do
+          def title
+            "#{@title} ***"
+          end
+          include SAXMachine
+          element :title
+        end
+        document = @klass.new
+        document.title = "Title"
+        document.title.should == "Title ***"
+      end
+      
       it "should not overwrite the setter if there is already one present" do
         @klass = Class.new do
           def title=(val)
@@ -32,6 +45,7 @@ describe "SAXMachine" do
         document.title = "Title"
         document.title.should == "Title **"
       end
+      
       describe "the class attribute" do
         before(:each) do
           @klass = Class.new do
@@ -105,6 +119,33 @@ describe "SAXMachine" do
         document.name.should == "Paul"
         document.title.should == "My Title"
       end
+      
+      it "should not overwrite the getter is there is already one present" do
+        @klass = Class.new do
+          def items
+            []
+          end
+          include SAXMachine
+          elements :items
+        end
+        document = @klass.new
+        document.items = [1,2,3,4]
+        document.items.should == []
+      end
+      
+      it "should not overwrite the setter if there is already one present" do
+        @klass = Class.new do
+          def items=(val)
+            @items = [1, *val]
+          end
+          include SAXMachine
+          elements :items
+        end
+        document = @klass.new
+        document.items = [2,3]
+        document.items.should == [1,2,3]
+      end
+      
     end
 
     describe "when using options for parsing elements" do
