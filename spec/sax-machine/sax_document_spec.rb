@@ -20,15 +20,15 @@ describe "SAXMachine" do
         @klass.column_names.should =~ [:title]
       end
 
-      it "should not overwrite the setter if there is already one present" do
-        @klass = Class.new do
+      it "should not overwrite the setter if there is already one present" do   
+        @klass = Class.new do   
+          include SAXMachine
+          element :title
           def title=(val)
             @title = "#{val} **"
           end
-          include SAXMachine
-          element :title
-        end
-        document = @klass.new
+        end                    
+        document = @klass.new  
         document.title = "Title"
         document.title.should == "Title **"
       end

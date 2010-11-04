@@ -1,10 +1,9 @@
-require "spec"
-require "spec/rake/spectask"
-require 'lib/sax-machine.rb'
+require "rspec"
+require "rspec/core/rake_task"
+require File.dirname(__FILE__) + "/lib/sax-machine.rb"
 
-Spec::Rake::SpecTask.new do |t|
-  t.spec_opts = ['--options', "\"#{File.dirname(__FILE__)}/spec/spec.opts\""]
-  t.spec_files = FileList['spec/**/*_spec.rb']
+RSpec::Core::RakeTask.new do |t|
+  t.pattern = FileList['spec/**/*_spec.rb']
 end
 
 task :install do
