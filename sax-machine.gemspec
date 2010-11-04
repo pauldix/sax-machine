@@ -2,12 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sax-machine}
-  s.version = "0.0.15"
+  s.version = "0.0.16"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Paul Dix"]
-  s.date = %q{2009-01-13}
-  s.email = %q{paul@pauldix.net}
+  s.authors = ["Philip MCmahon"]
+  s.date = %q{2010-11-14}
+  s.email = %q{philip@packetnode.com}
   s.files = [
     "lib/sax-machine.rb",
     "lib/sax-machine/sax_config.rb",
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
     "lib/sax-machine/sax_document.rb",
     "lib/sax-machine/sax_handler.rb",
     "README.textile", "Rakefile",
-    "spec/spec.opts",
+    ".rspec",
     "spec/spec_helper.rb",
     "spec/sax-machine/sax_document_spec.rb"]
   s.homepage = %q{http://github.com/pauldix/sax-machine}
