@@ -25,9 +25,9 @@ module SAXMachine
       
       # we only want to insert the getter and setter if they haven't defined it from elsewhere.
       # this is how we allow custom parsing behavior. So you could define the setter
-      # and have it parse the string into a date or whatever.   
-      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+      # and have it parse the string into a date or whatever.
+      attr_reader options[:as] unless instance_methods.detect{|im| im.to_s == options[:as].to_s }
+      attr_writer options[:as] unless instance_methods.detect{|im| im.to_s == "#{options[:as]}="}
     end
 
     def columns
@@ -63,7 +63,7 @@ module SAXMachine
         sax_config.add_top_level_element(name, options.merge(:collection => true))
       end
       
-      if !instance_methods.include?(options[:as].to_s)
+      if !instance_methods.detect{|im| im.to_s == options[:as].to_s }
       class_eval <<-SRC
           def #{options[:as]}
             @#{options[:as]} ||= []
@@ -71,7 +71,7 @@ module SAXMachine
         SRC
       end
       
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+      attr_writer options[:as] unless instance_methods.detect{|im| im.to_s == "#{options[:as]}="}
     end
     
     def sax_config
