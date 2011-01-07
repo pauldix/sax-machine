@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{sax-machine}
+  s.name = %q{sax-machine-nokogiri-1.4.4-safe}
   s.version = "0.0.15"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
     "lib/sax-machine/sax_document.rb",
     "lib/sax-machine/sax_handler.rb",
     "README.textile", "Rakefile",
-    "spec/spec.opts",
+    ".rspec",
+    "Gemfile", "Gemfile.lock",
     "spec/spec_helper.rb",
     "spec/sax-machine/sax_document_spec.rb"]
   s.homepage = %q{http://github.com/pauldix/sax-machine}
