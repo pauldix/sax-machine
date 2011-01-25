@@ -41,7 +41,7 @@ module SAXMachine
       end
 
       def value_from_attrs(attrs)
-        attrs.index(@value) ? attrs[attrs.index(@value) + 1] : nil
+        Hash[attrs][@value]
       end
       
       def attrs_match?(attrs)
