@@ -1,4 +1,12 @@
+require "rspec/core/rake_task"
 require 'lib/sax-machine.rb'
+
+desc "Run all specs"
+RSpec::Core::RakeTask.new do |t|
+  t.rspec_opts = ['--options', "\"#{File.dirname(__FILE__)}/spec/spec.opts\""]
+end
+
+task :default => [:spec]
 
 task :test do
     sh 'rspec spec'
