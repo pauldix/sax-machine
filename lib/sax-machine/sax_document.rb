@@ -30,11 +30,21 @@ module SAXMachine
     end
 
     def attribute(name, options = {})
-      options[:as] ||= name
+      real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_attribute(self.class.to_s, options.merge(:name => name))
+      create_attr real_name
+    end
 
-      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+    def value(name, options = {})
+      real_name = (options[:as] ||= name).to_s
+      sax_config.add_top_level_element_value(self.class.to_s, options.merge(:name => name))
+      create_attr real_name
+    end
+
+    def parent(name, options = {})
+      real_name = (options[:as] ||= name).to_s
+      sax_config.add_parent(name, options)
+      create_attr(real_name)
     end
 
     def columns
@@ -79,12 +89,6 @@ module SAXMachine
       end
 
       attr_writer options[:as] unless method_defined?("#{options[:as]}=")
-    end
-
-    def parent(name, options = {})
-      real_name = (options[:as] ||= name).to_s
-      sax_config.add_parent(name, options)
-      create_attr(real_name)
     end
 
     def sax_config
