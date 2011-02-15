@@ -27,6 +27,12 @@ module SAXMachine
         if collection_config = sax_config.collection_config(name, attrs)
           stack.push [object = collection_config.data_class.new, collection_config, ""]
           object, sax_config, is_collection = object, object.class.sax_config, true
+
+          if !(attribute_config = object.class.respond_to?(:sax_config) && object.class.sax_config.attribute_configs_for_element(attrs)).empty?
+            attribute_config.each do |ac|
+              object.send(ac.setter, ac.value_from_attrs(attrs))
+            end
+          end
         end
         sax_config.element_configs_for_attribute(name, attrs).each do |ec|
           unless parsed_config?(object, ec)
@@ -35,7 +41,14 @@ module SAXMachine
           end
         end
         if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
-          stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, ""]
+          new_object = element_config.data_class ? element_config.data_class.new : object
+          stack.push [new_object, element_config, ""]
+
+          if !(attribute_config = new_object.class.respond_to?(:sax_config) && new_object.class.sax_config.attribute_configs_for_element(attrs)).empty?
+            attribute_config.each do |ac|
+              new_object.send(ac.setter, ac.value_from_attrs(attrs))
+            end
+          end
         end
       end
     end

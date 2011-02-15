@@ -30,6 +30,14 @@ module SAXMachine
       attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
     end
 
+    def attribute(name, options = {})
+      options[:as] ||= name
+      sax_config.add_top_level_attribute(self.class.to_s, options.merge(:name => name))
+
+      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
+      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+    end
+
     def columns
       sax_config.columns
     end
