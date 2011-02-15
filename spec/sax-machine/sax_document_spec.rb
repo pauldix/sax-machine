@@ -592,4 +592,83 @@ describe "SAXMachine" do
       @item.authors.last.role.should == 'artist'
     end
   end
+
+  describe "with mixed attributes and element values" do
+    before do
+      @xml = %[
+        <item id="1">
+          <author role="writer">John Doe</author>
+        </item>
+      ]
+      class AuthorElement3
+        include SAXMachine
+        value :name
+        attribute :role
+      end
+      class ItemElement3
+        include SAXMachine
+        element :author, :class => AuthorElement3
+      end
+      @item = ItemElement3.parse(@xml)
+    end
+
+    it 'should have the child elements' do
+      @item.author.should_not be_nil
+    end
+
+    it 'should have the author names' do
+      @item.author.name.should == 'John Doe'
+    end
+
+    it 'should have the author roles' do
+      @item.author.role.should == 'writer'
+    end
+  end
+
+  describe "with multiple mixed attributes and element values" do
+    before do
+      @xml = %[
+        <item id="1">
+          <title>sweet</title>
+          <author role="writer">John Doe</author>
+          <author role="artist">Jane Doe</author>
+        </item>
+      ]
+      class AuthorElement4
+        include SAXMachine
+        value :name
+        attribute :role
+      end
+      class ItemElement4
+        include SAXMachine
+        element :title
+        elements :author, :as => :authors, :class => AuthorElement4
+
+        def title=(blah)
+          #raise 'woo'
+          @title = blah
+        end
+      end
+      @item = ItemElement4.parse(@xml)
+    end
+
+    it 'should have the title' do
+      @item.title.should == 'sweet'
+    end
+
+    it 'should have the child elements' do
+      @item.authors.should_not be_nil
+      @item.authors.count.should == 2
+    end
+
+    it 'should have the author names' do
+      @item.authors.first.name.should == 'John Doe'
+      @item.authors.last.name.should == 'Jane Doe'
+    end
+
+    it 'should have the author roles' do
+      @item.authors.first.role.should == 'writer'
+      @item.authors.last.role.should == 'artist'
+    end
+  end
 end

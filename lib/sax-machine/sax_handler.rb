@@ -28,10 +28,8 @@ module SAXMachine
           stack.push [object = collection_config.data_class.new, collection_config, ""]
           object, sax_config, is_collection = object, object.class.sax_config, true
 
-          if !(attribute_config = object.class.respond_to?(:sax_config) && object.class.sax_config.attribute_configs_for_element(attrs)).empty?
-            attribute_config.each do |ac|
-              object.send(ac.setter, ac.value_from_attrs(attrs))
-            end
+          if (attribute_config = object.class.respond_to?(:sax_config) && object.class.sax_config.attribute_configs_for_element(attrs))
+            attribute_config.each { |ac| object.send(ac.setter, ac.value_from_attrs(attrs)) }
           end
         end
         sax_config.element_configs_for_attribute(name, attrs).each do |ec|
@@ -44,10 +42,8 @@ module SAXMachine
           new_object = element_config.data_class ? element_config.data_class.new : object
           stack.push [new_object, element_config, ""]
 
-          if !(attribute_config = new_object.class.respond_to?(:sax_config) && new_object.class.sax_config.attribute_configs_for_element(attrs)).empty?
-            attribute_config.each do |ac|
-              new_object.send(ac.setter, ac.value_from_attrs(attrs))
-            end
+          if (attribute_config = new_object.class.respond_to?(:sax_config) && new_object.class.sax_config.attribute_configs_for_element(attrs))
+            attribute_config.each { |ac| new_object.send(ac.setter, ac.value_from_attrs(attrs)) }
           end
         end
       end
@@ -58,6 +54,10 @@ module SAXMachine
       return unless stack.size > 1 && config && config.name.to_s == name.to_s
 
       unless parsed_config?(object, config)
+        if (element_value_config = config.data_class.respond_to?(:sax_config) && config.data_class.sax_config.element_values_for_element)
+          element_value_config.each { |evc| element.send(evc.setter, value) }
+        end
+
         if config.respond_to?(:accessor)
           object.send(config.accessor) << element
         else
