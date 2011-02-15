@@ -572,4 +572,72 @@ describe "SAXMachine" do
       @item.title.should == "Hello"
     end
   end
+
+  describe "with config to pull multiple attributes" do
+    before do
+      @xml = %[
+        <item id="1">
+          <author name="John Doe" role="writer" />
+        </item>
+      ]
+      class AuthorElement
+        include SAXMachine
+        attribute :name
+        attribute :role
+      end
+      class ItemElement
+        include SAXMachine
+        element :author, :class => AuthorElement
+      end
+      @item = ItemElement.parse(@xml)
+    end
+
+    it 'should have the child element' do
+      @item.author.should_not be_nil
+    end
+
+    it 'should have the author name' do
+      @item.author.name.should == 'John Doe'
+    end
+
+    it 'should have the author role' do
+      @item.author.role.should == 'writer'
+    end
+  end
+
+  describe "with multiple elements and multiple attributes" do
+    before do
+      @xml = %[
+        <item id="1">
+          <author name="John Doe" role="writer" />
+          <author name="Jane Doe" role="artist" />
+        </item>
+      ]
+      class AuthorElement2
+        include SAXMachine
+        attribute :name
+        attribute :role
+      end
+      class ItemElement2
+        include SAXMachine
+        elements :author, :as => :authors, :class => AuthorElement2
+      end
+      @item = ItemElement2.parse(@xml)
+    end
+
+    it 'should have the child elements' do
+      @item.authors.should_not be_nil
+      @item.authors.count.should == 2
+    end
+
+    it 'should have the author names' do
+      @item.authors.first.name.should == 'John Doe'
+      @item.authors.last.name.should == 'Jane Doe'
+    end
+
+    it 'should have the author roles' do
+      @item.authors.first.role.should == 'writer'
+      @item.authors.last.role.should == 'artist'
+    end
+  end
 end

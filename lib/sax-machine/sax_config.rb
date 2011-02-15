@@ -1,3 +1,4 @@
+require "sax-machine/sax_attribute_config"
 require "sax-machine/sax_element_config"
 require "sax-machine/sax_collection_config"
 require "sax-machine/sax_parent_config"
@@ -5,11 +6,12 @@ require "sax-machine/sax_parent_config"
 module SAXMachine
   class SAXConfig
 
-    attr_accessor :top_level_elements, :collection_elements, :parents
+    attr_accessor :top_level_elements, :top_level_attributes, :collection_elements, :parents
 
     def initialize
       # Default value is an empty array
       @top_level_elements  = Hash.new { |hash, key| hash[key] = [] }
+      @top_level_attributes  = []
       @collection_elements = Hash.new { |hash, key| hash[key] = [] }
       @parents = []
     end
@@ -21,12 +23,17 @@ module SAXMachine
     def initialize_copy(sax_config)
       super
       @top_level_elements = sax_config.top_level_elements.clone
+      @top_level_attributes = sax_config.top_level_attributes.clone
       @collection_elements = sax_config.collection_elements.clone
       @parents = sax_config.parents.clone
     end
 
     def add_top_level_element(name, options)
       @top_level_elements[name.to_s] << ElementConfig.new(name, options)
+    end
+
+    def add_top_level_attribute(name, options)
+      @top_level_attributes << AttributeConfig.new(options.delete(:name), options)
     end
 
     def add_collection_element(name, options)
@@ -39,6 +46,10 @@ module SAXMachine
 
     def collection_config(name, attrs)
       @collection_elements[name.to_s].detect { |cc| cc.attrs_match?(attrs) }
+    end
+
+    def attribute_configs_for_element(attrs)
+      @top_level_attributes.select { |aa| aa.attrs_match?(attrs) }
     end
 
     def element_configs_for_attribute(name, attrs)
