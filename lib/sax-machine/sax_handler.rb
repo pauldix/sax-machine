@@ -49,7 +49,13 @@ module SAXMachine
         if config.respond_to?(:accessor)
           object.send(config.accessor) << element
         else
-          value = config.data_class ? element : value
+          if config.data_class
+            tmp = value
+            element.define_singleton_method(:inner_text) { tmp }
+            value = element
+          else
+            value.define_singleton_method(:inner_text) { value }
+          end
           object.send(config.setter, value) unless value == ""
           mark_as_parsed(object, config)
         end
