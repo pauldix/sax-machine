@@ -22,20 +22,21 @@ module SAXMachine
       attrs.flatten!
       object, config, value = stack.last
       sax_config = object.class.respond_to?(:sax_config) ? object.class.sax_config : nil
-
+        
       if sax_config
         if collection_config = sax_config.collection_config(name, attrs)
           stack.push [object = collection_config.data_class.new, collection_config, ""]
-          object, sax_config, is_collection = object, object.class.sax_config, true
+          object, sax_config, is_collection = object, object.class.sax_config, true        
+        elsif !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
+          stack.push [object = element_config.data_class ? element_config.data_class.new : object, element_config, ""]
+          object, sax_config, is_collection = object, object.class.sax_config, false
         end
+
         sax_config.element_configs_for_attribute(name, attrs).each do |ec|
           unless parsed_config?(object, ec)
             object.send(ec.setter, ec.value_from_attrs(attrs))
             mark_as_parsed(object, ec)
           end
-        end
-        if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
-          stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, ""]
         end
       end
     end

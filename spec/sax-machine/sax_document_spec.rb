@@ -391,6 +391,21 @@ describe "SAXMachine" do
         document.entries.first.title.should == "paul"
         document.entries.first.url.should == "http://pauldix.net"
       end
+      
+      it "should parse out an attribute value from the tag when not collection" do        
+        class Foo
+          include SAXMachine
+          element :entry, :value => :href, :as => :url
+        end
+        @klass = Class.new do
+          include SAXMachine
+          element :entry, :class => Foo
+        end
+        
+        document = @klass.parse("<xml><entry href='http://pauldix.net'><title>paul</title></entry></xml>")
+        document.entry.title.should == "paul"
+        document.entry.url.should == "http://pauldix.net"
+      end
     end
 
   end
