@@ -249,6 +249,20 @@ describe "SAXMachine" do
           document.first.should == "foo value"
           document.second.should == "bar value"
         end
+        
+        it "should parse both the attribute on the node and make the inner text available through the :inner_text method on the class instance" do
+          class Bar
+            include SAXMachine
+            element :http, :value => :code, :as => :code
+          end
+          @klass = Class.new do
+            include SAXMachine
+            element :http, :class => Bar
+          end
+          document = @klass.parse("<http code='200'>9718 bytes fetched in 1.462708s : 2 new entries.</http>")
+          document.http.code.should == "200"
+          document.http.inner_text.should == "9718 bytes fetched in 1.462708s : 2 new entries."
+        end
 
         it "should not fail if one of the attribute hasn't been defined" do
           @klass = Class.new do
