@@ -385,19 +385,18 @@ describe "SAXMachine" do
       it "should parse elements, and make attributes and inner text available" do
         class Related
           include SAXMachine
-          element 'related', :as=>'name'
-          element 'related', :as=>'attrval', :value=>'attrval'
+          element 'related', :as=>:item
+          element 'related', :as=>:attr, :value=>'attr'
         end
         class Foo
           elements 'related', :as=>'items', :class=>Related
         end
 
-        doc = Foo.parse(%{<xml><collection><related attrval='bar'>something</related><related attrval='baz'>somethingelse</related></collection></xml>})
+        doc = Foo.parse(%{<xml><collection><related attr='baz'>something</related><related>somethingelse</related></collection></xml>})
         doc.items.first.should_not be_nil
-        doc.items.first.attrval.should == 'bar'
-        doc.items.last.attrval.should == 'baz'
-        doc.items.last.name.should == 'something'
-        doc.items.last.name.should == 'somethingelse'
+        doc.items.size.should == 2
+        doc.items.first.item.should == 'something'
+        doc.items.last.item.should == 'somethingelse'
 
       end
 
@@ -412,7 +411,6 @@ describe "SAXMachine" do
         document.entries.first.url.should == "http://pauldix.net"
       end
     end
-
   end
 
   describe "full example" do
