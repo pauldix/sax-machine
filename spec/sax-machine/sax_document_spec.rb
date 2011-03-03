@@ -382,6 +382,26 @@ describe "SAXMachine" do
         document.entries.first.title.should == "correct title"
       end
 
+      it "should parse elements, and make attributes and inner text available" do
+        class Related
+          include SAXMachine
+          element 'related', :as=>'name'
+          element 'related', :as=>'attrval', :value=>'attrval'
+        end
+        class Foo
+          elements 'related', :as=>'items', :class=>Related
+        end
+
+        doc = Foo.parse(%{<xml><collection><related attrval='bar'>something</related><related attrval='baz'>somethingelse</related></collection></xml>})
+        doc.items.first.should_not be_nil
+        doc.items.first.attrval.should == 'bar'
+        doc.items.last.attrval.should == 'baz'
+        doc.items.last.name.should == 'something'
+        doc.items.last.name.should == 'somethingelse'
+
+      end
+
+
       it "should parse out an attribute value from the tag that starts the collection" do
         class Foo
           element :entry, :value => :href, :as => :url
