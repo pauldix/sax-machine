@@ -21,6 +21,7 @@ module SAXMachine
     end
 
     def start_element(name, attrs = [])
+      name.gsub!(/\-/,'_')
       attrs.flatten!
       object, config, value = stack.last
       sax_config = object.class.respond_to?(:sax_config) ? object.class.sax_config : nil
@@ -58,6 +59,7 @@ module SAXMachine
     end
 
     def end_element(name)
+      name.gsub!(/\-/,'_')
       (object, tag_config, _), (element, config, value) = stack[-2..-1]
       return unless stack.size > 1 && config && config.name.to_s == name.to_s
 
