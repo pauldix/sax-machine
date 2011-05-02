@@ -26,8 +26,9 @@ module SAXMachine
       # we only want to insert the getter and setter if they haven't defined it from elsewhere.
       # this is how we allow custom parsing behavior. So you could define the setter
       # and have it parse the string into a date or whatever.
-      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+      method_names = instance_methods.collect(&:to_s)
+      attr_reader options[:as] unless method_names.include?(options[:as].to_s)
+      attr_writer options[:as] unless method_names.include?("#{options[:as]}=".to_s)
     end
 
     def columns
