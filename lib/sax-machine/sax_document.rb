@@ -15,6 +15,10 @@ module SAXMachine
 
   module ClassMethods
 
+    def inherited(subclass)
+      subclass.sax_config.send(:initialize_copy, self.sax_config)
+    end
+
     def parse(xml_text)
       new.parse(xml_text)
     end
