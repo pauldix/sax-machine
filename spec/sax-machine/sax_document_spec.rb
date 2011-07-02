@@ -20,11 +20,26 @@ describe "SAXMachine" do
         @klass.column_names.should =~ [:title]
       end
 
+      it "should not overwrite the getter is there is already one present" do
+        @klass = Class.new do
+          def title
+            "#{@title} ***"
+          end
+
+          include SAXMachine
+          element :title
+        end
+        document = @klass.new
+        document.title = "Title"
+        document.title.should == "Title ***"
+      end
+
       it "should not overwrite the setter if there is already one present" do
         @klass = Class.new do
           def title=(val)
             @title = "#{val} **"
           end
+
           include SAXMachine
           element :title
         end
@@ -105,6 +120,36 @@ describe "SAXMachine" do
         document.name.should == "Paul"
         document.title.should == "My Title"
       end
+
+
+      it "should not overwrite the getter is there is already one present" do
+        @klass = Class.new do
+          def items
+            []
+          end
+
+          include SAXMachine
+          elements :items
+        end
+        document = @klass.new
+        document.items = [1, 2, 3, 4]
+        document.items.should == []
+      end
+
+      it "should not overwrite the setter if there is already one present" do
+        @klass = Class.new do
+          def items=(val)
+            @items = [1, *val]
+          end
+
+          include SAXMachine
+          elements :items
+        end
+        document = @klass.new
+        document.items = [2, 3]
+        document.items.should == [1, 2, 3]
+      end
+
     end
 
     describe "when using options for parsing elements" do
@@ -437,7 +482,8 @@ describe "SAXMachine" do
         </category>
       </categories>
       ]
-      class CategoryCollection; end
+      class CategoryCollection;
+      end
       class Category
         include SAXMachine
         attr_accessor :id

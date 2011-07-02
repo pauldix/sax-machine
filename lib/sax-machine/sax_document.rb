@@ -1,33 +1,33 @@
 require "nokogiri"
 
 module SAXMachine
-  
+
   def self.included(base)
     base.extend ClassMethods
   end
-  
+
   def parse(xml_text)
     sax_handler = SAXHandler.new(self)
     parser = Nokogiri::XML::SAX::Parser.new(sax_handler)
     parser.parse(xml_text)
     self
   end
-  
+
   module ClassMethods
 
     def parse(xml_text)
       new.parse(xml_text)
     end
-    
+
     def element(name, options = {})
       options[:as] ||= name
       sax_config.add_top_level_element(name, options)
-      
-      # we only want to insert the getter and setter if they haven't defined it from elsewhere.
-      # this is how we allow custom parsing behavior. So you could define the setter
-      # and have it parse the string into a date or whatever.
-      attr_reader options[:as] unless instance_methods.include?(options[:as].to_s)
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+
+        # we only want to insert the getter and setter if they haven't defined it from elsewhere.
+        # this is how we allow custom parsing behavior. So you could define the setter
+        # and have it parse the string into a date or whatever.
+      attr_reader options[:as] unless method_defined?(options[:as].to_s)
+      attr_writer options[:as] unless method_defined?("#{options[:as]}=")
     end
 
     def columns
@@ -35,7 +35,7 @@ module SAXMachine
     end
 
     def column(sym)
-      columns.select{|c| c.column == sym}[0]
+      columns.select { |c| c.column == sym }[0]
     end
 
     def data_class(sym)
@@ -47,9 +47,9 @@ module SAXMachine
     end
 
     def column_names
-      columns.map{|e| e.column}
+      columns.map { |e| e.column }
     end
-    
+
     def elements(name, options = {})
       options[:as] ||= name
       if options[:class]
@@ -62,21 +62,21 @@ module SAXMachine
         SRC
         sax_config.add_top_level_element(name, options.merge(:collection => true))
       end
-      
-      if !instance_methods.include?(options[:as].to_s)
-      class_eval <<-SRC
+
+      if !method_defined?(options[:as].to_s)
+        class_eval <<-SRC
           def #{options[:as]}
             @#{options[:as]} ||= []
           end
         SRC
       end
-      
-      attr_writer options[:as] unless instance_methods.include?("#{options[:as]}=")
+
+      attr_writer options[:as] unless method_defined?("#{options[:as]}=")
     end
-    
+
     def sax_config
       @sax_config ||= SAXConfig.new
     end
   end
-  
+
 end
