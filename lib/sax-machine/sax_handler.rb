@@ -5,7 +5,7 @@ module SAXMachine
     attr_reader :stack
 
     def initialize(object)
-      @stack = [[object, nil, ""]]
+      @stack = [[object, nil, String.new]]
       @parsed_configs = {}
     end
 
@@ -25,7 +25,7 @@ module SAXMachine
 
       if sax_config
         if collection_config = sax_config.collection_config(name, attrs)
-          stack.push [object = collection_config.data_class.new, collection_config, ""]
+          stack.push [object = collection_config.data_class.new, collection_config, String.new]
           object, sax_config, is_collection = object, object.class.sax_config, true
         end
         sax_config.element_configs_for_attribute(name, attrs).each do |ec|
@@ -35,7 +35,7 @@ module SAXMachine
           end
         end
         if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
-          stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, ""]
+          stack.push [element_config.data_class ? element_config.data_class.new : object, element_config, String.new]
         end
       end
     end
