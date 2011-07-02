@@ -1,5 +1,7 @@
 require "rspec/core/rake_task"
-require 'lib/sax-machine.rb'
+
+$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
+require 'sax-machine'
 
 desc "Run all specs"
 RSpec::Core::RakeTask.new do |t|
