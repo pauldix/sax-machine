@@ -20,14 +20,9 @@ module SAXMachine
     end
 
     def element(name, options = {})
-      options[:as] ||= name
+      real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_element(name, options)
-
-        # we only want to insert the getter and setter if they haven't defined it from elsewhere.
-        # this is how we allow custom parsing behavior. So you could define the setter
-        # and have it parse the string into a date or whatever.
-      attr_reader options[:as] unless method_defined?(options[:as].to_s)
-      attr_writer options[:as] unless method_defined?("#{options[:as]}=")
+      create_attr real_name
     end
 
     def columns
@@ -74,8 +69,22 @@ module SAXMachine
       attr_writer options[:as] unless method_defined?("#{options[:as]}=")
     end
 
+    def parent(name, options = {})
+      real_name = (options[:as] ||= name).to_s
+      sax_config.add_parent(name, options)
+      create_attr(real_name)
+    end
+
     def sax_config
       @sax_config ||= SAXConfig.new
+    end
+
+    # we only want to insert the getter and setter if they haven't defined it from elsewhere.
+    # this is how we allow custom parsing behavior. So you could define the setter
+    # and have it parse the string into a date or whatever.
+    def create_attr real_name
+      attr_reader real_name unless method_defined?(real_name)
+      attr_writer real_name unless method_defined?("#{real_name}=")
     end
   end
 

@@ -52,6 +52,14 @@ module SAXMachine
           object.send(config.setter, value) unless value == ""
           mark_as_parsed(object, config)
         end
+
+        # try to set the parent
+        sax_config = element.class.respond_to?(:sax_config) ? element.class.sax_config : nil
+        if sax_config
+          sax_config.parents.each do |parent|
+            element.send(parent.setter, object)
+          end
+        end
       end
       stack.pop
     end
