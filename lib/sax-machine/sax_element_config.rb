@@ -31,6 +31,12 @@ module SAXMachine
         @data_class = options[:class]
         @required = options[:required]
       end
+      def value_configured?
+        !@value.nil?
+      end
+      def to_s
+        "name: #{@name} dataclass: #{@data_class} setter: #{@setter} required: #{@required} value: #{@value} as:#{@as} collection: #{@collection} with: #{@with}"
+      end
 
       def column
         @as || @name.to_sym

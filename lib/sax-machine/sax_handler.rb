@@ -46,6 +46,10 @@ module SAXMachine
 
       unless parsed_config?(object, config)
         if config.respond_to?(:accessor)
+          subconfig = element.class.sax_config if element.class.respond_to?(:sax_config)
+          if econf = subconfig.element_config_for_tag(name,[])
+            element.send(econf.setter, value) unless econf.value_configured?
+          end
           object.send(config.accessor) << element
         else
           value = config.data_class ? element : value
