@@ -397,9 +397,7 @@ describe "SAXMachine" do
         doc.items.size.should == 2
         doc.items.first.item.should == 'something'
         doc.items.last.item.should == 'somethingelse'
-
       end
-
 
       it "should parse out an attribute value from the tag that starts the collection" do
         class Foo
