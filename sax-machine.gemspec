@@ -11,10 +11,11 @@ Gem::Specification.new do |s|
   s.files = [
     "lib/sax-machine.rb",
     "lib/sax-machine/sax_config.rb",
+    "lib/sax-machine/sax_document.rb",
     "lib/sax-machine/sax_collection_config.rb",
     "lib/sax-machine/sax_element_config.rb",
-    "lib/sax-machine/sax_document.rb",
     "lib/sax-machine/sax_handler.rb",
+    "lib/sax-machine/sax_parent_config.rb",
     "README.textile", "Rakefile",
     "Gemfile",
     "spec/spec_helper.rb",
