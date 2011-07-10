@@ -4,9 +4,11 @@ module SAXMachine
   class SAXHandler < Nokogiri::XML::SAX::Document
     attr_reader :stack
 
-    def initialize(object)
+    def initialize(object, on_error = nil, on_warning = nil)
       @stack = [[object, nil, String.new]]
       @parsed_configs = {}
+      @on_error = on_error
+      @on_warning = on_warning
     end
 
     def characters(string)
@@ -60,7 +62,7 @@ module SAXMachine
 
         if config.respond_to?(:accessor)
           subconfig = element.class.sax_config if element.class.respond_to?(:sax_config)
-          if econf = subconfig.element_config_for_tag(name,[])
+          if econf = subconfig.element_config_for_tag(name, [])
             element.send(econf.setter, value) unless econf.value_configured?
           end
           object.send(config.accessor) << element
@@ -88,5 +90,18 @@ module SAXMachine
     def parsed_config?(object, element_config)
       @parsed_configs[[object.object_id, element_config.object_id]]
     end
+
+    def warning string
+      if @on_warning
+        @on_warning.call(string)
+      end
+    end
+
+    def error string
+      if @on_error
+        @on_error.call(string)
+      end
+    end
+
   end
 end

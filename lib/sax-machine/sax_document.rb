@@ -6,8 +6,8 @@ module SAXMachine
     base.extend ClassMethods
   end
 
-  def parse(xml_text)
-    sax_handler = SAXHandler.new(self)
+  def parse(xml_text, on_error = nil, on_warning = nil)
+    sax_handler = SAXHandler.new(self, on_error, on_warning)
     parser = Nokogiri::XML::SAX::Parser.new(sax_handler)
     parser.parse(xml_text)
     self
@@ -19,8 +19,8 @@ module SAXMachine
       subclass.sax_config.send(:initialize_copy, self.sax_config)
     end
 
-    def parse(xml_text)
-      new.parse(xml_text)
+    def parse(xml_text, on_error = nil, on_warning = nil)
+      new.parse(xml_text, on_error, on_warning)
     end
 
     def element(name, options = {})
