@@ -15,6 +15,11 @@ module SAXMachine
 
   module ClassMethods
 
+    def included(base)
+      base.extend ClassMethods
+      base.sax_config.send(:initialize_copy, self.sax_config)
+    end
+
     def inherited(subclass)
       subclass.sax_config.send(:initialize_copy, self.sax_config)
     end
