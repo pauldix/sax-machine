@@ -62,6 +62,7 @@ feed.entries.first.parent # => the Atom parent
 
 # you can also use the elements method without specifying a class like so
 class SomeServiceResponse
+  include SAXMachine
   elements :message, :as => :messages
 end
 
