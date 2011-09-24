@@ -72,11 +72,11 @@ module SAXMachine
           mark_as_parsed(object, config)
         end
 
-        # try to set the parent
+        # try to set the ancestor
         sax_config = element.class.respond_to?(:sax_config) ? element.class.sax_config : nil
         if sax_config
-          sax_config.parents.each do |parent|
-            element.send(parent.setter, object)
+          sax_config.ancestors.each do |ancestor|
+            element.send(ancestor.setter, object)
           end
         end
       end

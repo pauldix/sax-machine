@@ -506,7 +506,7 @@ describe "SAXMachine" do
         element :category, :value => :id, :as => :id
         element :title
         element :categories, :as => :collection, :class => CategoryCollection
-        parent :parent
+        ancestor :ancestor
       end
       class CategoryCollection
         include SAXMachine
@@ -518,7 +518,7 @@ describe "SAXMachine" do
     it "should parse the first category" do
       @collection.categories.first.id.should == "1"
       @collection.categories.first.title.should == "First"
-      @collection.categories.first.parent.should == @collection
+      @collection.categories.first.ancestor.should == @collection
     end
 
     it "should parse the nested category" do

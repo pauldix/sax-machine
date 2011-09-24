@@ -41,9 +41,9 @@ module SAXMachine
       create_attr real_name
     end
 
-    def parent(name, options = {})
+    def ancestor(name, options = {})
       real_name = (options[:as] ||= name).to_s
-      sax_config.add_parent(name, options)
+      sax_config.add_ancestor(name, options)
       create_attr(real_name)
     end
 

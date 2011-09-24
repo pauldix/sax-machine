@@ -1,7 +1,7 @@
 module SAXMachine
   class SAXConfig
 
-    class ParentConfig
+    class AncestorConfig
       attr_reader :name, :setter
 
       def initialize(name, options)

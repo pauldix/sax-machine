@@ -2,12 +2,12 @@ require "sax-machine/sax_attribute_config"
 require "sax-machine/sax_element_value_config"
 require "sax-machine/sax_element_config"
 require "sax-machine/sax_collection_config"
-require "sax-machine/sax_parent_config"
+require "sax-machine/sax_ancestor_config"
 
 module SAXMachine
   class SAXConfig
 
-    attr_accessor :top_level_elements, :top_level_attributes, :top_level_element_value, :collection_elements, :parents
+    attr_accessor :top_level_elements, :top_level_attributes, :top_level_element_value, :collection_elements, :ancestors
 
     def initialize
       # Default value is an empty array
@@ -15,7 +15,7 @@ module SAXMachine
       @top_level_attributes  = []
       @top_level_element_value = []
       @collection_elements = Hash.new { |hash, key| hash[key] = [] }
-      @parents = []
+      @ancestors = []
     end
 
     def columns
@@ -28,7 +28,7 @@ module SAXMachine
       @top_level_attributes = sax_config.top_level_attributes.clone
       @top_level_element_value = sax_config.top_level_element_value.clone
       @collection_elements = sax_config.collection_elements.clone
-      @parents = sax_config.parents.clone
+      @ancestors = sax_config.ancestors.clone
     end
 
     def add_top_level_element(name, options)
@@ -47,8 +47,8 @@ module SAXMachine
       @collection_elements[name.to_s] << CollectionConfig.new(name, options)
     end
 
-    def add_parent(name, options)
-      @parents << ParentConfig.new(name, options)
+    def add_ancestor(name, options)
+      @ancestors << AncestorConfig.new(name, options)
     end
 
     def collection_config(name, attrs)

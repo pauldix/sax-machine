@@ -23,7 +23,7 @@ class AtomEntry
   element :summary
   element :content
   element :published
-  parent :parent
+  ancestor :ancestor
 end
 
 # Class for parsing Atom feeds
@@ -48,7 +48,7 @@ feed.feed_url # => goes to the feedburner feed
 feed.entries.first.title # => title of the first entry
 feed.entries.first.author # => the author of the first entry
 feed.entries.first.url # => the permalink on the blog for this entry
-feed.entries.first.parent # => the Atom parent
+feed.entries.first.ancestor # => the Atom ancestor
 # etc ...
 
 # you can also use the elements method without specifying a class like so
