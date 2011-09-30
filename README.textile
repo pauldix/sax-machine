@@ -71,6 +71,17 @@ response.messages.first # => "hi"
 response.messages.last  # => "world"
 </pre>
 
+# To limit conflicts in the class used for mappping, you can use the alternate SAXMachine.configure syntax
+
+class X < ActiveRecord::Base
+
+  # this way no element, elements or ancestor method will be added to X
+  SAXMachine.configure(X) do |c|
+    c.element :title
+  end
+
+end
+
 h2. LICENSE
 
 (The MIT License)

@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
     "lib/sax-machine/sax_ancestor_config.rb",
     "lib/sax-machine/sax_attribute_config.rb",
     "lib/sax-machine/sax_config.rb",
+    "lib/sax-machine/sax_configure.rb",
     "lib/sax-machine/sax_document.rb",
     "lib/sax-machine/sax_collection_config.rb",
     "lib/sax-machine/sax_element_config.rb",
@@ -21,6 +22,8 @@ Gem::Specification.new do |s|
     "README.textile", "Rakefile",
     "Gemfile",
     "spec/spec_helper.rb",
+    "spec/sax-machine/configure_sax_machine_spec.rb",
+    "spec/sax-machine/include_sax_machine_spec.rb",
     "spec/sax-machine/sax_document_spec.rb"]
   s.homepage = %q{http://github.com/pauldix/sax-machine}
   s.require_paths = ["lib"]
