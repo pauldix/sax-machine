@@ -87,6 +87,15 @@ describe "SAXMachine" do
           document.number.should == "5.5"
         end
         
+        it "should handle a time class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :time, :class => Time
+          end
+          document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
+          document.time.should == Time.new(1994, 2, 4, 6, 20, 0, 0)
+        end
+        
       end
       describe "the required attribute" do
         it "should be available" do

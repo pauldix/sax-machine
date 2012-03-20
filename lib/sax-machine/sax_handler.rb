@@ -1,4 +1,5 @@
 require "nokogiri"
+require "time"
 
 module SAXMachine
   class SAXHandler < Nokogiri::XML::SAX::Document
@@ -45,6 +46,7 @@ module SAXMachine
           new_object = case element_config.data_class.to_s
           when 'Integer' then 0
           when 'Float'   then 0.0
+          when 'Time'    then Time.at(0)
           when ''        then object
           else
             element_config.data_class.new
@@ -79,6 +81,9 @@ module SAXMachine
           when 'String'  then value.to_s
           when 'Integer' then value.to_i
           when 'Float'   then value.to_f
+          # Assumes that time elements will be string-based and are not
+          # something else, e.g. seconds since epoch
+          when 'Time'    then Time.parse(value.to_s)
           when ''        then value
           else
             element
