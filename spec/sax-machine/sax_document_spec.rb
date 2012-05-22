@@ -59,6 +59,34 @@ describe "SAXMachine" do
         it "should be available" do
           @klass.data_class(:date).should == DateTime
         end
+        
+        it "should handle an integer class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, :class => Integer
+          end
+          document = @klass.parse("<number>5</number>")
+          document.number.should == 5
+        end
+        
+        it "should handle an float class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, :class => Float
+          end
+          document = @klass.parse("<number>5.5</number>")
+          document.number.should == 5.5
+        end        
+
+        it "should handle an string class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, :class => String
+          end
+          document = @klass.parse("<number>5.5</number>")
+          document.number.should == "5.5"
+        end
+        
       end
       describe "the required attribute" do
         it "should be available" do
@@ -385,7 +413,7 @@ describe "SAXMachine" do
           elements :item, :as => :items, :with => {:type => 'Foo'}, :class => Foo
         end
       end
-
+      
       it "should cast into the correct class" do
         document = @klass.parse("<items><item type=\"Bar\"><title>Bar title</title></item><item type=\"Foo\"><title>Foo title</title></item></items>")
         document.items.size.should == 2
