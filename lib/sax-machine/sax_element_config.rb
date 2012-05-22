@@ -9,7 +9,7 @@ module SAXMachine
         
         if options.has_key?(:with)
           # for faster comparisons later
-          @with = options[:with].to_a.flatten.collect {|o| o.to_s}
+          @with = options[:with].to_a.map { |pair| pair.map { |o| o.to_s } }
         else
           @with = nil
         end
@@ -49,7 +49,7 @@ module SAXMachine
       end
 
       def value_from_attrs(attrs)
-        attrs.index(@value) ? attrs[attrs.index(@value) + 1] : nil
+        Hash[attrs][@value]
       end
       
       def attrs_match?(attrs)
