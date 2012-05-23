@@ -41,7 +41,13 @@ module SAXMachine
           end
         end
         if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
-          new_object = element_config.data_class ? element_config.data_class.new : object
+          new_object = case element_config.data_class.to_s
+          when 'Integer' then 0
+          when 'Float'   then 0.0
+          when ''        then object
+          else
+            element_config.data_class.new
+          end
           stack.push [new_object, element_config, String.new]
 
           if (attribute_config = new_object.class.respond_to?(:sax_config) && new_object.class.sax_config.attribute_configs_for_element(attrs))
@@ -67,7 +73,14 @@ module SAXMachine
           end
           object.send(config.accessor) << element
         else
-          value = config.data_class ? element : value
+          value =  case config.data_class.to_s
+          when 'String'  then value.to_s
+          when 'Integer' then value.to_i
+          when 'Float'   then value.to_f
+          when ''        then value
+          else
+            element
+          end
           object.send(config.setter, value) unless value == ""
           mark_as_parsed(object, config)
         end
