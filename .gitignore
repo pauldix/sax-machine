@@ -2,3 +2,7 @@
 .bundle
 *.gem
 Gemfile.lock
+.rvmrc
+.DS_STORE
+pkg/
+coverage/
