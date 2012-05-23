@@ -1,4 +1,10 @@
 source "http://rubygems.org"
 
-gem 'nokogiri', '>= 1.4.4'
-gem 'rspec', '>= 2.6.0'
+gemspec
+
+group :development, :test do
+  gem 'rake'
+  gem 'guard-rspec'
+  gem 'growl', :require => false
+  gem 'simplecov', :require => false, :platforms => :mri_19
+end
