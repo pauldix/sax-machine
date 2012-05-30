@@ -93,7 +93,7 @@ describe "SAXMachine" do
             element :time, :class => Time
           end
           document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
-          document.time.should == Time.new(1994, 2, 4, 6, 20, 0, 0)
+          document.time.should == Time.utc(1994, 2, 4, 6, 20, 0, 0)
         end
         
       end
