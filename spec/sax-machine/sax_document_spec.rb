@@ -483,6 +483,18 @@ describe "SAXMachine" do
       end
     end
   end
+  
+  describe "when dealing with element names containing dashes" do
+    it 'should automatically convert dashes to underscores' do      
+      class Dashes
+        include SAXMachine
+        element :dashed_element
+      end
+      
+      parsed = Dashes.parse('<dashed-element>Text</dashed-element>')
+      parsed.dashed_element.should eq "Text"
+    end
+  end
 
   describe "full example" do
     before :each do
