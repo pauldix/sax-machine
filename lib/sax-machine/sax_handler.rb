@@ -13,13 +13,15 @@ module SAXMachine
     end
 
     def characters(string)
-      object, config, value = stack.last
-      value << string
-    end
+      value = stack.last[2]
 
-    def cdata_block(string)
-      characters(string)
+      if value.empty?
+        stack.last[2] = string.dup
+      else
+        value << string
+      end
     end
+    alias cdata_block characters
 
     def start_element(name, attrs = [])
       name.gsub!(/\-/,'_')
