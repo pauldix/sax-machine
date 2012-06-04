@@ -3,125 +3,189 @@ require "time"
 
 module SAXMachine
   class SAXHandler < Nokogiri::XML::SAX::Document
-    attr_reader :stack
+    NO_BUFFER = :no_buffer
+
+    class StackNode < Struct.new(:object, :config, :buffer)
+      def initialize(object, config = nil, buffer = NO_BUFFER)
+        self.object = object
+        self.config = config
+        self.buffer = buffer
+      end
+    end
 
     def initialize(object, on_error = nil, on_warning = nil)
-      @stack = [[object, nil, String.new]]
+      @stack = [ StackNode.new(object) ]
       @parsed_configs = {}
       @on_error = on_error
       @on_warning = on_warning
     end
 
-    def characters(string)
-      object, config, value = stack.last
-      value << string
-    end
+    def characters(data)
+      node = stack.last
 
-    def cdata_block(string)
-      characters(string)
+      if node.buffer == NO_BUFFER
+        node.buffer = data.dup
+      else
+        node.buffer << data
+      end
     end
+    alias cdata_block characters
 
     def start_element(name, attrs = [])
-      name.gsub!(/\-/,'_')
       attrs.flatten!
-      object, config, value = stack.last
-      sax_config = object.class.respond_to?(:sax_config) ? object.class.sax_config : nil
+
+      name   = normalize_name(name)
+      node   = stack.last
+      object = node.object
+
+      sax_config = sax_config_for(object)
 
       if sax_config
         if collection_config = sax_config.collection_config(name, attrs)
-          stack.push [object = collection_config.data_class.new, collection_config, String.new]
-          object, sax_config, is_collection = object, object.class.sax_config, true
+          object     = collection_config.data_class.new
+          sax_config = sax_config_for(object)
 
-          if (attribute_config = object.class.respond_to?(:sax_config) && object.class.sax_config.attribute_configs_for_element(attrs))
-            attribute_config.each { |ac| object.send(ac.setter, ac.value_from_attrs(attrs)) }
-          end
+          stack.push(StackNode.new(object, collection_config))
+
+          set_attributes_on(object, attrs)
         end
+
         sax_config.element_configs_for_attribute(name, attrs).each do |ec|
           unless parsed_config?(object, ec)
             object.send(ec.setter, ec.value_from_attrs(attrs))
             mark_as_parsed(object, ec)
           end
         end
-        if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
-          new_object = case element_config.data_class.to_s
-          when 'Integer' then 0
-          when 'Float'   then 0.0
-          when 'Time'    then Time.at(0)
-          when ''        then object
-          else
-            element_config.data_class.new
-          end
-          stack.push [new_object, element_config, String.new]
 
-          if (attribute_config = new_object.class.respond_to?(:sax_config) && new_object.class.sax_config.attribute_configs_for_element(attrs))
-            attribute_config.each { |ac| new_object.send(ac.setter, ac.value_from_attrs(attrs)) }
-          end
+        if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
+          new_object =
+            case element_config.data_class.to_s
+            when 'Integer' then 0
+            when 'Float'   then 0.0
+            when 'Time'    then Time.at(0)
+            when ''        then object
+            else
+              element_config.data_class.new
+            end
+
+          stack.push(StackNode.new(new_object, element_config))
+
+          set_attributes_on(new_object, attrs)
         end
       end
     end
 
     def end_element(name)
-      name.gsub!(/\-/,'_')
-      (object, tag_config, _), (element, config, value) = stack[-2..-1]
-      return unless stack.size > 1 && config && config.name.to_s == name.to_s
+      name = normalize_name(name)
+
+      start_tag = stack[-2]
+      close_tag = stack[-1]
+
+      return unless start_tag && close_tag
+
+      object  = start_tag.object
+      element = close_tag.object
+      config  = close_tag.config
+      value   = close_tag.buffer
+
+      return unless config.name == name
 
       unless parsed_config?(object, config)
-        if (element_value_config = config.data_class.respond_to?(:sax_config) && config.data_class.sax_config.element_values_for_element)
+        if (element_value_config = element_values_for(config))
           element_value_config.each { |evc| element.send(evc.setter, value) }
         end
 
         if config.respond_to?(:accessor)
-          subconfig = element.class.sax_config if element.class.respond_to?(:sax_config)
+          subconfig = sax_config_for(element)
+
           if econf = subconfig.element_config_for_tag(name, [])
             element.send(econf.setter, value) unless econf.value_configured?
           end
+
           object.send(config.accessor) << element
         else
-          value =  case config.data_class.to_s
-          when 'String'  then value.to_s
-          when 'Integer' then value.to_i
-          when 'Float'   then value.to_f
-          # Assumes that time elements will be string-based and are not
-          # something else, e.g. seconds since epoch
-          when 'Time'    then Time.parse(value.to_s)
-          when ''        then value
-          else
-            element
-          end
-          object.send(config.setter, value) unless value == ""
+          value =
+            case config.data_class.to_s
+            when 'String'  then value.to_s
+            when 'Integer' then value.to_i
+            when 'Float'   then value.to_f
+            # Assumes that time elements will be string-based and are not
+            # something else, e.g. seconds since epoch
+            when 'Time'    then Time.parse(value.to_s)
+            when ''        then value
+            else
+              element
+            end
+
+          object.send(config.setter, value) unless value == NO_BUFFER
+
           mark_as_parsed(object, config)
         end
 
         # try to set the ancestor
-        sax_config = element.class.respond_to?(:sax_config) ? element.class.sax_config : nil
-        if sax_config
+        if (sax_config = sax_config_for(element))
           sax_config.ancestors.each do |ancestor|
             element.send(ancestor.setter, object)
           end
         end
       end
+
       stack.pop
     end
 
+    private
+
     def mark_as_parsed(object, element_config)
-      @parsed_configs[[object.object_id, element_config.object_id]] = true unless element_config.collection?
+      unless element_config.collection?
+        @parsed_configs[[object.object_id, element_config.object_id]] = true
+      end
     end
 
     def parsed_config?(object, element_config)
       @parsed_configs[[object.object_id, element_config.object_id]]
     end
 
-    def warning string
+    def warning(string)
       if @on_warning
         @on_warning.call(string)
       end
     end
 
-    def error string
+    def error(string)
       if @on_error
         @on_error.call(string)
       end
     end
 
+
+    def sax_config_for(object)
+      if object.class.respond_to?(:sax_config)
+        object.class.sax_config
+      end
+    end
+
+    def element_values_for(config)
+      if config.data_class.respond_to?(:sax_config)
+        config.data_class.sax_config.element_values_for_element
+      end
+    end
+
+    def normalize_name(name)
+      name.gsub(/\-/, '_')
+    end
+
+    def set_attributes_on(object, attributes)
+      config = sax_config_for(object)
+
+      if config
+        config.attribute_configs_for_element(attributes).each do |ac|
+          object.send(ac.setter, ac.value_from_attrs(attributes))
+        end
+      end
+    end
+
+    def stack
+      @stack
+    end
   end
 end
