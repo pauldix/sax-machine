@@ -126,6 +126,16 @@ describe "SAXMachine" do
         document.title.should == "My Title"
       end
 
+      if RUBY_VERSION >= "1.9.0"
+        it "should keep the document encoding for elements" do
+          data = "<title>My Title</title>"
+          data.encode!("utf-8")
+
+          document = @klass.parse(data)
+          document.title.encoding.should == data.encoding
+        end
+      end
+
       it "should save cdata into an accessor" do
         document = @klass.parse("<title><![CDATA[A Title]]></title>")
         document.title.should == "A Title"
