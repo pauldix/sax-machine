@@ -3,6 +3,7 @@ require "nokogiri"
 module SAXMachine
 
   def self.included(base)
+    base.send(:include, InstanceMethods)
     base.extend ClassMethods
   end
 
@@ -11,6 +12,14 @@ module SAXMachine
     parser = Nokogiri::XML::SAX::Parser.new(sax_handler)
     parser.parse(xml_text)
     self
+  end
+
+  module InstanceMethods
+    def initialize(attributes = {})
+      attributes.each do |name, value|
+        send("#{name}=", value)
+      end
+    end
   end
 
   module ClassMethods
