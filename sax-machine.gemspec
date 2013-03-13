@@ -12,6 +12,8 @@ Gem::Specification.new do |s|
 
   s.summary   = %q{Declarative SAX Parsing with Nokogiri}
 
+  s.license   = %q{MIT}
+
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
