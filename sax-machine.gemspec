@@ -6,7 +6,6 @@ Gem::Specification.new do |s|
   s.version = SAXMachine::VERSION
 
   s.authors   = ["Paul Dix", "Julien Kirch", "Ezekiel Templin"]
-  s.date      = Date.today
   s.email     = %q{paul@pauldix.net}
   s.homepage  = %q{http://github.com/pauldix/sax-machine}
 
