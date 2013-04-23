@@ -545,6 +545,7 @@ describe "SAXMachine" do
 
     it "should parse entry url" do
       f = Atom.parse(@xml)
+      f.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
       f.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
     end
   end
