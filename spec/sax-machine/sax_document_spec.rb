@@ -523,6 +523,7 @@ describe "SAXMachine" do
         element :title
         element :name, :as => :author
         element "feedburner:origLink", :as => :url
+        element :link, :as => :alternate, :value => :href, :with => {:type => "text/html", :rel => "alternate"}
         element :summary
         element :content
         element :published
@@ -540,6 +541,11 @@ describe "SAXMachine" do
     it "should parse the url" do
       f = Atom.parse(@xml)
       f.url.should == "http://www.pauldix.net/"
+    end
+
+    it "should parse entry url" do
+      f = Atom.parse(@xml)
+      f.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
     end
   end
 
