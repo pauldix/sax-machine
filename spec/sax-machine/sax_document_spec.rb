@@ -54,7 +54,7 @@ describe "SAXMachine" do
             element :date, :class => DateTime
           end
           @document = @klass.new
-          @document.date = DateTime.now.to_s
+          @document.date = Time.now.iso8601
         end
         it "should be available" do
           @klass.data_class(:date).should == DateTime
