@@ -32,7 +32,6 @@ module SAXMachine
     alias cdata_block characters
 
     def start_element(name, attrs = [])
-      attrs.flatten!
 
       name   = normalize_name(name)
       node   = stack.last
@@ -41,6 +40,8 @@ module SAXMachine
       sax_config = sax_config_for(object)
 
       if sax_config
+        attrs = Hash[attrs]
+
         if collection_config = sax_config.collection_config(name, attrs)
           object     = collection_config.data_class.new
           sax_config = sax_config_for(object)
