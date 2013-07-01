@@ -9,7 +9,7 @@
     <generator uri="http://www.typepad.com/">TypePad</generator>
     <link rel="self" href="http://feeds.feedburner.com/PaulDixExplainsNothing" type="application/atom+xml" /><entry>
         <title>Marshal data too short error with ActiveRecord</title>
-        <link rel="alternate" type="text/html" href="http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html" />
+        <link rel="alternate" type="text/html" href="http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&amp;param2=2" />
         <link rel="replies" type="text/html" href="http://www.pauldix.net/2008/09/marshal-data-to.html" thr:count="2" thr:updated="2008-11-17T14:40:06-05:00" />
         <id>tag:typepad.com,2003:post-55147740</id>
         <published>2008-09-04T16:07:19-04:00</published>
@@ -38,7 +38,7 @@
 &lt;/div&gt;&lt;img src="http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~4/383536354" height="1" width="1"/&gt;</content>
 
 
-    <feedburner:origLink>http://www.pauldix.net/2008/09/marshal-data-to.html</feedburner:origLink></entry>
+    <feedburner:origLink>http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&amp;param2=2</feedburner:origLink></entry>
     <entry>
         <title>Serializing data speed comparison: Marshal vs. JSON vs. Eval vs. YAML</title>
         <link rel="alternate" type="text/html" href="http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/376401099/serializing-dat.html" />
