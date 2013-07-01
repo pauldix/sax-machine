@@ -6,14 +6,8 @@ module SAXMachine
       
       def initialize(name, options)
         @name = name.to_s
-        
-        if options.has_key?(:with)
-          # for faster comparisons later
-          @with = options[:with].to_a.flatten.collect {|o| o.to_s}
-        else
-          @with = nil
-        end
-        
+        @with = options.fetch(:with, {})
+
         if options.has_key?(:value)
           @value = options[:value].to_s
         else
@@ -49,14 +43,12 @@ module SAXMachine
       end
 
       def value_from_attrs(attrs)
-        attrs.index(@value) ? attrs[attrs.index(@value) + 1] : nil
+        attrs.fetch(@value, nil)
       end
       
       def attrs_match?(attrs)
-        if @with
-          @with == (@with & attrs)
-        else
-          true
+        @with.all? do |key, value|
+          value === attrs[key.to_s]
         end
       end
       

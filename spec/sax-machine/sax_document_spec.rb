@@ -306,6 +306,35 @@ describe "SAXMachine" do
             document.second.should == "second match"
           end
         end
+
+        describe "with only one element as a regular expression" do
+          before :each do
+            @klass = Class.new do
+              include SAXMachine
+              element :link, :with => {:foo => /ar$/}
+            end
+          end
+
+          it "should save the text of an element that has matching attributes" do
+            document = @klass.parse("<link foo=\"bar\">match</link>")
+            document.link.should == "match"
+          end
+
+          it "should not save the text of an element that doesn't have matching attributes" do
+            document = @klass.parse("<link>no match</link>")
+            document.link.should be_nil
+          end
+
+          it "should save the text of an element that has matching attributes when it is the second of that type" do
+            document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
+            document.link.should == "match"
+          end
+
+          it "should save the text of an element that has matching attributes plus a few more" do
+            document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
+            document.link.should == "match"
+          end
+        end
       end # using the 'with' option
 
       describe "using the 'value' option" do
@@ -429,7 +458,7 @@ describe "SAXMachine" do
         @klass = Class.new do
           include SAXMachine
           elements :item, :as => :items, :with => {:type => 'Bar'}, :class => Bar
-          elements :item, :as => :items, :with => {:type => 'Foo'}, :class => Foo
+          elements :item, :as => :items, :with => {:type => /Foo/}, :class => Foo
         end
       end
       
