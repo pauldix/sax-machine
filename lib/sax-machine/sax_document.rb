@@ -3,6 +3,7 @@ require "nokogiri"
 module SAXMachine
 
   def self.included(base)
+    base.send(:include, InstanceMethods)
     base.extend ClassMethods
   end
 
@@ -13,6 +14,14 @@ module SAXMachine
       ctx.replace_entities = true
     end
     self
+  end
+
+  module InstanceMethods
+    def initialize(attributes = {})
+      attributes.each do |name, value|
+        send("#{name}=", value)
+      end
+    end
   end
 
   module ClassMethods
