@@ -10,6 +10,11 @@ describe "SAXMachine" do
         end
       end
 
+      it "should provide mass assignment through initialize method" do
+        document = @klass.new(title: 'Title')
+        document.title.should == 'Title'
+      end
+
       it "should provide an accessor" do
         document = @klass.new
         document.title = "Title"
