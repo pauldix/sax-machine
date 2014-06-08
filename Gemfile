@@ -8,3 +8,5 @@ group :development, :test do
   gem 'simplecov', require: false, platforms: :mri
   gem 'activerecord', '~> 4.1'
 end
+
+gem 'ox', '~> 2.1' if ENV['HANDLER'] == 'ox'

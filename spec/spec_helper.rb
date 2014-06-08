@@ -7,6 +7,10 @@ rescue LoadError
 end
 
 require File.expand_path(File.dirname(__FILE__) + '/../lib/sax-machine')
+if ENV['HANDLER'] == 'ox'
+  require 'sax-machine/handlers/sax_ox_handler'
+  SAXMachine.handler = :ox
+end
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
