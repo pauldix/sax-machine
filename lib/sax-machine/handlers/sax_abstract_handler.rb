@@ -19,7 +19,7 @@ module SAXMachine
       @on_warning = on_warning
     end
 
-    def _value(data)
+    def _characters(data)
       node = stack.last
 
       if node.buffer == NO_BUFFER

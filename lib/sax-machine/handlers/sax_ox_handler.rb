@@ -4,13 +4,9 @@ module SAXMachine
   class SAXOxHandler < Ox::Sax
     include SAXAbstractHandler
 
-    alias_method :text, :_value
-    alias_method :cdata, :_value
-    alias_method :end_element, :_end_element
-
-    def initialize(object, on_error = nil, on_warning = nil)
-      _initialize(object, on_error, on_warning)
-      _reset
+    def initialize(*args)
+      _initialize(*args)
+      _reset_element
     end
 
     def attr(name, str)
@@ -18,8 +14,8 @@ module SAXMachine
     end
 
     def attrs_done
-      _start_element(@element || "", @attrs)
-      _reset
+      _start_element(@element, @attrs)
+      _reset_element
     end
 
     def start_element(name)
@@ -30,11 +26,15 @@ module SAXMachine
       _error("#{message} on line #{line} column #{column}")
     end
 
+    alias_method :text, :_characters
+    alias_method :cdata, :_characters
+    alias_method :end_element, :_end_element
+
     private
 
-    def _reset
+    def _reset_element
       @attrs = {}
-      @element = nil
+      @element = ""
     end
   end
 end
