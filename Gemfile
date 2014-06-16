@@ -9,4 +9,4 @@ group :development, :test do
   gem 'activerecord', '~> 4.1'
 end
 
-gem 'ox', '~> 2.1' if ENV['HANDLER'] == 'ox'
+gem 'ox', github: 'ohler55/ox' if ENV['HANDLER'] == 'ox'

@@ -15,6 +15,7 @@ module SAXMachine
         {
           symbolize: false,
           convert_special: true,
+          skip: :skip_return,
         }
       )
     else

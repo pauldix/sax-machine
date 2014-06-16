@@ -26,7 +26,7 @@ module Feedzirra
     elements :entry, :as => :entries, :class => AtomEntry
   end
 end
-feed_text = File.read("spec/sax-machine/atom.xml")
+feed_text = File.read("spec/fixtures/atom.xml")
 
 benchmark do |t|
   t.report("feedzirra") do
@@ -65,7 +65,7 @@ end
 #   element :title, String
 #   has_many :entry, Entry
 # end
-# feed_text = File.read("spec/sax-machine/atom.xml")
+# feed_text = File.read("spec/fixtures/atom.xml")
 # 
 # benchmark do |t|
 #   t.report("sax-machine") do

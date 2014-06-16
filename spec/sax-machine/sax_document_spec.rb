@@ -551,7 +551,7 @@ describe "SAXMachine" do
 
   describe "full example" do
     before :each do
-      @xml = File.read('spec/sax-machine/atom.xml')
+      @xml = File.read('spec/fixtures/atom.xml')
       class AtomEntry
         include SAXMachine
         element :title
@@ -570,17 +570,21 @@ describe "SAXMachine" do
         element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
         elements :entry, :as => :entries, :class => AtomEntry
       end
+
+      @feed = Atom.parse(@xml)
     end # before
 
     it "should parse the url" do
-      f = Atom.parse(@xml)
-      f.url.should == "http://www.pauldix.net/"
+      @feed.url.should == "http://www.pauldix.net/"
     end
 
     it "should parse entry url" do
-      f = Atom.parse(@xml)
-      f.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
-      f.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
+      @feed.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
+      @feed.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
+    end
+
+    it "should parse content" do
+      @feed.entries.first.content.should == File.read('spec/fixtures/atom-content.html')
     end
   end
 
