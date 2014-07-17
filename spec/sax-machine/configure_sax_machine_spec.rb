@@ -1,27 +1,21 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 class A
-
   SAXMachine.configure(A) do |c|
     c.element :title
   end
-
 end
 
 class B < A
-
   SAXMachine.configure(B) do |c|
     c.element :b
   end
-
 end
 
 class C < B
-
   SAXMachine.configure(C) do |c|
     c.element :c
   end
-
 end
 
 describe "SAXMachine configure" do
@@ -34,6 +28,7 @@ describe "SAXMachine configure" do
     @c = C.new
     @c.parse xml
   end
+
   it { @a.should be_a(A) }
   it { @a.should_not be_a(B) }
   it { @a.should be_a(SAXMachine) }
