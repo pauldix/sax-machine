@@ -6,3 +6,5 @@ Gemfile.lock
 .DS_STORE
 pkg/
 coverage/
+.ruby-version
+.ruby-gemset
