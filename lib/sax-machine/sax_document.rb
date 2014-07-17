@@ -112,6 +112,14 @@ module SAXMachine
     def create_attr real_name
       attr_reader real_name unless method_defined?(real_name)
       attr_writer real_name unless method_defined?("#{real_name}=")
+
+      define_method "sax_machine_parsed_#{real_name}?" do
+        instance_variable_get("@sax_machine_parsed_#{real_name}") || false
+      end
+
+      define_method "sax_machine_parsed_#{real_name}!" do
+        instance_variable_set("@sax_machine_parsed_#{real_name}", true)
+      end
     end
   end
 

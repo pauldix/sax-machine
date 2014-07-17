@@ -15,7 +15,6 @@ module SAXMachine
 
     def initialize(object, on_error = nil, on_warning = nil)
       @stack = [ StackNode.new(object) ]
-      @parsed_configs = {}
       @on_error = on_error
       @on_warning = on_warning
     end
@@ -137,13 +136,18 @@ module SAXMachine
     private
 
     def mark_as_parsed(object, element_config)
-      unless element_config.collection?
-        @parsed_configs[[object.object_id, element_config.object_id]] = true
+      return if element_config.collection?
+      if object.respond_to?("sax_machine_parsed_#{element_config.column}!") then
+        object.send("sax_machine_parsed_#{element_config.column}!")
       end
     end
 
     def parsed_config?(object, element_config)
-      @parsed_configs[[object.object_id, element_config.object_id]]
+      if element_config.respond_to?(:column) then
+        if object.respond_to?("sax_machine_parsed_#{element_config.column}?") then
+          object.send("sax_machine_parsed_#{element_config.column}?")
+        end
+      end
     end
 
     def warning(string)
