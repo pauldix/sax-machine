@@ -9,5 +9,14 @@ rvm:
   - jruby-head
 matrix:
   allow_failures:
+    - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
+    - env: PARSER="ox"
+      rvm: jruby-1.7
+    - env: PARSER="ox"
+      rvm: jruby-head
+env:
+  matrix:
+    - PARSER="nokogiri"
+    - PARSER="ox"

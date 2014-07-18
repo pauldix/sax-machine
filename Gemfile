@@ -7,5 +7,5 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'simplecov', require: false, platforms: :mri
   gem 'activerecord', '~> 4.1'
-  gem 'ox', '>= 2.1.2'
+  gem 'ox', '>= 2.1.2', platforms: [:mri, :rbx]
 end
