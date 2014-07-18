@@ -11,8 +11,8 @@ describe "SAXMachine" do
       end
 
       it "should provide mass assignment through initialize method" do
-        document = @klass.new(title: 'Title')
-        document.title.should == 'Title'
+        document = @klass.new(title: "Title")
+        document.title.should == "Title"
       end
 
       it "should provide an accessor" do
@@ -34,6 +34,7 @@ describe "SAXMachine" do
           include SAXMachine
           element :title
         end
+
         document = @klass.new
         document.title = "Title"
         document.title.should == "Title ***"
@@ -48,68 +49,10 @@ describe "SAXMachine" do
           include SAXMachine
           element :title
         end
+
         document = @klass.new
         document.title = "Title"
         document.title.should == "Title **"
-      end
-      describe "the class attribute" do
-        before(:each) do
-          @klass = Class.new do
-            include SAXMachine
-            element :date, :class => DateTime
-          end
-          @document = @klass.new
-          @document.date = Time.now.iso8601
-        end
-        it "should be available" do
-          @klass.data_class(:date).should == DateTime
-        end
-
-        it "should handle an integer class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, :class => Integer
-          end
-          document = @klass.parse("<number>5</number>")
-          document.number.should == 5
-        end
-
-        it "should handle an float class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, :class => Float
-          end
-          document = @klass.parse("<number>5.5</number>")
-          document.number.should == 5.5
-        end
-
-        it "should handle an string class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, :class => String
-          end
-          document = @klass.parse("<number>5.5</number>")
-          document.number.should == "5.5"
-        end
-
-        it "should handle a time class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :time, :class => Time
-          end
-          document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
-          document.time.should == Time.utc(1994, 2, 4, 6, 20, 0, 0)
-        end
-
-      end
-      describe "the required attribute" do
-        it "should be available" do
-          @klass = Class.new do
-            include SAXMachine
-            element :date, :required => true
-          end
-          @klass.required?(:date).should be_true
-        end
       end
 
       it "should not overwrite the accessor when the element is not present" do
@@ -131,14 +74,12 @@ describe "SAXMachine" do
         document.title.should == "My Title"
       end
 
-      if RUBY_VERSION >= "1.9.0"
-        it "should keep the document encoding for elements" do
-          data = "<title>My Title</title>"
-          data.encode!("utf-8")
+      it "should keep the document encoding for elements" do
+        data = "<title>My Title</title>"
+        data.encode!("utf-8")
 
-          document = @klass.parse(data)
-          document.title.encoding.should == data.encoding
-        end
+        document = @klass.parse(data)
+        document.title.encoding.should == data.encoding
       end
 
       it "should save cdata into an accessor" do
@@ -154,7 +95,72 @@ describe "SAXMachine" do
       it "should save the first element text when there are multiple of the same element" do
         document = @klass.parse("<xml><title>My Title</title><title>bar</title></xml>")
         document.title.should == "My Title"
+      end
 
+      describe "the class attribute" do
+        before(:each) do
+          @klass = Class.new do
+            include SAXMachine
+            element :date, class: DateTime
+          end
+
+          @document = @klass.new
+          @document.date = Time.now.iso8601
+        end
+
+        it "should be available" do
+          @klass.data_class(:date).should == DateTime
+        end
+
+        it "should handle an integer class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, class: Integer
+          end
+
+          document = @klass.parse("<number>5</number>")
+          document.number.should == 5
+        end
+
+        it "should handle an float class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, class: Float
+          end
+
+          document = @klass.parse("<number>5.5</number>")
+          document.number.should == 5.5
+        end
+
+        it "should handle an string class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, class: String
+          end
+
+          document = @klass.parse("<number>5.5</number>")
+          document.number.should == "5.5"
+        end
+
+        it "should handle a time class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :time, class: Time
+          end
+
+          document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
+          document.time.should == Time.utc(1994, 2, 4, 6, 20, 0, 0)
+        end
+      end
+
+      describe "the required attribute" do
+        it "should be available" do
+          @klass = Class.new do
+            include SAXMachine
+            element :date, required: true
+          end
+          @klass.required?(:date).should be_true
+        end
       end
     end
 
@@ -173,7 +179,6 @@ describe "SAXMachine" do
         document.title.should == "My Title"
       end
 
-
       it "should not overwrite the getter is there is already one present" do
         @klass = Class.new do
           def items
@@ -183,6 +188,7 @@ describe "SAXMachine" do
           include SAXMachine
           elements :items
         end
+
         document = @klass.new
         document.items = [1, 2, 3, 4]
         document.items.should == []
@@ -197,11 +203,11 @@ describe "SAXMachine" do
           include SAXMachine
           elements :items
         end
+
         document = @klass.new
         document.items = [2, 3]
         document.items.should == [1, 2, 3]
       end
-
     end
 
     describe "when using options for parsing elements" do
@@ -209,7 +215,7 @@ describe "SAXMachine" do
         before :each do
           @klass = Class.new do
             include SAXMachine
-            element :description, :as => :summary
+            element :description, as: :summary
           end
         end
 
@@ -230,7 +236,7 @@ describe "SAXMachine" do
           before :each do
             @klass = Class.new do
               include SAXMachine
-              element :link, :value => :href, :with => {:foo => "bar"}
+              element :link, value: :href, with: { foo: "bar" }
             end
           end
 
@@ -248,8 +254,8 @@ describe "SAXMachine" do
             before :each do
               @klass = Class.new do
                 include SAXMachine
-                element :link, :value => :href, :as => :url, :with => {:foo => "bar"}
-                element :link, :value => :href, :as => :second_url, :with => {:asdf => "jkl"}
+                element :link, value: :href, as: :url, with: { foo: "bar" }
+                element :link, value: :href, as: :second_url, with: { asdf: "jkl" }
               end
             end
 
@@ -258,7 +264,6 @@ describe "SAXMachine" do
               document.url.should == "first"
               document.second_url.should == "second"
             end
-
           end
         end
 
@@ -266,7 +271,7 @@ describe "SAXMachine" do
           before :each do
             @klass = Class.new do
               include SAXMachine
-              element :link, :with => {:foo => "bar"}
+              element :link, with: { foo: "bar" }
             end
           end
 
@@ -283,7 +288,6 @@ describe "SAXMachine" do
           it "should save the text of an element that has matching attributes when it is the second of that type" do
             document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
             document.link.should == "match"
-
           end
 
           it "should save the text of an element that has matching attributes plus a few more" do
@@ -296,8 +300,8 @@ describe "SAXMachine" do
           before :each do
             @klass = Class.new do
               include SAXMachine
-              element :link, :as => :first, :with => {:foo => "bar"}
-              element :link, :as => :second, :with => {:asdf => "jkl"}
+              element :link, as: :first, with: { foo: "bar" }
+              element :link, as: :second, with: { asdf: "jkl" }
             end
           end
 
@@ -316,7 +320,7 @@ describe "SAXMachine" do
           before :each do
             @klass = Class.new do
               include SAXMachine
-              element :link, :with => {:foo => /ar$/}
+              element :link, with: { foo: /ar$/ }
             end
           end
 
@@ -340,37 +344,38 @@ describe "SAXMachine" do
             document.link.should == "match"
           end
         end
-      end # using the 'with' option
+      end
 
       describe "using the 'value' option" do
         before :each do
           @klass = Class.new do
             include SAXMachine
-            element :link, :value => :foo
+            element :link, value: :foo
           end
         end
 
         it "should save the attribute value" do
           document = @klass.parse("<link foo='test'>hello</link>")
-          document.link.should == 'test'
+          document.link.should == "test"
         end
 
         it "should save the attribute value when there is no text enclosed by the tag" do
           document = @klass.parse("<link foo='test'></link>")
-          document.link.should == 'test'
+          document.link.should == "test"
         end
 
         it "should save the attribute value when the tag close is in the open" do
           document = @klass.parse("<link foo='test'/>")
-          document.link.should == 'test'
+          document.link.should == "test"
         end
 
         it "should save two different attribute values on a single tag" do
           @klass = Class.new do
             include SAXMachine
-            element :link, :value => :foo, :as => :first
-            element :link, :value => :bar, :as => :second
+            element :link, value: :foo, as: :first
+            element :link, value: :bar, as: :second
           end
+
           document = @klass.parse("<link foo='foo value' bar='bar value'></link>")
           document.first.should == "foo value"
           document.second.should == "bar value"
@@ -379,9 +384,10 @@ describe "SAXMachine" do
         it "should not fail if one of the attribute hasn't been defined" do
           @klass = Class.new do
             include SAXMachine
-            element :link, :value => :foo, :as => :first
-            element :link, :value => :bar, :as => :second
+            element :link, value: :foo, as: :first
+            element :link, value: :bar, as: :second
           end
+
           document = @klass.parse("<link foo='foo value'></link>")
           document.first.should == "foo value"
           document.second.should be_nil
@@ -393,19 +399,18 @@ describe "SAXMachine" do
           @klass = Class.new do
             include SAXMachine
             element :link
-            element :link, :value => :foo, :as => :link_foo
-            element :link, :value => :bar, :as => :link_bar
+            element :link, value: :foo, as: :link_foo
+            element :link, value: :bar, as: :link_bar
           end
         end
 
         it "should parse the element and attribute values" do
           document = @klass.parse("<link foo='test1' bar='test2'>hello</link>")
-          document.link.should == 'hello'
-          document.link_foo.should == 'test1'
-          document.link_bar.should == 'test2'
+          document.link.should == "hello"
+          document.link_foo.should == "test1"
+          document.link_bar.should == "test2"
         end
       end
-
     end
   end
 
@@ -414,7 +419,7 @@ describe "SAXMachine" do
       before :each do
         @klass = Class.new do
           include SAXMachine
-          elements :entry, :as => :entries
+          elements :entry, as: :entries
         end
       end
 
@@ -437,8 +442,9 @@ describe "SAXMachine" do
       it "should parse multiple elements when taking an attribute value" do
         attribute_klass = Class.new do
           include SAXMachine
-          elements :entry, :as => :entries, :value => :foo
+          elements :entry, as: :entries, value: :foo
         end
+
         doc = attribute_klass.parse("<xml><entry foo='asdf' /><entry foo='jkl' /></xml>")
         doc.entries.should == ["asdf", "jkl"]
       end
@@ -458,12 +464,12 @@ describe "SAXMachine" do
 
         class Item
           include SAXMachine
-
         end
+
         @klass = Class.new do
           include SAXMachine
-          elements :item, :as => :items, :with => {:type => 'Bar'}, :class => Bar
-          elements :item, :as => :items, :with => {:type => /Foo/}, :class => Foo
+          elements :item, as: :items, with: { type: "Bar" }, class: Bar
+          elements :item, as: :items, with: { type: /Foo/ }, class: Foo
         end
       end
 
@@ -483,9 +489,10 @@ describe "SAXMachine" do
           include SAXMachine
           element :title
         end
+
         @klass = Class.new do
           include SAXMachine
-          elements :entry, :as => :entries, :class => Foo
+          elements :entry, as: :entries, class: Foo
         end
       end
 
@@ -511,24 +518,26 @@ describe "SAXMachine" do
       it "should parse elements, and make attributes and inner text available" do
         class Related
           include SAXMachine
-          element 'related', :as=>:item
-          element 'related', :as=>:attr, :value=>'attr'
+          element "related", as: :item
+          element "related", as: :attr, value: "attr"
         end
+
         class Foo
-          elements 'related', :as=>'items', :class=>Related
+          elements "related", as: "items", class: Related
         end
 
         doc = Foo.parse(%{<xml><collection><related attr='baz'>something</related><related>somethingelse</related></collection></xml>})
         doc.items.first.should_not be_nil
         doc.items.size.should == 2
-        doc.items.first.item.should == 'something'
-        doc.items.last.item.should == 'somethingelse'
+        doc.items.first.item.should == "something"
+        doc.items.last.item.should == "somethingelse"
       end
 
       it "should parse out an attribute value from the tag that starts the collection" do
         class Foo
-          element :entry, :value => :href, :as => :url
+          element :entry, value: :href, as: :url
         end
+
         document = @klass.parse("<xml><entry href='http://pauldix.net'><title>paul</title></entry></xml>")
         document.entries.size.should == 1
         document.entries.first.title.should == "paul"
@@ -538,26 +547,27 @@ describe "SAXMachine" do
   end
 
   describe "when dealing with element names containing dashes" do
-    it 'should automatically convert dashes to underscores' do
+    it "should automatically convert dashes to underscores" do
       class Dashes
         include SAXMachine
         element :dashed_element
       end
 
-      parsed = Dashes.parse('<dashed-element>Text</dashed-element>')
+      parsed = Dashes.parse("<dashed-element>Text</dashed-element>")
       parsed.dashed_element.should eq "Text"
     end
   end
 
   describe "full example" do
     before :each do
-      @xml = File.read('spec/fixtures/atom.xml')
+      @xml = File.read("spec/fixtures/atom.xml")
+
       class AtomEntry
         include SAXMachine
         element :title
-        element :name, :as => :author
-        element "feedburner:origLink", :as => :url
-        element :link, :as => :alternate, :value => :href, :with => {:type => "text/html", :rel => "alternate"}
+        element :name, as: :author
+        element "feedburner:origLink", as: :url
+        element :link, as: :alternate, value: :href, with: { type: "text/html", rel: "alternate" }
         element :summary
         element :content
         element :published
@@ -566,13 +576,13 @@ describe "SAXMachine" do
       class Atom
         include SAXMachine
         element :title
-        element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
-        element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
-        elements :entry, :as => :entries, :class => AtomEntry
+        element :link, value: :href, as: :url, with: { type: "text/html" }
+        element :link, value: :href, as: :feed_url, with: { type: "application/atom+xml" }
+        elements :entry, as: :entries, class: AtomEntry
       end
 
       @feed = Atom.parse(@xml)
-    end # before
+    end
 
     it "should parse the url" do
       @feed.url.should == "http://www.pauldix.net/"
@@ -584,7 +594,7 @@ describe "SAXMachine" do
     end
 
     it "should parse content" do
-      @feed.entries.first.content.should == File.read('spec/fixtures/atom-content.html')
+      @feed.entries.first.content.should == File.read("spec/fixtures/atom-content.html")
     end
   end
 
@@ -602,20 +612,23 @@ describe "SAXMachine" do
         </category>
       </categories>
       ]
-      class CategoryCollection;
-      end
+
+      class CategoryCollection; end
+
       class Category
         include SAXMachine
         attr_accessor :id
-        element :category, :value => :id, :as => :id
+        element :category, value: :id, as: :id
         element :title
-        element :categories, :as => :collection, :class => CategoryCollection
+        element :categories, as: :collection, class: CategoryCollection
         ancestor :ancestor
       end
+
       class CategoryCollection
         include SAXMachine
-        elements :category, :as => :categories, :class => Category
+        elements :category, as: :categories, class: Category
       end
+
       @collection = CategoryCollection.parse(@xml)
     end
 
@@ -645,13 +658,15 @@ describe "SAXMachine" do
         </category>
       </categories>
       ]
+
       class CategoryTree
         include SAXMachine
         attr_accessor :id
-        element :category, :value => :id, :as => :id
+        element :category, value: :id, as: :id
         element :title
-        elements :category, :as => :categories, :class => CategoryTree
+        elements :category, as: :categories, class: CategoryTree
       end
+
       @collection = CategoryTree.parse(@xml)
     end
 
@@ -675,12 +690,14 @@ describe "SAXMachine" do
           </texts>
         </item>
       ]
+
       @klass = Class.new do
         include SAXMachine
         attr_accessor :id
-        element :item, :value => "id", :as => :id
+        element :item, value: "id", as: :id
         element :title
       end
+
       @item = @klass.parse(@xml)
     end
 
@@ -700,28 +717,31 @@ describe "SAXMachine" do
           <author name="John Doe" role="writer" />
         </item>
       ]
+
       class AuthorElement
         include SAXMachine
         attribute :name
         attribute :role
       end
+
       class ItemElement
         include SAXMachine
-        element :author, :class => AuthorElement
+        element :author, class: AuthorElement
       end
+
       @item = ItemElement.parse(@xml)
     end
 
-    it 'should have the child element' do
+    it "should have the child element" do
       @item.author.should_not be_nil
     end
 
-    it 'should have the author name' do
-      @item.author.name.should == 'John Doe'
+    it "should have the author name" do
+      @item.author.name.should == "John Doe"
     end
 
-    it 'should have the author role' do
-      @item.author.role.should == 'writer'
+    it "should have the author role" do
+      @item.author.role.should == "writer"
     end
   end
 
@@ -733,31 +753,34 @@ describe "SAXMachine" do
           <author name="Jane Doe" role="artist" />
         </item>
       ]
+
       class AuthorElement2
         include SAXMachine
         attribute :name
         attribute :role
       end
+
       class ItemElement2
         include SAXMachine
-        elements :author, :as => :authors, :class => AuthorElement2
+        elements :author, as: :authors, class: AuthorElement2
       end
+
       @item = ItemElement2.parse(@xml)
     end
 
-    it 'should have the child elements' do
+    it "should have the child elements" do
       @item.authors.should_not be_nil
       @item.authors.count.should == 2
     end
 
-    it 'should have the author names' do
-      @item.authors.first.name.should == 'John Doe'
-      @item.authors.last.name.should == 'Jane Doe'
+    it "should have the author names" do
+      @item.authors.first.name.should == "John Doe"
+      @item.authors.last.name.should == "Jane Doe"
     end
 
-    it 'should have the author roles' do
-      @item.authors.first.role.should == 'writer'
-      @item.authors.last.role.should == 'artist'
+    it "should have the author roles" do
+      @item.authors.first.role.should == "writer"
+      @item.authors.last.role.should == "artist"
     end
   end
 
@@ -768,28 +791,31 @@ describe "SAXMachine" do
           <author role="writer">John Doe</author>
         </item>
       ]
+
       class AuthorElement3
         include SAXMachine
         value :name
         attribute :role
       end
+
       class ItemElement3
         include SAXMachine
-        element :author, :class => AuthorElement3
+        element :author, class: AuthorElement3
       end
+
       @item = ItemElement3.parse(@xml)
     end
 
-    it 'should have the child elements' do
+    it "should have the child elements" do
       @item.author.should_not be_nil
     end
 
-    it 'should have the author names' do
-      @item.author.name.should == 'John Doe'
+    it "should have the author names" do
+      @item.author.name.should == "John Doe"
     end
 
-    it 'should have the author roles' do
-      @item.author.role.should == 'writer'
+    it "should have the author roles" do
+      @item.author.role.should == "writer"
     end
   end
 
@@ -802,41 +828,43 @@ describe "SAXMachine" do
           <author role="artist">Jane Doe</author>
         </item>
       ]
+
       class AuthorElement4
         include SAXMachine
         value :name
         attribute :role
       end
+
       class ItemElement4
         include SAXMachine
         element :title
-        elements :author, :as => :authors, :class => AuthorElement4
+        elements :author, as: :authors, class: AuthorElement4
 
         def title=(blah)
-          #raise 'woo'
           @title = blah
         end
       end
+
       @item = ItemElement4.parse(@xml)
     end
 
-    it 'should have the title' do
-      @item.title.should == 'sweet'
+    it "should have the title" do
+      @item.title.should == "sweet"
     end
 
-    it 'should have the child elements' do
+    it "should have the child elements" do
       @item.authors.should_not be_nil
       @item.authors.count.should == 2
     end
 
-    it 'should have the author names' do
-      @item.authors.first.name.should == 'John Doe'
-      @item.authors.last.name.should == 'Jane Doe'
+    it "should have the author names" do
+      @item.authors.first.name.should == "John Doe"
+      @item.authors.last.name.should == "Jane Doe"
     end
 
-    it 'should have the author roles' do
-      @item.authors.first.role.should == 'writer'
-      @item.authors.last.role.should == 'artist'
+    it "should have the author roles" do
+      @item.authors.first.role.should == "writer"
+      @item.authors.last.role.should == "artist"
     end
   end
 
@@ -856,7 +884,7 @@ describe "SAXMachine" do
       @item = ItemElement5.parse(@xml, ->(x) { @errors << x })
     end
 
-    it 'should have error' do
+    it "should have error" do
       @errors.uniq.size.should == 1
     end
   end

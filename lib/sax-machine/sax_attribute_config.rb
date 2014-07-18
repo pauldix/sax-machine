@@ -1,13 +1,12 @@
 module SAXMachine
   class SAXConfig
-
     class AttributeConfig
       attr_reader :name, :setter
 
       def initialize(name, options)
-        @name = name.to_s
-        @as = options[:as]
-        @setter = "#{@as}="
+        @name     = name.to_s
+        @as       = options[:as]
+        @setter   = "#{@as}="
         @required = options[:required]
       end
 
@@ -16,7 +15,7 @@ module SAXMachine
       end
 
       def required?
-        @required
+        !!@required
       end
 
       def value_from_attrs(attrs)
@@ -35,6 +34,5 @@ module SAXMachine
         false
       end
     end
-
   end
 end

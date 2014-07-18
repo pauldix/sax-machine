@@ -1,5 +1,4 @@
 module SAXMachine
-
   def self.configure(clazz)
     extended_clazz = Class.new(clazz)
     extended_clazz.send(:include, SAXMachine)
@@ -18,11 +17,9 @@ module SAXMachine
     (class << clazz;self;end).send(:define_method, :parse) do |xml_text|
       extended_clazz.parse(xml_text)
     end
-
   end
 
   module LightWeightSaxMachine
-
     attr_writer :sax_config
 
     def sax_config
@@ -32,7 +29,5 @@ module SAXMachine
     def inherited(subclass)
       subclass.sax_config.send(:initialize_copy, self.sax_config)
     end
-
   end
-
 end

@@ -1,10 +1,9 @@
 require "nokogiri"
 
 module SAXMachine
-
   def self.included(base)
     base.send(:include, InstanceMethods)
-    base.extend ClassMethods
+    base.extend(ClassMethods)
   end
 
   def parse(xml_text, on_error = nil, on_warning = nil)
@@ -38,13 +37,12 @@ module SAXMachine
   end
 
   module ClassMethods
-
     def inherited(subclass)
       subclass.sax_config.send(:initialize_copy, self.sax_config)
     end
 
-    def parse(xml_text, on_error = nil, on_warning = nil)
-      new.parse(xml_text, on_error, on_warning)
+    def parse(*args)
+      new.parse(*args)
     end
 
     def element(name, options = {})
@@ -55,13 +53,13 @@ module SAXMachine
 
     def attribute(name, options = {})
       real_name = (options[:as] ||= name).to_s
-      sax_config.add_top_level_attribute(self.class.to_s, options.merge(:name => name))
+      sax_config.add_top_level_attribute(self.class.to_s, options.merge(name: name))
       create_attr real_name
     end
 
     def value(name, options = {})
       real_name = (options[:as] ||= name).to_s
-      sax_config.add_top_level_element_value(self.class.to_s, options.merge(:name => name))
+      sax_config.add_top_level_element_value(self.class.to_s, options.merge(name: name))
       create_attr real_name
     end
 
@@ -93,6 +91,7 @@ module SAXMachine
 
     def elements(name, options = {})
       options[:as] ||= name
+
       if options[:class]
         sax_config.add_collection_element(name, options)
       else
@@ -101,7 +100,7 @@ module SAXMachine
             #{options[:as]} << value
           end
         SRC
-        sax_config.add_top_level_element(name, options.merge(:collection => true))
+        sax_config.add_top_level_element(name, options.merge(collection: true))
       end
 
       if !method_defined?(options[:as].to_s)
@@ -112,7 +111,7 @@ module SAXMachine
         SRC
       end
 
-      attr_writer options[:as] unless method_defined?("#{options[:as]}=")
+      attr_writer(options[:as]) unless method_defined?("#{options[:as]}=")
     end
 
     def sax_config
@@ -122,10 +121,9 @@ module SAXMachine
     # we only want to insert the getter and setter if they haven't defined it from elsewhere.
     # this is how we allow custom parsing behavior. So you could define the setter
     # and have it parse the string into a date or whatever.
-    def create_attr real_name
-      attr_reader real_name unless method_defined?(real_name)
-      attr_writer real_name unless method_defined?("#{real_name}=")
+    def create_attr(real_name)
+      attr_reader(real_name) unless method_defined?(real_name)
+      attr_writer(real_name) unless method_defined?("#{real_name}=")
     end
   end
-
 end

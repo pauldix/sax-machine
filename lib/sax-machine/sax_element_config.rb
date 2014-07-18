@@ -1,31 +1,31 @@
 module SAXMachine
   class SAXConfig
-    
     class ElementConfig
       attr_reader :name, :setter, :data_class, :collection
-      
+
       def initialize(name, options)
         @name = name.to_s
         @with = options.fetch(:with, {})
 
-        if options.has_key?(:value)
-          @value = options[:value].to_s
+        @value = if options.has_key?(:value)
+          options[:value].to_s
         else
-          @value = nil
+          nil
         end
-        
+
         @as = options[:as]
         @collection = options[:collection]
-        
-        if @collection
-          @setter = "add_#{options[:as]}"
+
+        @setter = if @collection
+          "add_#{options[:as]}"
         else
-          @setter = "#{@as}="
+          "#{@as}="
         end
+
         @data_class = options[:class]
         @required = options[:required]
       end
-      
+
       def value_configured?
         !@value.nil?
       end
@@ -39,27 +39,26 @@ module SAXMachine
       end
 
       def required?
-        @required
+        !!@required
       end
 
       def value_from_attrs(attrs)
         attrs.fetch(@value, nil)
       end
-      
+
       def attrs_match?(attrs)
         @with.all? do |key, value|
           value === attrs[key.to_s]
         end
       end
-      
+
       def has_value_and_attrs_match?(attrs)
         !@value.nil? && attrs_match?(attrs)
       end
-      
+
       def collection?
-        @collection
+        !!@collection
       end
     end
-    
   end
 end

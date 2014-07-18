@@ -23,6 +23,7 @@ describe "SAXMachine inheritance" do
     @c = C.new
     @c.parse xml
   end
+
   it { @a.should be_a(A) }
   it { @a.should_not be_a(B) }
   it { @a.should be_a(SAXMachine) }

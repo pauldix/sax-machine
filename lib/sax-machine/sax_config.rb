@@ -6,12 +6,11 @@ require "sax-machine/sax_ancestor_config"
 
 module SAXMachine
   class SAXConfig
-
     attr_accessor :top_level_elements, :top_level_attributes, :top_level_element_value, :collection_elements, :ancestors
 
     def initialize
       # Default value is an empty array
-      @top_level_elements  = Hash.new { |hash, key| hash[key] = [] }
+      @top_level_elements = Hash.new { |hash, key| hash[key] = [] }
       @top_level_attributes  = []
       @top_level_element_value = []
       @collection_elements = Hash.new { |hash, key| hash[key] = [] }
@@ -19,11 +18,12 @@ module SAXMachine
     end
 
     def columns
-      @top_level_elements.map {|name, ecs| ecs }.flatten
+      @top_level_elements.map { |name, ecs| ecs }.flatten
     end
 
     def initialize_copy(sax_config)
       super
+
       @top_level_elements = sax_config.top_level_elements.clone
       @top_level_attributes = sax_config.top_level_attributes.clone
       @top_level_element_value = sax_config.top_level_element_value.clone

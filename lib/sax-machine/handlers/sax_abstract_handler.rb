@@ -58,10 +58,10 @@ module SAXMachine
         if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
           new_object =
             case element_config.data_class.to_s
-            when 'Integer' then 0
-            when 'Float'   then 0.0
-            when 'Time'    then Time.at(0)
-            when ''        then object
+            when "Integer" then 0
+            when "Float"   then 0.0
+            when "Time"    then Time.at(0)
+            when ""        then object
             else
               element_config.data_class.new
             end
@@ -104,13 +104,13 @@ module SAXMachine
         else
           value =
             case config.data_class.to_s
-            when 'String'  then value.to_s
-            when 'Integer' then value.to_i
-            when 'Float'   then value.to_f
+            when "String"  then value.to_s
+            when "Integer" then value.to_i
+            when "Float"   then value.to_f
             # Assumes that time elements will be string-based and are not
             # something else, e.g. seconds since epoch
-            when 'Time'    then Time.parse(value.to_s)
-            when ''        then value
+            when "Time"    then Time.parse(value.to_s)
+            when ""        then value
             else
               element
             end
@@ -168,7 +168,7 @@ module SAXMachine
     end
 
     def normalize_name(name)
-      name.gsub(/\-/, '_')
+      name.gsub(/\-/, "_")
     end
 
     def set_attributes_on(object, attributes)
