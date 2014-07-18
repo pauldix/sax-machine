@@ -137,11 +137,19 @@ class X < ActiveRecord::Base
 end
 ```
 
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
 ## LICENSE
 
 The MIT License
 
-Copyright (c) 2009-2012:
+Copyright (c) 2009-2014:
 
 * [Paul Dix](http://www.pauldix.net)
 * [Julien Kirch](http://www.archiloque.net)
