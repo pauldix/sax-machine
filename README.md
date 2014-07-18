@@ -10,73 +10,127 @@
 
 ## Description
 
-A declarative SAX parsing library backed by Nokogiri or Ox
+A declarative SAX parsing library backed by Nokogiri or Ox.
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'sax-machine'
+```
+
+And then execute:
+
+```bash
+$ bundle
+```
 
 ## Usage
+
+To use *Nokogiri* as a SAX handler:
+
 ```ruby
 require 'sax-machine'
+```
 
-# Class for information associated with content parts in a feed.
-#  Ex: <content type="text">sample</content>
-#  instance.type will be "text", instance.text will be "sample"
+To use *Ox* as a SAX handler:
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'ox', '>= 2.1.2'
+```
+
+Require *Ox* handler and tell SAXMachine to use it:
+
+```ruby
+require 'sax-machine'
+require 'sax-machine/handlers/sax_ox_handler'
+SAXMachine.handler = :ox
+```
+
+## Examples
+
+Include `SAXMachine` in any class and define properties to parse:
+
+```ruby
 class AtomContent
   include SAXMachine
   attribute :type
   value :text
 end
 
-# Class for parsing an atom entry out of a feedburner atom feed
 class AtomEntry
   include SAXMachine
   element :title
-  # the :as argument makes this available through atom_entry.author instead of .name
-  element :name, :as => :author
-  element "feedburner:origLink", :as => :url
+  # The :as argument makes this available through entry.author instead of .name
+  element :name, as: :author
+  element "feedburner:origLink", as: :url
   element :summary
-  element :content, :class => AtomContent
+  element :content, class: AtomContent
   element :published
   ancestor :ancestor
 end
 
-# Class for parsing Atom feeds
 class Atom
   include SAXMachine
   element :title
-  # the :with argument means that you only match a link tag that has an attribute of :type => "text/html"
-  # the :value argument means that instead of setting the value to the text between the tag,
-  # it sets it to the attribute value of :href
-  element :link, :value => :href, :as => :url, :with => {:type => "text/html"}
-  element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
-  elements :entry, :as => :entries, :class => AtomEntry
+  # The :with argument means that you only match a link tag
+  # that has an attribute of type: "text/html"
+  element :link, value: :href, as: :url, with: {
+    type: "text/html"
+  }
+  # The :value argument means that instead of setting the value
+  # to the text between the tag, it sets it to the attribute value of :href
+  element :link, value: :href, as: :feed_url, with: {
+    type: "application/atom+xml"
+  }
+  elements :entry, as: :entries, class: AtomEntry
 end
+```
 
-# you can then parse like this
+Then parse any XML with your class:
+
+```ruby
 feed = Atom.parse(xml_text)
-# then you're ready to rock
-feed.title # => whatever the title of the blog is
-feed.url # => the main url of the blog
-feed.feed_url # => goes to the feedburner feed
 
-feed.entries.first.title # => title of the first entry
-feed.entries.first.author # => the author of the first entry
-feed.entries.first.url # => the permalink on the blog for this entry
-feed.entries.first.ancestor # => the Atom ancestor
-# etc ...
+feed.title # Whatever the title of the blog is
+feed.url # The main URL of the blog
+feed.feed_url # The URL of the blog feed
 
-# you can also use the elements method without specifying a class like so
-class SomeServiceResponse
+feed.entries.first.title # Title of the first entry
+feed.entries.first.author # The author of the first entry
+feed.entries.first.url # Permalink on the blog for this entry
+feed.entries.first.ancestor # The Atom ancestor
+feed.entries.first.content # Instance of AtomContent
+feed.entries.first.content.text # Entry content text
+```
+
+You can also use the elements method without specifying a class:
+
+```ruby
+class ServiceResponse
   include SAXMachine
-  elements :message, :as => :messages
+  elements :message, as: :messages
 end
 
-response = SomeServiceResponse.parse("<response><message>hi</message><message>world</message></response>")
-response.messages.first # => "hi"
-response.messages.last  # => "world"
+response = ServiceResponse.parse("
+  <response>
+    <message>hi</message>
+    <message>world</message>
+  </response>
+")
+response.messages.first # hi
+response.messages.last  # world
+```
 
-# To limit conflicts in the class used for mappping, you can use the alternate SAXMachine.configure syntax
+To limit conflicts in the class used for mappping, you can use the alternate
+`SAXMachine.configure` syntax:
 
+```ruby
 class X < ActiveRecord::Base
-  # this way no element, elements or ancestor method will be added to X
+  # This way no element, elements or ancestor method will be added to X
   SAXMachine.configure(X) do |c|
     c.element :title
   end
