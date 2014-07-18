@@ -1,4 +1,5 @@
-require "ox"
+require 'sax-machine/handlers/sax_abstract_handler'
+require 'ox'
 
 module SAXMachine
   class SAXOxHandler < Ox::Sax

@@ -28,13 +28,13 @@ $ bundle
 
 ## Usage
 
-To use *Nokogiri* as a SAX handler:
+To use **Nokogiri** as a SAX handler:
 
 ```ruby
 require 'sax-machine'
 ```
 
-To use *Ox* as a SAX handler:
+To use **Ox** as a SAX handler:
 
 Add this line to your application's Gemfile:
 
@@ -42,13 +42,15 @@ Add this line to your application's Gemfile:
 gem 'ox', '>= 2.1.2'
 ```
 
-Require *Ox* handler and tell SAXMachine to use it:
+Tell SAXMachine to use Ox:
 
 ```ruby
 require 'sax-machine'
-require 'sax-machine/handlers/sax_ox_handler'
 SAXMachine.handler = :ox
 ```
+
+Please note that this operation is not thread-safe, so it's better to define
+handler at initialization stage and do not change it during runtime.
 
 ## Examples
 

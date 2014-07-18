@@ -1,4 +1,5 @@
-require "nokogiri"
+require 'sax-machine/handlers/sax_abstract_handler'
+require 'nokogiri'
 
 module SAXMachine
   class SAXNokogiriHandler < Nokogiri::XML::SAX::Document
