@@ -12,11 +12,11 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: PARSER="ox"
+    - env: HANDLER="ox"
       rvm: jruby-1.7
-    - env: PARSER="ox"
+    - env: HANDLER="ox"
       rvm: jruby-head
 env:
   matrix:
-    - PARSER="nokogiri"
-    - PARSER="ox"
+    - HANDLER="nokogiri"
+    - HANDLER="ox"
