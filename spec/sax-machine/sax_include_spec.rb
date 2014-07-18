@@ -24,20 +24,20 @@ describe "SAXMachine inheritance" do
     @c.parse xml
   end
 
-  it { @a.should be_a(A) }
-  it { @a.should_not be_a(B) }
-  it { @a.should be_a(SAXMachine) }
-  it { @a.title.should == "Test" }
-  it { @b.should be_a(A) }
-  it { @b.should be_a(B) }
-  it { @b.should be_a(SAXMachine) }
-  it { @b.title.should == "Test" }
-  it { @b.b.should == "Matched!" }
-  it { @c.should be_a(A) }
-  it { @c.should be_a(B) }
-  it { @c.should be_a(C) }
-  it { @c.should be_a(SAXMachine) }
-  it { @c.title.should == "Test" }
-  it { @c.b.should == "Matched!" }
-  it { @c.c.should == "And Again" }
+  it { expect(@a).to be_a(A) }
+  it { expect(@a).not_to be_a(B) }
+  it { expect(@a).to be_a(SAXMachine) }
+  it { expect(@a.title).to eq("Test") }
+  it { expect(@b).to be_a(A) }
+  it { expect(@b).to be_a(B) }
+  it { expect(@b).to be_a(SAXMachine) }
+  it { expect(@b.title).to eq("Test") }
+  it { expect(@b.b).to eq("Matched!") }
+  it { expect(@c).to be_a(A) }
+  it { expect(@c).to be_a(B) }
+  it { expect(@c).to be_a(C) }
+  it { expect(@c).to be_a(SAXMachine) }
+  it { expect(@c.title).to eq("Test") }
+  it { expect(@c.b).to eq("Matched!") }
+  it { expect(@c.c).to eq("And Again") }
 end

@@ -17,7 +17,7 @@ describe "ActiveRecord" do
 
     it "parses document" do
       document = MySaxModel.parse("<xml><title>My Title</title></xml>")
-      document.title.should == "My Title"
+      expect(document.title).to eq("My Title")
     end
   end
 end

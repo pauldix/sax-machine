@@ -12,17 +12,17 @@ describe "SAXMachine" do
 
       it "should provide mass assignment through initialize method" do
         document = @klass.new(title: "Title")
-        document.title.should == "Title"
+        expect(document.title).to eq("Title")
       end
 
       it "should provide an accessor" do
         document = @klass.new
         document.title = "Title"
-        document.title.should == "Title"
+        expect(document.title).to eq("Title")
       end
 
       it "should allow introspection of the elements" do
-        @klass.column_names.should =~ [:title]
+        expect(@klass.column_names).to match_array([:title])
       end
 
       it "should not overwrite the getter is there is already one present" do
@@ -37,7 +37,7 @@ describe "SAXMachine" do
 
         document = @klass.new
         document.title = "Title"
-        document.title.should == "Title ***"
+        expect(document.title).to eq("Title ***")
       end
 
       it "should not overwrite the setter if there is already one present" do
@@ -52,26 +52,26 @@ describe "SAXMachine" do
 
         document = @klass.new
         document.title = "Title"
-        document.title.should == "Title **"
+        expect(document.title).to eq("Title **")
       end
 
       it "should not overwrite the accessor when the element is not present" do
         document = @klass.new
         document.title = "Title"
         document.parse("<foo></foo>")
-        document.title.should == "Title"
+        expect(document.title).to eq("Title")
       end
 
       it "should overwrite the value when the element is present" do
         document = @klass.new
         document.title = "Old title"
         document.parse("<title>New title</title>")
-        document.title.should == "New title"
+        expect(document.title).to eq("New title")
       end
 
       it "should save the element text into an accessor" do
         document = @klass.parse("<title>My Title</title>")
-        document.title.should == "My Title"
+        expect(document.title).to eq("My Title")
       end
 
       it "should keep the document encoding for elements" do
@@ -79,22 +79,22 @@ describe "SAXMachine" do
         data.encode!("utf-8")
 
         document = @klass.parse(data)
-        document.title.encoding.should == data.encoding
+        expect(document.title.encoding).to eq(data.encoding)
       end
 
       it "should save cdata into an accessor" do
         document = @klass.parse("<title><![CDATA[A Title]]></title>")
-        document.title.should == "A Title"
+        expect(document.title).to eq("A Title")
       end
 
       it "should save the element text into an accessor when there are multiple elements" do
         document = @klass.parse("<xml><title>My Title</title><foo>bar</foo></xml>")
-        document.title.should == "My Title"
+        expect(document.title).to eq("My Title")
       end
 
       it "should save the first element text when there are multiple of the same element" do
         document = @klass.parse("<xml><title>My Title</title><title>bar</title></xml>")
-        document.title.should == "My Title"
+        expect(document.title).to eq("My Title")
       end
 
       describe "the class attribute" do
@@ -109,7 +109,7 @@ describe "SAXMachine" do
         end
 
         it "should be available" do
-          @klass.data_class(:date).should == DateTime
+          expect(@klass.data_class(:date)).to eq(DateTime)
         end
 
         it "should handle an integer class" do
@@ -119,7 +119,7 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<number>5</number>")
-          document.number.should == 5
+          expect(document.number).to eq(5)
         end
 
         it "should handle an float class" do
@@ -129,7 +129,7 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<number>5.5</number>")
-          document.number.should == 5.5
+          expect(document.number).to eq(5.5)
         end
 
         it "should handle an string class" do
@@ -139,7 +139,7 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<number>5.5</number>")
-          document.number.should == "5.5"
+          expect(document.number).to eq("5.5")
         end
 
         it "should handle a time class" do
@@ -149,7 +149,7 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
-          document.time.should == Time.utc(1994, 2, 4, 6, 20, 0, 0)
+          expect(document.time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
         end
       end
 
@@ -159,7 +159,7 @@ describe "SAXMachine" do
             include SAXMachine
             element :date, required: true
           end
-          @klass.required?(:date).should be_true
+          expect(@klass.required?(:date)).to be_truthy
         end
       end
     end
@@ -175,8 +175,8 @@ describe "SAXMachine" do
 
       it "should save the element text for a second tag" do
         document = @klass.parse("<xml><title>My Title</title><name>Paul</name></xml>")
-        document.name.should == "Paul"
-        document.title.should == "My Title"
+        expect(document.name).to eq("Paul")
+        expect(document.title).to eq("My Title")
       end
 
       it "should not overwrite the getter is there is already one present" do
@@ -191,7 +191,7 @@ describe "SAXMachine" do
 
         document = @klass.new
         document.items = [1, 2, 3, 4]
-        document.items.should == []
+        expect(document.items).to eq([])
       end
 
       it "should not overwrite the setter if there is already one present" do
@@ -206,7 +206,7 @@ describe "SAXMachine" do
 
         document = @klass.new
         document.items = [2, 3]
-        document.items.should == [1, 2, 3]
+        expect(document.items).to eq([1, 2, 3])
       end
     end
 
@@ -222,12 +222,12 @@ describe "SAXMachine" do
         it "should provide an accessor using the 'as' name" do
           document = @klass.new
           document.summary = "a small summary"
-          document.summary.should == "a small summary"
+          expect(document.summary).to eq("a small summary")
         end
 
         it "should save the element text into the 'as' accessor" do
           document = @klass.parse("<description>here is a description</description>")
-          document.summary.should == "here is a description"
+          expect(document.summary).to eq("here is a description")
         end
       end
 
@@ -242,12 +242,12 @@ describe "SAXMachine" do
 
           it "should save the value of a matching element" do
             document = @klass.parse("<link href='test' foo='bar'>asdf</link>")
-            document.link.should == "test"
+            expect(document.link).to eq("test")
           end
 
           it "should save the value of the first matching element" do
             document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' foo='bar' /></xml>")
-            document.link.should == "first"
+            expect(document.link).to eq("first")
           end
 
           describe "and the :as option" do
@@ -261,8 +261,8 @@ describe "SAXMachine" do
 
             it "should save the value of the first matching element" do
               document = @klass.parse("<xml><link href='first' foo='bar' /><link href='second' asdf='jkl' /><link href='second' foo='bar' /></xml>")
-              document.url.should == "first"
-              document.second_url.should == "second"
+              expect(document.url).to eq("first")
+              expect(document.second_url).to eq("second")
             end
           end
         end
@@ -277,22 +277,22 @@ describe "SAXMachine" do
 
           it "should save the text of an element that has matching attributes" do
             document = @klass.parse("<link foo=\"bar\">match</link>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
 
           it "should not save the text of an element that doesn't have matching attributes" do
             document = @klass.parse("<link>no match</link>")
-            document.link.should be_nil
+            expect(document.link).to be_nil
           end
 
           it "should save the text of an element that has matching attributes when it is the second of that type" do
             document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
 
           it "should save the text of an element that has matching attributes plus a few more" do
             document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
         end
 
@@ -307,12 +307,12 @@ describe "SAXMachine" do
 
           it "should match the first element" do
             document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">first match</link><link>no match</link></xml>")
-            document.first.should == "first match"
+            expect(document.first).to eq("first match")
           end
 
           it "should match the second element" do
             document = @klass.parse("<xml><link>no match</link><link foo='bar'>first match</link><link asdf='jkl'>second match</link><link>hi</link></xml>")
-            document.second.should == "second match"
+            expect(document.second).to eq("second match")
           end
         end
 
@@ -326,22 +326,22 @@ describe "SAXMachine" do
 
           it "should save the text of an element that has matching attributes" do
             document = @klass.parse("<link foo=\"bar\">match</link>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
 
           it "should not save the text of an element that doesn't have matching attributes" do
             document = @klass.parse("<link>no match</link>")
-            document.link.should be_nil
+            expect(document.link).to be_nil
           end
 
           it "should save the text of an element that has matching attributes when it is the second of that type" do
             document = @klass.parse("<xml><link>no match</link><link foo=\"bar\">match</link></xml>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
 
           it "should save the text of an element that has matching attributes plus a few more" do
             document = @klass.parse("<xml><link>no match</link><link asdf='jkl' foo='bar'>match</link>")
-            document.link.should == "match"
+            expect(document.link).to eq("match")
           end
         end
       end
@@ -356,17 +356,17 @@ describe "SAXMachine" do
 
         it "should save the attribute value" do
           document = @klass.parse("<link foo='test'>hello</link>")
-          document.link.should == "test"
+          expect(document.link).to eq("test")
         end
 
         it "should save the attribute value when there is no text enclosed by the tag" do
           document = @klass.parse("<link foo='test'></link>")
-          document.link.should == "test"
+          expect(document.link).to eq("test")
         end
 
         it "should save the attribute value when the tag close is in the open" do
           document = @klass.parse("<link foo='test'/>")
-          document.link.should == "test"
+          expect(document.link).to eq("test")
         end
 
         it "should save two different attribute values on a single tag" do
@@ -377,8 +377,8 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<link foo='foo value' bar='bar value'></link>")
-          document.first.should == "foo value"
-          document.second.should == "bar value"
+          expect(document.first).to eq("foo value")
+          expect(document.second).to eq("bar value")
         end
 
         it "should not fail if one of the attribute hasn't been defined" do
@@ -389,8 +389,8 @@ describe "SAXMachine" do
           end
 
           document = @klass.parse("<link foo='foo value'></link>")
-          document.first.should == "foo value"
-          document.second.should be_nil
+          expect(document.first).to eq("foo value")
+          expect(document.second).to be_nil
         end
       end
 
@@ -406,9 +406,9 @@ describe "SAXMachine" do
 
         it "should parse the element and attribute values" do
           document = @klass.parse("<link foo='test1' bar='test2'>hello</link>")
-          document.link.should == "hello"
-          document.link_foo.should == "test1"
-          document.link_bar.should == "test2"
+          expect(document.link).to eq("hello")
+          expect(document.link_foo).to eq("test1")
+          expect(document.link_bar).to eq("test2")
         end
       end
     end
@@ -426,17 +426,17 @@ describe "SAXMachine" do
       it "should provide a collection accessor" do
         document = @klass.new
         document.entries << :foo
-        document.entries.should == [:foo]
+        expect(document.entries).to eq([:foo])
       end
 
       it "should parse a single element" do
         document = @klass.parse("<entry>hello</entry>")
-        document.entries.should == ["hello"]
+        expect(document.entries).to eq(["hello"])
       end
 
       it "should parse multiple elements" do
         document = @klass.parse("<xml><entry>hello</entry><entry>world</entry></xml>")
-        document.entries.should == ["hello", "world"]
+        expect(document.entries).to eq(["hello", "world"])
       end
 
       it "should parse multiple elements when taking an attribute value" do
@@ -446,7 +446,7 @@ describe "SAXMachine" do
         end
 
         doc = attribute_klass.parse("<xml><entry foo='asdf' /><entry foo='jkl' /></xml>")
-        doc.entries.should == ["asdf", "jkl"]
+        expect(doc.entries).to eq(["asdf", "jkl"])
       end
     end
 
@@ -475,11 +475,11 @@ describe "SAXMachine" do
 
       it "should cast into the correct class" do
         document = @klass.parse("<items><item type=\"Bar\"><title>Bar title</title></item><item type=\"Foo\"><title>Foo title</title></item></items>")
-        document.items.size.should == 2
-        document.items.first.should be_a(Bar)
-        document.items.first.title.should == "Bar title"
-        document.items.last.should be_a(Foo)
-        document.items.last.title.should == "Foo title"
+        expect(document.items.size).to eq(2)
+        expect(document.items.first).to be_a(Bar)
+        expect(document.items.first.title).to eq("Bar title")
+        expect(document.items.last).to be_a(Foo)
+        expect(document.items.last.title).to eq("Foo title")
       end
     end
 
@@ -498,21 +498,21 @@ describe "SAXMachine" do
 
       it "should parse a single element with children" do
         document = @klass.parse("<entry><title>a title</title></entry>")
-        document.entries.size.should == 1
-        document.entries.first.title.should == "a title"
+        expect(document.entries.size).to eq(1)
+        expect(document.entries.first.title).to eq("a title")
       end
 
       it "should parse multiple elements with children" do
         document = @klass.parse("<xml><entry><title>title 1</title></entry><entry><title>title 2</title></entry></xml>")
-        document.entries.size.should == 2
-        document.entries.first.title.should == "title 1"
-        document.entries.last.title.should == "title 2"
+        expect(document.entries.size).to eq(2)
+        expect(document.entries.first.title).to eq("title 1")
+        expect(document.entries.last.title).to eq("title 2")
       end
 
       it "should not parse a top level element that is specified only in a child" do
         document = @klass.parse("<xml><title>no parse</title><entry><title>correct title</title></entry></xml>")
-        document.entries.size.should == 1
-        document.entries.first.title.should == "correct title"
+        expect(document.entries.size).to eq(1)
+        expect(document.entries.first.title).to eq("correct title")
       end
 
       it "should parse elements, and make attributes and inner text available" do
@@ -527,10 +527,10 @@ describe "SAXMachine" do
         end
 
         doc = Foo.parse(%{<xml><collection><related attr='baz'>something</related><related>somethingelse</related></collection></xml>})
-        doc.items.first.should_not be_nil
-        doc.items.size.should == 2
-        doc.items.first.item.should == "something"
-        doc.items.last.item.should == "somethingelse"
+        expect(doc.items.first).not_to be_nil
+        expect(doc.items.size).to eq(2)
+        expect(doc.items.first.item).to eq("something")
+        expect(doc.items.last.item).to eq("somethingelse")
       end
 
       it "should parse out an attribute value from the tag that starts the collection" do
@@ -539,9 +539,9 @@ describe "SAXMachine" do
         end
 
         document = @klass.parse("<xml><entry href='http://pauldix.net'><title>paul</title></entry></xml>")
-        document.entries.size.should == 1
-        document.entries.first.title.should == "paul"
-        document.entries.first.url.should == "http://pauldix.net"
+        expect(document.entries.size).to eq(1)
+        expect(document.entries.first.title).to eq("paul")
+        expect(document.entries.first.url).to eq("http://pauldix.net")
       end
     end
   end
@@ -554,7 +554,7 @@ describe "SAXMachine" do
       end
 
       parsed = Dashes.parse("<dashed-element>Text</dashed-element>")
-      parsed.dashed_element.should eq "Text"
+      expect(parsed.dashed_element).to eq "Text"
     end
   end
 
@@ -585,16 +585,16 @@ describe "SAXMachine" do
     end
 
     it "should parse the url" do
-      @feed.url.should == "http://www.pauldix.net/"
+      expect(@feed.url).to eq("http://www.pauldix.net/")
     end
 
     it "should parse entry url" do
-      @feed.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
-      @feed.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
+      expect(@feed.entries.first.url).to eq("http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2")
+      expect(@feed.entries.first.alternate).to eq("http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2")
     end
 
     it "should parse content" do
-      @feed.entries.first.content.should == File.read("spec/fixtures/atom-content.html")
+      expect(@feed.entries.first.content).to eq(File.read("spec/fixtures/atom-content.html"))
     end
   end
 
@@ -633,14 +633,14 @@ describe "SAXMachine" do
     end
 
     it "should parse the first category" do
-      @collection.categories.first.id.should == "1"
-      @collection.categories.first.title.should == "First"
-      @collection.categories.first.ancestor.should == @collection
+      expect(@collection.categories.first.id).to eq("1")
+      expect(@collection.categories.first.title).to eq("First")
+      expect(@collection.categories.first.ancestor).to eq(@collection)
     end
 
     it "should parse the nested category" do
-      @collection.categories.first.collection.categories.first.id.should == "2"
-      @collection.categories.first.collection.categories.first.title.should == "Second"
+      expect(@collection.categories.first.collection.categories.first.id).to eq("2")
+      expect(@collection.categories.first.collection.categories.first.title).to eq("Second")
     end
   end
 
@@ -671,13 +671,13 @@ describe "SAXMachine" do
     end
 
     it "should parse the first category" do
-      @collection.categories.first.id.should == "1"
-      @collection.categories.first.title.should == "First"
+      expect(@collection.categories.first.id).to eq("1")
+      expect(@collection.categories.first.title).to eq("First")
     end
 
     it "should parse the nested category" do
-      @collection.categories.first.categories.first.id.should == "2"
-      @collection.categories.first.categories.first.title.should == "Second"
+      expect(@collection.categories.first.categories.first.id).to eq("2")
+      expect(@collection.categories.first.categories.first.title).to eq("Second")
     end
   end
 
@@ -702,11 +702,11 @@ describe "SAXMachine" do
     end
 
     it "should have an id" do
-      @item.id.should == "1"
+      expect(@item.id).to eq("1")
     end
 
     it "should have a title" do
-      @item.title.should == "Hello"
+      expect(@item.title).to eq("Hello")
     end
   end
 
@@ -733,15 +733,15 @@ describe "SAXMachine" do
     end
 
     it "should have the child element" do
-      @item.author.should_not be_nil
+      expect(@item.author).not_to be_nil
     end
 
     it "should have the author name" do
-      @item.author.name.should == "John Doe"
+      expect(@item.author.name).to eq("John Doe")
     end
 
     it "should have the author role" do
-      @item.author.role.should == "writer"
+      expect(@item.author.role).to eq("writer")
     end
   end
 
@@ -769,18 +769,18 @@ describe "SAXMachine" do
     end
 
     it "should have the child elements" do
-      @item.authors.should_not be_nil
-      @item.authors.count.should == 2
+      expect(@item.authors).not_to be_nil
+      expect(@item.authors.count).to eq(2)
     end
 
     it "should have the author names" do
-      @item.authors.first.name.should == "John Doe"
-      @item.authors.last.name.should == "Jane Doe"
+      expect(@item.authors.first.name).to eq("John Doe")
+      expect(@item.authors.last.name).to eq("Jane Doe")
     end
 
     it "should have the author roles" do
-      @item.authors.first.role.should == "writer"
-      @item.authors.last.role.should == "artist"
+      expect(@item.authors.first.role).to eq("writer")
+      expect(@item.authors.last.role).to eq("artist")
     end
   end
 
@@ -807,15 +807,15 @@ describe "SAXMachine" do
     end
 
     it "should have the child elements" do
-      @item.author.should_not be_nil
+      expect(@item.author).not_to be_nil
     end
 
     it "should have the author names" do
-      @item.author.name.should == "John Doe"
+      expect(@item.author.name).to eq("John Doe")
     end
 
     it "should have the author roles" do
-      @item.author.role.should == "writer"
+      expect(@item.author.role).to eq("writer")
     end
   end
 
@@ -849,22 +849,22 @@ describe "SAXMachine" do
     end
 
     it "should have the title" do
-      @item.title.should == "sweet"
+      expect(@item.title).to eq("sweet")
     end
 
     it "should have the child elements" do
-      @item.authors.should_not be_nil
-      @item.authors.count.should == 2
+      expect(@item.authors).not_to be_nil
+      expect(@item.authors.count).to eq(2)
     end
 
     it "should have the author names" do
-      @item.authors.first.name.should == "John Doe"
-      @item.authors.last.name.should == "Jane Doe"
+      expect(@item.authors.first.name).to eq("John Doe")
+      expect(@item.authors.last.name).to eq("Jane Doe")
     end
 
     it "should have the author roles" do
-      @item.authors.first.role.should == "writer"
-      @item.authors.last.role.should == "artist"
+      expect(@item.authors.first.role).to eq("writer")
+      expect(@item.authors.last.role).to eq("artist")
     end
   end
 
@@ -885,7 +885,7 @@ describe "SAXMachine" do
     end
 
     it "should have error" do
-      @errors.uniq.size.should == 1
+      expect(@errors.uniq.size).to eq(1)
     end
   end
 end
