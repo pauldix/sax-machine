@@ -154,6 +154,7 @@ Copyright (c) 2009-2014:
 * [Paul Dix](http://www.pauldix.net)
 * [Julien Kirch](http://www.archiloque.net)
 * [Ezekiel Templin](http://zeke.templ.in)
+* [Dmitry Krasnoukhov](http://krasnoukhov.com)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
