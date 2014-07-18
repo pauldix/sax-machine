@@ -4,7 +4,7 @@
 
 ## Description
 
-A declarative SAX parsing library backed by Nokogiri
+A declarative SAX parsing library backed by Nokogiri or Ox
 
 ## Usage
 ```ruby

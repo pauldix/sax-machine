@@ -64,7 +64,7 @@ describe "SAXMachine" do
         it "should be available" do
           @klass.data_class(:date).should == DateTime
         end
-        
+
         it "should handle an integer class" do
           @klass = Class.new do
             include SAXMachine
@@ -73,7 +73,7 @@ describe "SAXMachine" do
           document = @klass.parse("<number>5</number>")
           document.number.should == 5
         end
-        
+
         it "should handle an float class" do
           @klass = Class.new do
             include SAXMachine
@@ -81,7 +81,7 @@ describe "SAXMachine" do
           end
           document = @klass.parse("<number>5.5</number>")
           document.number.should == 5.5
-        end        
+        end
 
         it "should handle an string class" do
           @klass = Class.new do
@@ -91,7 +91,7 @@ describe "SAXMachine" do
           document = @klass.parse("<number>5.5</number>")
           document.number.should == "5.5"
         end
-        
+
         it "should handle a time class" do
           @klass = Class.new do
             include SAXMachine
@@ -100,7 +100,7 @@ describe "SAXMachine" do
           document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
           document.time.should == Time.utc(1994, 2, 4, 6, 20, 0, 0)
         end
-        
+
       end
       describe "the required attribute" do
         it "should be available" do
@@ -466,7 +466,7 @@ describe "SAXMachine" do
           elements :item, :as => :items, :with => {:type => /Foo/}, :class => Foo
         end
       end
-      
+
       it "should cast into the correct class" do
         document = @klass.parse("<items><item type=\"Bar\"><title>Bar title</title></item><item type=\"Foo\"><title>Foo title</title></item></items>")
         document.items.size.should == 2
@@ -536,14 +536,14 @@ describe "SAXMachine" do
       end
     end
   end
-  
+
   describe "when dealing with element names containing dashes" do
-    it 'should automatically convert dashes to underscores' do      
+    it 'should automatically convert dashes to underscores' do
       class Dashes
         include SAXMachine
         element :dashed_element
       end
-      
+
       parsed = Dashes.parse('<dashed-element>Text</dashed-element>')
       parsed.dashed_element.should eq "Text"
     end
@@ -551,7 +551,7 @@ describe "SAXMachine" do
 
   describe "full example" do
     before :each do
-      @xml = File.read('spec/sax-machine/atom.xml')
+      @xml = File.read('spec/fixtures/atom.xml')
       class AtomEntry
         include SAXMachine
         element :title
@@ -570,17 +570,21 @@ describe "SAXMachine" do
         element :link, :value => :href, :as => :feed_url, :with => {:type => "application/atom+xml"}
         elements :entry, :as => :entries, :class => AtomEntry
       end
+
+      @feed = Atom.parse(@xml)
     end # before
 
     it "should parse the url" do
-      f = Atom.parse(@xml)
-      f.url.should == "http://www.pauldix.net/"
+      @feed.url.should == "http://www.pauldix.net/"
     end
 
     it "should parse entry url" do
-      f = Atom.parse(@xml)
-      f.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
-      f.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
+      @feed.entries.first.url.should == "http://www.pauldix.net/2008/09/marshal-data-to.html?param1=1&param2=2"
+      @feed.entries.first.alternate.should == "http://feeds.feedburner.com/~r/PaulDixExplainsNothing/~3/383536354/marshal-data-to.html?param1=1&param2=2"
+    end
+
+    it "should parse content" do
+      @feed.entries.first.content.should == File.read('spec/fixtures/atom-content.html')
     end
   end
 
@@ -833,6 +837,27 @@ describe "SAXMachine" do
     it 'should have the author roles' do
       @item.authors.first.role.should == 'writer'
       @item.authors.last.role.should == 'artist'
+    end
+  end
+
+  describe "with error handling" do
+    before do
+      @xml = %[
+        <item id="1">
+          <title>sweet</title>
+      ]
+
+      class ItemElement5
+        include SAXMachine
+        element :title
+      end
+
+      @errors = []
+      @item = ItemElement5.parse(@xml, ->(x) { @errors << x })
+    end
+
+    it 'should have error' do
+      @errors.uniq.size.should == 1
     end
   end
 end

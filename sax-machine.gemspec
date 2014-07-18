@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email     = %q{paul@pauldix.net}
   s.homepage  = %q{http://github.com/pauldix/sax-machine}
 
-  s.summary   = %q{Declarative SAX Parsing with Nokogiri}
+  s.summary   = %q{Declarative SAX Parsing with Nokogiri or Ox}
 
   s.license   = %q{MIT}
 

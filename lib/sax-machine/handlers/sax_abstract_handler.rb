@@ -1,8 +1,7 @@
-require "nokogiri"
 require "time"
 
 module SAXMachine
-  class SAXHandler < Nokogiri::XML::SAX::Document
+  module SAXAbstractHandler
     NO_BUFFER = :no_buffer
 
     class StackNode < Struct.new(:object, :config, :buffer)
@@ -13,14 +12,14 @@ module SAXMachine
       end
     end
 
-    def initialize(object, on_error = nil, on_warning = nil)
+    def _initialize(object, on_error = nil, on_warning = nil)
       @stack = [ StackNode.new(object) ]
       @parsed_configs = {}
       @on_error = on_error
       @on_warning = on_warning
     end
 
-    def characters(data)
+    def _characters(data)
       node = stack.last
 
       if node.buffer == NO_BUFFER
@@ -29,10 +28,8 @@ module SAXMachine
         node.buffer << data
       end
     end
-    alias cdata_block characters
 
-    def start_element(name, attrs = [])
-
+    def _start_element(name, attrs = [])
       name   = normalize_name(name)
       node   = stack.last
       object = node.object
@@ -76,7 +73,7 @@ module SAXMachine
       end
     end
 
-    def end_element(name)
+    def _end_element(name)
       name = normalize_name(name)
 
       start_tag = stack[-2]
@@ -134,6 +131,18 @@ module SAXMachine
       stack.pop
     end
 
+    def _error(string)
+      if @on_error
+        @on_error.call(string)
+      end
+    end
+
+    def _warning(string)
+      if @on_warning
+        @on_warning.call(string)
+      end
+    end
+
     private
 
     def mark_as_parsed(object, element_config)
@@ -145,19 +154,6 @@ module SAXMachine
     def parsed_config?(object, element_config)
       @parsed_configs[[object.object_id, element_config.object_id]]
     end
-
-    def warning(string)
-      if @on_warning
-        @on_warning.call(string)
-      end
-    end
-
-    def error(string)
-      if @on_error
-        @on_error.call(string)
-      end
-    end
-
 
     def sax_config_for(object)
       if object.class.respond_to?(:sax_config)
