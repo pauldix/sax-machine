@@ -1,5 +1,8 @@
 # HEAD
 
+
+# 0.3.0
+
 * Option to use Ox as a SAX handler instead of Nokogiri [[#49](https://github.com/pauldix/sax-machine/pull/49)]
 * Bump RSpec to 3.0, convert existing specs
 
