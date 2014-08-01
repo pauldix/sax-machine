@@ -157,11 +157,14 @@ describe "SAXMachine" do
         it "is available" do
           @klass = Class.new do
             include SAXMachine
-            element :number, default: ""
+            element :number, class: Integer, default: 0
           end
 
-          document = @klass.parse("<wrong>data</wrong>")
-          expect(document.number).to eq("")
+          document = @klass.parse("<no>number</no>")
+          expect(document.number).to eq(0)
+
+          document = @klass.parse("<number></number>")
+          expect(document.number).to eq(0)
         end
       end
 

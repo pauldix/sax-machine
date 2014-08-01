@@ -104,19 +104,18 @@ module SAXMachine
         else
           value =
             case config.data_class.to_s
-            when "String"  then value.to_s
-            when "Integer" then value.to_i
-            when "Float"   then value.to_f
+            when "String"  then value != NO_BUFFER ? value.to_s : value
+            when "Integer" then value != NO_BUFFER ? value.to_i : value
+            when "Float"   then value != NO_BUFFER ? value.to_f : value
             # Assumes that time elements will be string-based and are not
             # something else, e.g. seconds since epoch
-            when "Time"    then Time.parse(value.to_s)
+            when "Time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value
             when ""        then value
             else
               element
             end
 
           object.send(config.setter, value) unless value == NO_BUFFER
-
           mark_as_parsed(object, config)
         end
 

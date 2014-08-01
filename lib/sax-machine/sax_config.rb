@@ -18,7 +18,7 @@ module SAXMachine
     end
 
     def columns
-      @top_level_elements.map { |name, ecs| ecs }.flatten
+      @top_level_elements.map { |_, ecs| ecs }.flatten
     end
 
     def initialize_copy(sax_config)

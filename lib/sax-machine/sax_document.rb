@@ -34,14 +34,12 @@ module SAXMachine
         send("#{name}=", value)
       end
 
-      self.class.sax_config.top_level_elements.each do |name, configs|
+      self.class.sax_config.top_level_elements.each do |_, configs|
         configs.each do |config|
           next unless config.default
+          next unless send(config.as).nil?
 
-          current_value = send("#{config.as.to_s}")
-          next unless current_value.nil?
-
-          send("#{config.setter}", config.default)
+          send(config.setter, config.default)
         end
       end
     end
