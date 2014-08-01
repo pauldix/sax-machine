@@ -69,7 +69,9 @@ class AtomEntry
   # The :as argument makes this available through entry.author instead of .name
   element :name, as: :author
   element "feedburner:origLink", as: :url
-  element :summary
+  # The :default argument specify value for element
+  # if it will not be found in XML
+  element :summary, class: Integer, default: 0
   element :content, class: AtomContent
   element :published
   ancestor :ancestor
@@ -104,6 +106,7 @@ feed.feed_url # The URL of the blog feed
 feed.entries.first.title # Title of the first entry
 feed.entries.first.author # The author of the first entry
 feed.entries.first.url # Permalink on the blog for this entry
+feed.entries.first.summary # Returns 0 as value if not found
 feed.entries.first.ancestor # The Atom ancestor
 feed.entries.first.content # Instance of AtomContent
 feed.entries.first.content.text # Entry content text

@@ -1,7 +1,7 @@
 module SAXMachine
   class SAXConfig
     class ElementConfig
-      attr_reader :name, :setter, :data_class, :collection
+      attr_reader :name, :as, :setter, :data_class, :collection, :default
 
       def initialize(name, options)
         @name = name.to_s
@@ -15,6 +15,7 @@ module SAXMachine
 
         @as = options[:as]
         @collection = options[:collection]
+        @default = options[:default]
 
         @setter = if @collection
           "add_#{options[:as]}"

@@ -33,6 +33,17 @@ module SAXMachine
       attributes.each do |name, value|
         send("#{name}=", value)
       end
+
+      self.class.sax_config.top_level_elements.each do |name, configs|
+        configs.each do |config|
+          next unless config.default
+
+          current_value = send("#{config.as.to_s}")
+          next unless current_value.nil?
+
+          send("#{config.setter}", config.default)
+        end
+      end
     end
   end
 

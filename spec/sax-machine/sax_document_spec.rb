@@ -153,6 +153,18 @@ describe "SAXMachine" do
         end
       end
 
+      describe "the default attribute" do
+        it "is available" do
+          @klass = Class.new do
+            include SAXMachine
+            element :number, default: ""
+          end
+
+          document = @klass.parse("<wrong>data</wrong>")
+          expect(document.number).to eq("")
+        end
+      end
+
       describe "the required attribute" do
         it "is available" do
           @klass = Class.new do
