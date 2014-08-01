@@ -57,19 +57,19 @@ module SAXMachine
     def element(name, options = {})
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_element(name, options)
-      create_attr real_name
+      create_attr(real_name)
     end
 
     def attribute(name, options = {})
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_attribute(self.class.to_s, options.merge(name: name))
-      create_attr real_name
+      create_attr(real_name)
     end
 
     def value(name, options = {})
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_element_value(self.class.to_s, options.merge(name: name))
-      create_attr real_name
+      create_attr(real_name)
     end
 
     def ancestor(name, options = {})

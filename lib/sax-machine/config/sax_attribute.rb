@@ -25,10 +25,7 @@ module SAXMachine
       def attrs_match?(attrs)
         attrs.key?(@name) || attrs.value?(@name)
       end
-
-      def has_value_and_attrs_match?(attrs)
-        attrs_match?(attrs)
-      end
+      alias_method :has_value_and_attrs_match?, :attrs_match?
 
       def collection?
         false

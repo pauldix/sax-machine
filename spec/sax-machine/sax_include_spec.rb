@@ -1,20 +1,20 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-class A
-  include SAXMachine
-  element :title
-end
-
-class B < A
-  element :b
-end
-
-class C < B
-  element :c
-end
-
 describe "SAXMachine inheritance" do
   before do
+    class A
+      include SAXMachine
+      element :title
+    end
+
+    class B < A
+      element :b
+    end
+
+    class C < B
+      element :c
+    end
+
     xml = "<top><title>Test</title><b>Matched!</b><c>And Again</c></top>"
     @a = A.new
     @a.parse xml
@@ -22,6 +22,12 @@ describe "SAXMachine inheritance" do
     @b.parse xml
     @c = C.new
     @c.parse xml
+  end
+
+  after do
+    Object.send(:remove_const, :A)
+    Object.send(:remove_const, :B)
+    Object.send(:remove_const, :C)
   end
 
   it { expect(@a).to be_a(A) }

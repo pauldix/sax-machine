@@ -3,10 +3,13 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 describe "SAXMachine" do
   describe "element" do
     describe "when parsing a single element" do
-      before :each do
+      before do
         @klass = Class.new do
           include SAXMachine
           element :title
+          ancestor :body
+          value :something, required: false
+          attribute :anything, required: true
         end
       end
 
@@ -19,10 +22,6 @@ describe "SAXMachine" do
         document = @klass.new
         document.title = "Title"
         expect(document.title).to eq("Title")
-      end
-
-      it "allows introspection of the elements" do
-        expect(@klass.column_names).to match_array([:title])
       end
 
       it "does not overwrites the getter is there is already one present" do
@@ -95,6 +94,38 @@ describe "SAXMachine" do
       it "saves the first element text when there are multiple of the same element" do
         document = @klass.parse("<xml><title>My Title</title><title>bar</title></xml>")
         expect(document.title).to eq("My Title")
+      end
+
+      describe "the introspection" do
+        it "allows to get column names" do
+          expect(@klass.column_names).to match_array([:title])
+        end
+
+        it "allows to get elements" do
+          expect(@klass.sax_config.top_level_elements.values.flatten.map(&:to_s)).to \
+            match_array(["name: title dataclass:  setter: title= required:  value:  as:title collection:  with: {}"])
+        end
+
+        it "allows to get ancestors" do
+          expect(@klass.sax_config.ancestors.map(&:column)).to \
+            match_array([:body])
+        end
+
+        it "allows to get values" do
+          expect(@klass.sax_config.top_level_element_value.map(&:column)).to \
+            match_array([:something])
+          expect(@klass.sax_config.top_level_element_value.map(&:required?)).to \
+            match_array([false])
+        end
+
+        it "allows to get attributes" do
+          expect(@klass.sax_config.top_level_attributes.map(&:column)).to \
+            match_array([:anything])
+          expect(@klass.sax_config.top_level_attributes.map(&:required?)).to \
+            match_array([true])
+          expect(@klass.sax_config.top_level_attributes.map(&:collection?)).to \
+            match_array([false])
+        end
       end
 
       describe "the class attribute" do
@@ -180,7 +211,7 @@ describe "SAXMachine" do
     end
 
     describe "when parsing multiple elements" do
-      before :each do
+      before do
         @klass = Class.new do
           include SAXMachine
           element :title
@@ -227,7 +258,7 @@ describe "SAXMachine" do
 
     describe "when using options for parsing elements" do
       describe "using the 'as' option" do
-        before :each do
+        before do
           @klass = Class.new do
             include SAXMachine
             element :description, as: :summary
@@ -248,7 +279,7 @@ describe "SAXMachine" do
 
       describe "using the :with option" do
         describe "and the :value option" do
-          before :each do
+          before do
             @klass = Class.new do
               include SAXMachine
               element :link, value: :href, with: { foo: "bar" }
@@ -266,7 +297,7 @@ describe "SAXMachine" do
           end
 
           describe "and the :as option" do
-            before :each do
+            before do
               @klass = Class.new do
                 include SAXMachine
                 element :link, value: :href, as: :url, with: { foo: "bar" }
@@ -283,7 +314,7 @@ describe "SAXMachine" do
         end
 
         describe "with only one element" do
-          before :each do
+          before do
             @klass = Class.new do
               include SAXMachine
               element :link, with: { foo: "bar" }
@@ -312,7 +343,7 @@ describe "SAXMachine" do
         end
 
         describe "with multiple elements of same tag" do
-          before :each do
+          before do
             @klass = Class.new do
               include SAXMachine
               element :link, as: :first, with: { foo: "bar" }
@@ -332,7 +363,7 @@ describe "SAXMachine" do
         end
 
         describe "with only one element as a regular expression" do
-          before :each do
+          before do
             @klass = Class.new do
               include SAXMachine
               element :link, with: { foo: /ar$/ }
@@ -362,7 +393,7 @@ describe "SAXMachine" do
       end
 
       describe "using the 'value' option" do
-        before :each do
+        before do
           @klass = Class.new do
             include SAXMachine
             element :link, value: :foo
@@ -410,7 +441,7 @@ describe "SAXMachine" do
       end
 
       describe "when desiring both the content and attributes of an element" do
-        before :each do
+        before do
           @klass = Class.new do
             include SAXMachine
             element :link
@@ -431,7 +462,7 @@ describe "SAXMachine" do
 
   describe "elements" do
     describe "when parsing multiple elements" do
-      before :each do
+      before do
         @klass = Class.new do
           include SAXMachine
           elements :entry, as: :entries
@@ -466,7 +497,7 @@ describe "SAXMachine" do
     end
 
     describe "when using the with and class options" do
-      before :each do
+      before do
         class Bar
           include SAXMachine
           element :title
@@ -499,7 +530,7 @@ describe "SAXMachine" do
     end
 
     describe "when using the class option" do
-      before :each do
+      before do
         class Foo
           include SAXMachine
           element :title
@@ -574,7 +605,7 @@ describe "SAXMachine" do
   end
 
   describe "full example" do
-    before :each do
+    before do
       @xml = File.read("spec/fixtures/atom.xml")
 
       class AtomEntry
@@ -896,11 +927,20 @@ describe "SAXMachine" do
       end
 
       @errors = []
-      @item = ItemElement5.parse(@xml, ->(x) { @errors << x })
+      @warnings = []
+      @item = ItemElement5.parse(
+        @xml,
+        ->(x) { @errors << x },
+        ->(x) { @warnings << x },
+      )
     end
 
     it "has error" do
       expect(@errors.uniq.size).to eq(1)
+    end
+
+    it "has no warning" do
+      expect(@warnings.uniq.size).to eq(0)
     end
   end
 end
