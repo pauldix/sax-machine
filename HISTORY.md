@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.0.0
+
+* Make `nokogiri` dependency optional
+* Add :default argument for elements [[#51](https://github.com/pauldix/sax-machine/pull/51)]
 
 # 0.3.0
 
