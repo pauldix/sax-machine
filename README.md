@@ -28,29 +28,25 @@ $ bundle
 
 ## Usage
 
-To use **Nokogiri** as a SAX handler:
+SAX Machine can use either `nokogiri` or `ox` as XML SAX handler.
+
+To use **Nokogiri** add this line to your Gemfile:
 
 ```ruby
-require 'sax-machine'
+gem 'nokogiri', '~> 1.6'
 ```
 
-To use **Ox** as a SAX handler:
-
-Add this line to your application's Gemfile:
+To use **Ox** add this line to your Gemfile:
 
 ```ruby
 gem 'ox', '>= 2.1.2'
 ```
 
-Tell SAXMachine to use Ox:
+You can also specify which handler to use manually, like this:
 
 ```ruby
-require 'sax-machine'
-SAXMachine.handler = :ox
+SAXMachine.handler = :nokogiri
 ```
-
-Please note that this operation is not thread-safe, so it's better to define
-handler at initialization stage and do not change it during runtime.
 
 ## Examples
 

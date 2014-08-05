@@ -9,5 +9,6 @@ group :development, :test do
   gem 'coveralls', require: false, platforms: [:mri]
 
   gem 'activerecord', '~> 4.1'
+  gem 'nokogiri', '~> 1.6'
   gem 'ox', '>= 2.1.2', platforms: [:mri, :rbx]
 end

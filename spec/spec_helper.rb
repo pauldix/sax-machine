@@ -14,9 +14,7 @@ rescue LoadError
 end
 
 require File.expand_path(File.dirname(__FILE__) + '/../lib/sax-machine')
-if ENV['HANDLER'] == 'ox'
-  SAXMachine.handler = :ox
-end
+SAXMachine.handler = ENV['HANDLER'].to_sym
 
 RSpec.configure do |config|
   config.run_all_when_everything_filtered = true

@@ -14,4 +14,8 @@ module SAXMachine
   end
 end
 
-SAXMachine.handler = :nokogiri
+begin
+  SAXMachine.handler = :ox
+rescue LoadError
+  SAXMachine.handler = :nokogiri
+end
