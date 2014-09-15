@@ -14,8 +14,16 @@ module SAXMachine
   end
 end
 
-begin
-  SAXMachine.handler = :ox
-rescue LoadError
+# Try handlers
+[:ox, :oga].each do |handler|
+  begin
+    SAXMachine.handler = handler
+    break
+  rescue LoadError
+  end
+end
+
+# Still no handler, use Nokogiri
+if !SAXMachine.handler
   SAXMachine.handler = :nokogiri
 end
