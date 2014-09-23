@@ -8,14 +8,15 @@ rvm:
   - ruby-head
   - jruby-head
 matrix:
-  allow_failures:
-    - rvm: rbx-2
-    - rvm: ruby-head
-    - rvm: jruby-head
+  exclude:
     - env: HANDLER="ox"
       rvm: jruby-1.7
     - env: HANDLER="ox"
       rvm: jruby-head
+  allow_failures:
+    - rvm: rbx-2
+    - rvm: ruby-head
+    - rvm: jruby-head
 env:
   matrix:
     - HANDLER="nokogiri"
