@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.0.1
+
+* Improve normalize_name performance
+
 # 1.0.0
 
 * Make `nokogiri` dependency optional
