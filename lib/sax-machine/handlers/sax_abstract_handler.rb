@@ -167,7 +167,7 @@ module SAXMachine
     end
 
     def normalize_name(name)
-      name.gsub(/\-/, "_")
+      name.to_s.tr("-", "_")
     end
 
     def set_attributes_on(object, attributes)
