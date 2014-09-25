@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.0.2
+
+* Make sure SAXConfig getters do not modify internal vars. Prevent race conditions
+
 # 1.0.1
 
 * Improve normalize_name performance
