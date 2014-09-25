@@ -64,10 +64,14 @@ module SAXMachine
     end
 
     def element_configs_for_attribute(name, attrs)
+      return [] unless @top_level_elements.has_key?(name.to_s)
+
       @top_level_elements[name.to_s].select { |ec| ec.has_value_and_attrs_match?(attrs) }
     end
 
     def element_config_for_tag(name, attrs)
+      return unless @top_level_elements.has_key?(name.to_s)
+
       @top_level_elements[name.to_s].detect { |ec| ec.attrs_match?(attrs) }
     end
   end
