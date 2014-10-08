@@ -1,23 +1,6 @@
 module SAXMachine
   class SAXConfig
-    class AttributeConfig
-      attr_reader :name, :setter
-
-      def initialize(name, options)
-        @name     = name.to_s
-        @as       = options[:as]
-        @setter   = "#{@as}="
-        @required = options[:required]
-      end
-
-      def column
-        @as || @name.to_sym
-      end
-
-      def required?
-        !!@required
-      end
-
+    class AttributeConfig < ElementValueConfig
       def value_from_attrs(attrs)
         attrs.fetch(@name, nil)
       end

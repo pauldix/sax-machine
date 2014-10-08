@@ -1,5 +1,5 @@
-require "sax-machine/config/sax_attribute"
 require "sax-machine/config/sax_element_value"
+require "sax-machine/config/sax_attribute"
 require "sax-machine/config/sax_element"
 require "sax-machine/config/sax_collection"
 require "sax-machine/config/sax_ancestor"
