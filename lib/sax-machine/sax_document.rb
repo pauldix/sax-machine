@@ -1,5 +1,3 @@
-require "nokogiri"
-
 module SAXMachine
   def self.included(base)
     base.send(:include, InstanceMethods)
@@ -7,6 +5,16 @@ module SAXMachine
   end
 
   def parse(xml_text, on_error = nil, on_warning = nil)
+    parser = SAXParser.new(SAXMachine.handler)
+    parser.parse(
+      document: self,
+      xml_text: xml_text,
+      on_error: on_error,
+      on_warning: on_warning
+    )
+
+    return self
+
     if SAXMachine.handler == :ox
       Ox.sax_parse(
         SAXOxHandler.new(self, on_error, on_warning),
