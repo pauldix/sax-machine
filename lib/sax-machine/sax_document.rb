@@ -1,5 +1,3 @@
-require "nokogiri"
-
 module SAXMachine
   def self.included(base)
     base.send(:include, InstanceMethods)
