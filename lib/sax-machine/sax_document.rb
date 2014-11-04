@@ -13,26 +13,6 @@ module SAXMachine
       on_warning: on_warning
     )
 
-    return self
-
-    if SAXMachine.handler == :ox
-      Ox.sax_parse(
-        SAXOxHandler.new(self, on_error, on_warning),
-        StringIO.new(xml_text),
-        {
-          symbolize: false,
-          convert_special: true,
-          skip: :skip_return,
-        }
-      )
-    else
-      handler = SAXNokogiriHandler.new(self, on_error, on_warning)
-      parser = Nokogiri::XML::SAX::Parser.new(handler)
-      parser.parse(xml_text) do |ctx|
-        ctx.replace_entities = true
-      end
-    end
-
     self
   end
 
