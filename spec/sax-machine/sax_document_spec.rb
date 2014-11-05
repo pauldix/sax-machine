@@ -914,6 +914,58 @@ describe "SAXMachine" do
     end
   end
 
+  describe "with multiple elements with the same alias" do
+    let(:item) { ItemElement5.parse(xml) }
+
+    before do
+      class ItemElement5
+        include SAXMachine
+        element :pubDate, as: :published
+        element :"dc:date", as: :published
+      end
+    end
+
+    describe "only first defined" do
+      let(:xml) { "<item><pubDate>first value</pubDate></item>" }
+
+      it "has first value" do
+        expect(item.published).to eq("first value")
+      end
+    end
+
+    describe "only last defined" do
+      let(:xml) { "<item><dc:date>last value</dc:date></item>" }
+
+      it "has last value" do
+        expect(item.published).to eq("last value")
+      end
+    end
+
+    describe "both defined" do
+      let(:xml) { "<item><pubDate>first value</pubDate><dc:date>last value</dc:date></item>" }
+
+      it "has last value" do
+        expect(item.published).to eq("last value")
+      end
+    end
+
+    describe "both defined but order is reversed" do
+      let(:xml) { "<item><dc:date>last value</dc:date><pubDate>first value</pubDate></item>" }
+
+      it "has first value" do
+        expect(item.published).to eq("first value")
+      end
+    end
+
+    describe "both defined but last is empty" do
+      let(:xml) { "<item><pubDate>first value</pubDate><dc:date></dc:date></item>" }
+
+      it "has first value" do
+        expect(item.published).to eq("first value")
+      end
+    end
+  end
+
   describe "with error handling" do
     before do
       @xml = %[
