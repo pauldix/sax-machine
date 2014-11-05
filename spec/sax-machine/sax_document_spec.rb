@@ -926,7 +926,7 @@ describe "SAXMachine" do
     end
 
     describe "only first defined" do
-      let(:xml) { "<item><pubDate>first value</pubDate></item>" }
+      let(:xml) { "<item xmlns:dc='http://www.example.com'><pubDate>first value</pubDate></item>" }
 
       it "has first value" do
         expect(item.published).to eq("first value")
@@ -934,7 +934,7 @@ describe "SAXMachine" do
     end
 
     describe "only last defined" do
-      let(:xml) { "<item><dc:date>last value</dc:date></item>" }
+      let(:xml) { "<item xmlns:dc='http://www.example.com'><dc:date>last value</dc:date></item>" }
 
       it "has last value" do
         expect(item.published).to eq("last value")
@@ -942,7 +942,7 @@ describe "SAXMachine" do
     end
 
     describe "both defined" do
-      let(:xml) { "<item><pubDate>first value</pubDate><dc:date>last value</dc:date></item>" }
+      let(:xml) { "<item xmlns:dc='http://www.example.com'><pubDate>first value</pubDate><dc:date>last value</dc:date></item>" }
 
       it "has last value" do
         expect(item.published).to eq("last value")
@@ -950,7 +950,7 @@ describe "SAXMachine" do
     end
 
     describe "both defined but order is reversed" do
-      let(:xml) { "<item><dc:date>last value</dc:date><pubDate>first value</pubDate></item>" }
+      let(:xml) { "<item xmlns:dc='http://www.example.com'><dc:date>last value</dc:date><pubDate>first value</pubDate></item>" }
 
       it "has first value" do
         expect(item.published).to eq("first value")
@@ -958,7 +958,7 @@ describe "SAXMachine" do
     end
 
     describe "both defined but last is empty" do
-      let(:xml) { "<item><pubDate>first value</pubDate><dc:date></dc:date></item>" }
+      let(:xml) { "<item xmlns:dc='http://www.example.com'><pubDate>first value</pubDate><dc:date></dc:date></item>" }
 
       it "has first value" do
         expect(item.published).to eq("first value")
