@@ -139,19 +139,21 @@ end
 
 Multiple elements can be mapped to the same alias:
 ```ruby
-  class RSSEntry
-      include SAXMachine
-      # ...
-      element :pubDate, :as => :published
-      element :pubdate, :as => :published
-      element :"dc:date", :as => :published
-      element :"dc:Date", :as => :published
-      element :"dcterms:created", :as => :published
- end
+class RSSEntry
+  include SAXMachine
+  # ...
+  element :pubDate, :as => :published
+  element :pubdate, :as => :published
+  element :"dc:date", :as => :published
+  element :"dc:Date", :as => :published
+  element :"dcterms:created", :as => :published
+end
 ```
 If more than one of these elements exists in the source, the value from the *last one* is used. The order of
 the `element` declarations in the code is unimportant. The order they are encountered while parsing the 
-document determines the value assigned to the alias.
+document determines the value assigned to the alias. 
+
+If an element is defined in the source but is blank (e.g., `<pubDate></pubDate>`), it is ignored.
 
 ## Contributing
 
