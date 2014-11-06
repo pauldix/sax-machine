@@ -1,5 +1,12 @@
 # HEAD
 
+# 1.0.3
+
+* Remove missed `nokogiri` reference [[#54](https://github.com/pauldix/sax-machine/pull/54)]
+* Add support for `Symbol` data type conversion [[#57](https://github.com/pauldix/sax-machine/pull/57)]
+* Add specs for multiple elements with the same alias [[#53](https://github.com/pauldix/sax-machine/pull/53)]
+* Various code and documentation enhancements
+
 # 1.0.2
 
 * Make sure SAXConfig getters do not modify internal vars. Prevent race conditions
