@@ -5,23 +5,13 @@ module SAXMachine
   end
 
   def parse(xml_text, on_error = nil, on_warning = nil)
-    if SAXMachine.handler == :ox
-      Ox.sax_parse(
-        SAXOxHandler.new(self, on_error, on_warning),
-        StringIO.new(xml_text),
-        {
-          symbolize: false,
-          convert_special: true,
-          skip: :skip_return,
-        }
-      )
-    else
-      handler = SAXNokogiriHandler.new(self, on_error, on_warning)
-      parser = Nokogiri::XML::SAX::Parser.new(handler)
-      parser.parse(xml_text) do |ctx|
-        ctx.replace_entities = true
-      end
-    end
+    parser = SAXParser.new(SAXMachine.handler)
+    parser.parse(
+      document: self,
+      xml_text: xml_text,
+      on_error: on_error,
+      on_warning: on_warning
+    )
 
     self
   end
