@@ -10,6 +10,14 @@ module SAXMachine
       _reset_element
     end
 
+    def sax_parse(xml_text)
+      Ox.sax_parse(self, StringIO.new(xml_text),
+        symbolize: false,
+        convert_special: true,
+        skip: :skip_return,
+      )
+    end
+
     def attr(name, str)
       @attrs[name] = str
     end

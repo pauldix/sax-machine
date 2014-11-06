@@ -5,6 +5,13 @@ module SAXMachine
   class SAXNokogiriHandler < Nokogiri::XML::SAX::Document
     include SAXAbstractHandler
 
+    def sax_parse(xml_text)
+      parser = Nokogiri::XML::SAX::Parser.new(self)
+      parser.parse(xml_text) do |ctx|
+        ctx.replace_entities = true
+      end
+    end
+
     alias_method :initialize, :_initialize
     alias_method :characters, :_characters
     alias_method :cdata_block, :_characters

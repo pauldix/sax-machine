@@ -12,6 +12,10 @@ module SAXMachine
       end
     end
 
+    def sax_parse(xml_text)
+      raise NotImplementedError
+    end
+
     def _initialize(object, on_error = nil, on_warning = nil)
       @stack = [ StackNode.new(object) ]
       @parsed_configs = {}
