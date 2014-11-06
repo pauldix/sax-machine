@@ -64,6 +64,7 @@ module SAXMachine
             case element_config.data_class.to_s
             when "Integer" then 0
             when "Float"   then 0.0
+            when "Symbol"  then nil
             when "Time"    then Time.at(0)
             when ""        then object
             else
@@ -111,6 +112,12 @@ module SAXMachine
             when "String"  then value != NO_BUFFER ? value.to_s : value
             when "Integer" then value != NO_BUFFER ? value.to_i : value
             when "Float"   then value != NO_BUFFER ? value.to_f : value
+            when "Symbol"  then
+              if value != NO_BUFFER
+                value.to_s.empty? ? nil : value.to_s.downcase.to_sym
+              else
+                value
+              end
             # Assumes that time elements will be string-based and are not
             # something else, e.g. seconds since epoch
             when "Time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value

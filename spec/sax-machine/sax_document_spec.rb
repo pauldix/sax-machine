@@ -182,6 +182,16 @@ describe "SAXMachine" do
           document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
           expect(document.time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
         end
+
+        it "handles a Symbol class" do
+          @klass = Class.new do
+            include SAXMachine
+            element :symbol, class: Symbol
+          end
+
+          document = @klass.parse("<symbol>MY_SYMBOL_VALUE</symbol>")
+          expect(document.symbol).to eq(:my_symbol_value)
+        end
       end
 
       describe "the default attribute" do
