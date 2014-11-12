@@ -192,6 +192,19 @@ describe "SAXMachine" do
           document = @klass.parse("<symbol>MY_SYMBOL_VALUE</symbol>")
           expect(document.symbol).to eq(:my_symbol_value)
         end
+
+        it "handles boolean values" do
+          @klass = Class.new do
+            include SAXMachine
+            element :boolean, class: :boolean
+          end
+
+          document = @klass.parse("<boolean>true</boolean>")
+          expect(document.boolean).to eq(true)
+
+          document = @klass.parse("<boolean>false</boolean>")
+          expect(document.boolean).to eq(false)
+        end
       end
 
       describe "the default attribute" do

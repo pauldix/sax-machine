@@ -61,11 +61,12 @@ module SAXMachine
 
         if !collection_config && element_config = sax_config.element_config_for_tag(name, attrs)
           new_object =
-            case element_config.data_class.to_s
-            when "Integer" then 0
-            when "Float"   then 0.0
-            when "Symbol"  then nil
-            when "Time"    then Time.at(0)
+            case element_config.data_class.to_s.downcase
+            when "integer" then 0
+            when "float"   then 0.0
+            when "boolean" then nil
+            when "symbol"  then nil
+            when "time"    then Time.at(0)
             when ""        then object
             else
               element_config.data_class.new
@@ -108,11 +109,12 @@ module SAXMachine
           object.send(config.accessor) << element
         else
           value =
-            case config.data_class.to_s
-            when "String"  then value != NO_BUFFER ? value.to_s : value
-            when "Integer" then value != NO_BUFFER ? value.to_i : value
-            when "Float"   then value != NO_BUFFER ? value.to_f : value
-            when "Symbol"  then
+            case config.data_class.to_s.downcase
+            when "string"  then value != NO_BUFFER ? value.to_s : value
+            when "integer" then value != NO_BUFFER ? value.to_i : value
+            when "float"   then value != NO_BUFFER ? value.to_f : value
+            when "boolean" then value != NO_BUFFER ? value.to_b : value
+            when "symbol"  then
               if value != NO_BUFFER
                 value.to_s.empty? ? nil : value.to_s.downcase.to_sym
               else
@@ -120,7 +122,7 @@ module SAXMachine
               end
             # Assumes that time elements will be string-based and are not
             # something else, e.g. seconds since epoch
-            when "Time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value
+            when "time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value
             when ""        then value
             else
               element

@@ -16,5 +16,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.platform      = Gem::Platform::RUBY
 
+  s.add_dependency "wannabe_bool"
   s.add_development_dependency "rspec", "~> 3.0"
 end
