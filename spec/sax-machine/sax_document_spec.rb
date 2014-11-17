@@ -650,7 +650,7 @@ describe "SAXMachine" do
     end
 
     it "parses content" do
-      expect(@feed.entries.first.content).to eq(File.read("spec/fixtures/atom-content.html"))
+      expect(@feed.entries.first.content.strip).to eq(File.read("spec/fixtures/atom-content.html").strip)
     end
   end
 

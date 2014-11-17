@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/atom10full.xsl" type="text/xsl" media="screen"?><?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/itemcontent.css" type="text/css" media="screen"?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0">
     <title>Paul Dix Explains Nothing</title>
-    
+
     <link rel="alternate" type="text/html" href="http://www.pauldix.net/" />
     <id>tag:typepad.com,2003:weblog-108605</id>
     <updated>2008-09-04T16:07:19-04:00</updated>
@@ -19,8 +19,8 @@
             <name>Paul Dix</name>
         </author>
         <category scheme="http://www.sixapart.com/ns/types#category" term="Tahiti" />
-        
-        
+
+
 <content type="html" xml:lang="en-US" xml:base="http://www.pauldix.net/">
 &lt;div xmlns="http://www.w3.org/1999/xhtml"&gt;&lt;p&gt;In my previous &lt;a href="http://www.pauldix.net/2008/08/serializing-dat.html"&gt;post about the speed of serializing data&lt;/a&gt;, I concluded that Marshal was the quickest way to get things done. So I set about using Marshal to store some data in an ActiveRecord object. Things worked great at first, but on some test data I got this error: marshal data too short. Luckily, &lt;a href="http://www.brynary.com/"&gt;Bryan Helmkamp&lt;/a&gt; had helpfully pointed out that there were sometimes problems with storing marshaled data in the database. He said it was best to base64 encode the marshal dump before storing.&lt;/p&gt;
 
@@ -51,8 +51,8 @@
             <name>Paul Dix</name>
         </author>
         <category scheme="http://www.sixapart.com/ns/types#category" term="Tahiti" />
-        
-        
+
+
 <content type="html" xml:lang="en-US" xml:base="http://www.pauldix.net/">
 &lt;div xmlns="http://www.w3.org/1999/xhtml"&gt;&lt;p&gt;Last night at the &lt;a href="http://nycruby.org"&gt;NYC Ruby hackfest&lt;/a&gt;, I got into a discussion about serializing data. Brian mentioned the Marshal library to me, which for some reason had completely escaped my attention until last night. He said it was wicked fast so we decided to run a quick benchmark comparison.&lt;/p&gt;
 &lt;p&gt;The test data is designed to roughly approximate what my &lt;a href="http://www.pauldix.net/2008/08/storing-many-cl.html"&gt;stored classifier data&lt;/a&gt; will look like. The different methods we decided to benchmark were Marshal, json, eval, and yaml. With each one we took the in-memory object and serialized it and then read it back in. With eval we had to convert the object to ruby code to serialize it then run eval against that. Here are the results for 100 iterations on a 10k element array and a hash with 10k key/value pairs run on my Macbook Pro 2.4 GHz Core 2 Duo:&lt;/p&gt;
@@ -81,8 +81,8 @@
             <name>Paul Dix</name>
         </author>
         <category scheme="http://www.sixapart.com/ns/types#category" term="Ruby on Rails" />
-        
-        
+
+
 <content type="html" xml:lang="en-US" xml:base="http://www.pauldix.net/">
 &lt;div xmlns="http://www.w3.org/1999/xhtml"&gt;&lt;p&gt;This is an issue I had recently in a project with &lt;a href="http://errtheblog.com/posts/57-kickin-ass-w-cachefu"&gt;cache_fu&lt;/a&gt;. Models that I found and cached based on permalinks weren't expiring the cache correctly when getting updated. Here's an example scenario.&lt;/p&gt;
 
@@ -114,8 +114,8 @@
             <name>Paul Dix</name>
         </author>
         <category scheme="http://www.sixapart.com/ns/types#category" term="Ruby" />
-        
-        
+
+
 <content type="html" xml:lang="en-US" xml:base="http://www.pauldix.net/">&lt;p&gt;I was writing a regular expression yesterday and this popped up. It's just a quick note about greedy vs. non-greedy mode in regular expression matching. Say I have a regular expression that looks something like this:&lt;/p&gt;&#xD;
 &lt;pre&gt;/(\[.*\])/&lt;/pre&gt;&#xD;
 &lt;p&gt;In English that says something roughly like: find an opening bracket [ with 0 or more of any character followed by a closing bracket. The backslashes are to escape the brackets and the parenthesis specify grouping so we can later access that matched text.&lt;/p&gt;&#xD;
@@ -145,8 +145,8 @@
             <name>Paul Dix</name>
         </author>
         <category scheme="http://www.sixapart.com/ns/types#category" term="Tahiti" />
-        
-        
+
+
 <content type="html" xml:lang="en-US" xml:base="http://www.pauldix.net/">&lt;p&gt;One of the things I need to do in &lt;a href="http://filterly.com/"&gt;Filterly&lt;/a&gt; is keep many trained &lt;a href="http://en.wikipedia.org/wiki/Statistical_classification"&gt;classifiers&lt;/a&gt;. These are the machine learning models that determine if a blog post is on topic (Filterly separates information by topic). At the very least I need one per topic in the system. If I want to do something like &lt;a href="http://en.wikipedia.org/wiki/Boosting"&gt;boosting&lt;/a&gt; then I need even more. The issue I'm wrestling with is how to store this data. I'll outline a specific approach and what the storage needs are.&lt;/p&gt;&#xD;
 &#xD;
 &lt;p&gt;Let's say I go with boosting and 10 &lt;a href="http://en.wikipedia.org/wiki/Perceptron"&gt;perceptrons&lt;/a&gt;. I'll also limit my feature space to the 10,000 most statistically significant features. So the storage for each perceptron is a 10k element array. However, I'll also have to keep another data structure to store what the 10k features are and their position in the array. In code I use a hash for this where the feature name is the key and the value is its position. I just need to store one of these hashes per topic.&lt;/p&gt;&#xD;
@@ -161,5 +161,5 @@
 
 
     <feedburner:origLink>http://www.pauldix.net/2008/08/storing-many-cl.html</feedburner:origLink></entry>
- 
+
 </feed>
