@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.1.0
+
+* Option to use Oga as a SAX handler
+
 # 1.0.3
 
 * Remove missed `nokogiri` reference [[#54](https://github.com/pauldix/sax-machine/pull/54)]
