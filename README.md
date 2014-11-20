@@ -10,7 +10,7 @@
 
 ## Description
 
-A declarative SAX parsing library backed by Nokogiri or Ox.
+A declarative SAX parsing library backed by Nokogiri, Ox or Oga.
 
 ## Installation
 
@@ -28,7 +28,7 @@ $ bundle
 
 ## Usage
 
-SAX Machine can use either `nokogiri` or `ox` as XML SAX handler.
+SAX Machine can use either `nokogiri`, `ox` or `oga` as XML SAX handler.
 
 To use **Nokogiri** add this line to your Gemfile:
 
@@ -40,6 +40,12 @@ To use **Ox** add this line to your Gemfile:
 
 ```ruby
 gem 'ox', '>= 2.1.2'
+```
+
+To use **Oga** add this line to your Gemfile:
+
+```ruby
+gem 'oga', '>= 0.2.0'
 ```
 
 You can also specify which handler to use manually, like this:
@@ -152,8 +158,8 @@ end
 ```
 
 If more than one of these elements exists in the source, the value from the *last one* is used. The order of
-the `element` declarations in the code is unimportant. The order they are encountered while parsing the 
-document determines the value assigned to the alias. 
+the `element` declarations in the code is unimportant. The order they are encountered while parsing the
+document determines the value assigned to the alias.
 
 If an element is defined in the source but is blank (e.g., `<pubDate></pubDate>`), it is ignored, and non-empty one is picked.
 

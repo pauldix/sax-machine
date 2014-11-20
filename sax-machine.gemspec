@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors   = ["Paul Dix", "Julien Kirch", "Ezekiel Templin", "Dmitry Krasnoukhov"]
   s.email     = %q{paul@pauldix.net}
   s.homepage  = %q{http://github.com/pauldix/sax-machine}
-  s.summary   = %q{Declarative SAX Parsing with Nokogiri or Ox}
+  s.summary   = %q{Declarative SAX Parsing with Nokogiri, Ox or Oga}
   s.license   = %q{MIT}
 
   s.files         = `git ls-files`.split("\n")
