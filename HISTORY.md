@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.1.1
+
+* Fix Nokogiri autoloading [[#60](https://github.com/pauldix/sax-machine/pull/60)]
+
 # 1.1.0
 
 * Option to use Oga as a SAX handler
