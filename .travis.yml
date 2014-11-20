@@ -1,4 +1,5 @@
 language: ruby
+
 rvm:
   - 1.9.3
   - 2.0
@@ -7,6 +8,15 @@ rvm:
   - rbx-2
   - ruby-head
   - jruby-head
+
+sudo: false
+
+env:
+  matrix:
+    - HANDLER="nokogiri"
+    - HANDLER="ox"
+    - HANDLER="oga"
+
 matrix:
   exclude:
     - env: HANDLER="ox"
@@ -17,8 +27,3 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
-env:
-  matrix:
-    - HANDLER="nokogiri"
-    - HANDLER="ox"
-    - HANDLER="oga"
