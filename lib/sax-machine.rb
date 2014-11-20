@@ -5,12 +5,14 @@ require "sax-machine/sax_config"
 
 module SAXMachine
   def self.handler
-    @@handler
+    @@handler ||= nil
   end
 
   def self.handler=(handler)
-    require "sax-machine/handlers/sax_#{handler}_handler"
-    @@handler = handler
+    if handler
+      require "sax-machine/handlers/sax_#{handler}_handler"
+      @@handler = handler
+    end
   end
 end
 
