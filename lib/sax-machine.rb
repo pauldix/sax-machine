@@ -26,6 +26,6 @@ end
 end
 
 # Still no handler, use Nokogiri
-if !SAXMachine.handler
+if SAXMachine.handler.nil?
   SAXMachine.handler = :nokogiri
 end
