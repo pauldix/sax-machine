@@ -2,6 +2,7 @@ require "sax-machine/version"
 require "sax-machine/sax_document"
 require "sax-machine/sax_configure"
 require "sax-machine/sax_config"
+require "wannabe_bool"
 
 module SAXMachine
   def self.handler
