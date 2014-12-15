@@ -80,7 +80,10 @@ end
 
 class Atom
   include SAXMachine
-  element :title
+  # Using block handle custom parsing behavior
+  element :title do |title|
+    title.strip
+  end
   # The :with argument means that you only match a link tag
   # that has an attribute of type: "text/html"
   element :link, value: :href, as: :url, with: {

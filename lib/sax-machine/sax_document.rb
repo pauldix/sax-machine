@@ -39,16 +39,16 @@ module SAXMachine
       new.parse(*args)
     end
 
-    def element(name, options = {})
+    def element(name, options = {}, &block)
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_element(name, options)
-      create_attr(real_name)
+      create_attr(real_name, &block)
     end
 
-    def attribute(name, options = {})
+    def attribute(name, options = {}, &block)
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_attribute(self.class.to_s, options.merge(name: name))
-      create_attr(real_name)
+      create_attr(real_name, &block)
     end
 
     def value(name, options = {})
@@ -115,9 +115,18 @@ module SAXMachine
     # we only want to insert the getter and setter if they haven't defined it from elsewhere.
     # this is how we allow custom parsing behavior. So you could define the setter
     # and have it parse the string into a date or whatever.
-    def create_attr(real_name)
+    def create_attr(real_name, &block)
       attr_reader(real_name) unless method_defined?(real_name)
-      attr_writer(real_name) unless method_defined?("#{real_name}=")
+
+      if !method_defined?("#{real_name}=")
+        if block_given?
+          define_method("#{real_name}=") do |value|
+             instance_variable_set("@#{real_name}", (yield value))
+          end
+        else
+          attr_writer(real_name)
+        end
+      end
     end
   end
 end
