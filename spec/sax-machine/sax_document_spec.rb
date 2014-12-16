@@ -218,6 +218,41 @@ describe "SAXMachine" do
           expect(@klass.required?(:date)).to be_truthy
         end
       end
+
+      describe "the block" do
+        before do
+          @klass = Class.new do
+            include SAXMachine
+
+            element :title do  |title|
+              "#{title}!!!"
+            end
+
+            attribute :id do |id|
+              id.to_i
+            end
+
+            element :link, value: :foo do |link|
+              link.downcase
+            end
+          end
+        end
+
+        it "handle element" do
+          document = @klass.parse("<title>SAX</title>")
+          expect(document.title).to eq("SAX!!!")
+        end
+
+        it 'handle attribute' do
+          document = @klass.parse("<title id='345'>SAX</title>")
+          expect(document.id).to eq(345)
+        end
+
+        it "handle attribute value" do
+          document = @klass.parse("<link foo='tEst'>hello</link>")
+          expect(document.link).to eq("test")
+        end
+      end
     end
 
     describe "when parsing multiple elements" do
