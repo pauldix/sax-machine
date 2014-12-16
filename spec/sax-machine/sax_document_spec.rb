@@ -224,7 +224,7 @@ describe "SAXMachine" do
           @klass = Class.new do
             include SAXMachine
 
-            element :title do  |title|
+            element :title do |title|
               "#{title}!!!"
             end
 
@@ -238,17 +238,17 @@ describe "SAXMachine" do
           end
         end
 
-        it "handle element" do
+        it "uses block for element" do
           document = @klass.parse("<title>SAX</title>")
           expect(document.title).to eq("SAX!!!")
         end
 
-        it 'handle attribute' do
+        it 'uses block for attribute' do
           document = @klass.parse("<title id='345'>SAX</title>")
           expect(document.id).to eq(345)
         end
 
-        it "handle attribute value" do
+        it "uses block for attribute value" do
           document = @klass.parse("<link foo='tEst'>hello</link>")
           expect(document.link).to eq("test")
         end

@@ -80,7 +80,7 @@ end
 
 class Atom
   include SAXMachine
-  # Using block handle custom parsing behavior
+  # Use block to modify the returned value
   element :title do |title|
     title.strip
   end
