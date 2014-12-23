@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.2.0
+
+* Add support for blocks as value modifiers [[#61](https://github.com/pauldix/sax-machine/pull/61)]
+
 # 1.1.1
 
 * Fix Nokogiri autoloading [[#60](https://github.com/pauldix/sax-machine/pull/60)]
