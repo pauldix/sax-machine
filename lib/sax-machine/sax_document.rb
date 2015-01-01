@@ -121,7 +121,7 @@ module SAXMachine
       if !method_defined?("#{real_name}=")
         if block_given?
           define_method("#{real_name}=") do |value|
-             instance_variable_set("@#{real_name}", (yield value))
+            instance_variable_set("@#{real_name}", (yield value))
           end
         else
           attr_writer(real_name)
