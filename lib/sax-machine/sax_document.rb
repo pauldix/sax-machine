@@ -51,36 +51,16 @@ module SAXMachine
       create_attr(real_name, &block)
     end
 
-    def value(name, options = {})
+    def value(name, options = {}, &block)
       real_name = (options[:as] ||= name).to_s
       sax_config.add_top_level_element_value(self.class.to_s, options.merge(name: name))
-      create_attr(real_name)
+      create_attr(real_name, &block)
     end
 
-    def ancestor(name, options = {})
+    def ancestor(name, options = {}, &block)
       real_name = (options[:as] ||= name).to_s
       sax_config.add_ancestor(name, options)
-      create_attr(real_name)
-    end
-
-    def columns
-      sax_config.columns
-    end
-
-    def column(sym)
-      columns.select { |c| c.column == sym }[0]
-    end
-
-    def data_class(sym)
-      column(sym).data_class
-    end
-
-    def required?(sym)
-      column(sym).required?
-    end
-
-    def column_names
-      columns.map { |e| e.column }
+      create_attr(real_name, &block)
     end
 
     def elements(name, options = {})
@@ -106,6 +86,26 @@ module SAXMachine
       end
 
       attr_writer(options[:as]) unless method_defined?("#{options[:as]}=")
+    end
+
+    def columns
+      sax_config.columns
+    end
+
+    def column(sym)
+      columns.select { |c| c.column == sym }[0]
+    end
+
+    def data_class(sym)
+      column(sym).data_class
+    end
+
+    def required?(sym)
+      column(sym).required?
+    end
+
+    def column_names
+      columns.map { |e| e.column }
     end
 
     def sax_config

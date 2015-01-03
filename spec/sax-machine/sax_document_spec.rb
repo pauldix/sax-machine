@@ -221,7 +221,19 @@ describe "SAXMachine" do
 
       describe "the block" do
         before do
-          @klass = Class.new do
+          class ElementBlockParser
+            include SAXMachine
+
+            ancestor :parent do |parent|
+              parent.class.to_s
+            end
+
+            value :text do |text|
+              text.downcase
+            end
+          end
+
+          class BlockParser
             include SAXMachine
 
             element :title do |title|
@@ -232,25 +244,28 @@ describe "SAXMachine" do
               id.to_i
             end
 
-            element :link, value: :foo do |link|
-              link.downcase
-            end
+            element :nested, class: ElementBlockParser
           end
         end
 
         it "uses block for element" do
-          document = @klass.parse("<title>SAX</title>")
+          document = BlockParser.parse("<title>SAX</title>")
           expect(document.title).to eq("SAX!!!")
         end
 
         it 'uses block for attribute' do
-          document = @klass.parse("<title id='345'>SAX</title>")
+          document = BlockParser.parse("<title id='345'>SAX</title>")
           expect(document.id).to eq(345)
         end
 
-        it "uses block for attribute value" do
-          document = @klass.parse("<link foo='tEst'>hello</link>")
-          expect(document.link).to eq("test")
+        it "uses block for value" do
+          document = BlockParser.parse("<title><nested>tEst</nested></title>")
+          expect(document.nested.text).to eq("test")
+        end
+
+        it "uses block for ancestor" do
+          document = BlockParser.parse("<title><nested>SAX</nested></title>")
+          expect(document.nested.parent).to eq("BlockParser")
         end
       end
     end
