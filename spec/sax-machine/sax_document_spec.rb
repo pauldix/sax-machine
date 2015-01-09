@@ -240,6 +240,10 @@ describe "SAXMachine" do
               "#{title}!!!"
             end
 
+            element :scope do |scope|
+              "#{title} #{scope}"
+            end
+
             attribute :id do |id|
               id.to_i
             end
@@ -249,6 +253,11 @@ describe "SAXMachine" do
               "#{message}!"
             end
           end
+        end
+
+        it "has instance as a block context" do
+          document = BlockParser.parse("<root><title>SAX</title><scope>something</scope></root>")
+          expect(document.scope).to eq("SAX!!! something")
         end
 
         it "uses block for element" do

@@ -71,7 +71,7 @@ module SAXMachine
       else
         if block_given?
           define_method("add_#{real_name}") do |value|
-            send(real_name).send(:<<, yield(value))
+            send(real_name).send(:<<, instance_exec(value, &block))
           end
         else
           define_method("add_#{real_name}") do |value|
@@ -126,7 +126,7 @@ module SAXMachine
       if !method_defined?("#{real_name}=")
         if block_given?
           define_method("#{real_name}=") do |value|
-            instance_variable_set("@#{real_name}", (yield value))
+            instance_variable_set("@#{real_name}", instance_exec(value, &block))
           end
         else
           attr_writer(real_name)
