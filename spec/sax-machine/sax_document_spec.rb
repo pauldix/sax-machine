@@ -245,6 +245,9 @@ describe "SAXMachine" do
             end
 
             element :nested, class: ElementBlockParser
+            elements :message, as: :messages do |message|
+              "#{message}!"
+            end
           end
         end
 
@@ -266,6 +269,11 @@ describe "SAXMachine" do
         it "uses block for ancestor" do
           document = BlockParser.parse("<title><nested>SAX</nested></title>")
           expect(document.nested.parent).to eq("BlockParser")
+        end
+
+        it "uses block for elements" do
+          document = BlockParser.parse("<title><message>hi</message><message>world</message></title>")
+          expect(document.messages).to eq(["hi!", "world!"])
         end
       end
     end

@@ -63,24 +63,29 @@ module SAXMachine
       create_attr(real_name, &block)
     end
 
-    def elements(name, options = {})
-      options[:as] ||= name
+    def elements(name, options = {}, &block)
+      real_name = (options[:as] ||= name).to_s
 
       if options[:class]
         sax_config.add_collection_element(name, options)
       else
-        class_eval <<-SRC
-          def add_#{options[:as]}(value)
-            #{options[:as]} << value
+        if block_given?
+          define_method("add_#{real_name}") do |value|
+            send(real_name).send(:<<, yield(value))
           end
-        SRC
+        else
+          define_method("add_#{real_name}") do |value|
+            send(real_name).send(:<<, value)
+          end
+        end
+
         sax_config.add_top_level_element(name, options.merge(collection: true))
       end
 
-      if !method_defined?(options[:as].to_s)
+      if !method_defined?(real_name)
         class_eval <<-SRC
-          def #{options[:as]}
-            @#{options[:as]} ||= []
+          def #{real_name}
+            @#{real_name} ||= []
           end
         SRC
       end

@@ -81,6 +81,8 @@ end
 class Atom
   include SAXMachine
   # Use block to modify the returned value
+  # Blocks are working with pretty much everything,
+  # except for `elements` with `class` attribute
   element :title do |title|
     title.strip
   end
