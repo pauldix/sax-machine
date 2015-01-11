@@ -1072,4 +1072,21 @@ describe "SAXMachine" do
       expect(@warnings.uniq.size).to eq(0)
     end
   end
+
+  describe "with io as a input" do
+    before do
+      @io = StringIO.new('<item id="1"><title>sweet</title></item>')
+
+      class IoParser
+        include SAXMachine
+        element :title
+      end
+
+      @item = ItemElement5.parse(@io)
+    end
+
+    it "parses" do
+      expect(@item.title).to eq("sweet")
+    end
+  end
 end

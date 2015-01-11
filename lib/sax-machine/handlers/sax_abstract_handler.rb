@@ -12,7 +12,7 @@ module SAXMachine
       end
     end
 
-    def sax_parse(xml_text)
+    def sax_parse(xml_input)
       raise NotImplementedError
     end
 

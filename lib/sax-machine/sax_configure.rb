@@ -14,8 +14,8 @@ module SAXMachine
     clazz.extend LightWeightSaxMachine
     clazz.sax_config = extended_clazz.sax_config
 
-    (class << clazz;self;end).send(:define_method, :parse) do |xml_text|
-      extended_clazz.parse(xml_text)
+    (class << clazz;self;end).send(:define_method, :parse) do |xml_input|
+      extended_clazz.parse(xml_input)
     end
   end
 

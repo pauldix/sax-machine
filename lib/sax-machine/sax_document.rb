@@ -4,11 +4,11 @@ module SAXMachine
     base.extend(ClassMethods)
   end
 
-  def parse(xml_text, on_error = nil, on_warning = nil)
+  def parse(xml_input, on_error = nil, on_warning = nil)
     handler_klass = SAXMachine.const_get("SAX#{SAXMachine.handler.capitalize}Handler")
 
     handler = handler_klass.new(self, on_error, on_warning)
-    handler.sax_parse(xml_text)
+    handler.sax_parse(xml_input)
 
     self
   end

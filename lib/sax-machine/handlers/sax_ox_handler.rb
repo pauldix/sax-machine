@@ -10,8 +10,11 @@ module SAXMachine
       _reset_element
     end
 
-    def sax_parse(xml_text)
-      Ox.sax_parse(self, StringIO.new(xml_text),
+    def sax_parse(xml_input)
+      # Ox requires input to be streamable
+      xml_input = StringIO.new(xml_input) if xml_input.is_a?(String)
+
+      Ox.sax_parse(self, xml_input,
         symbolize: false,
         convert_special: true,
         skip: :skip_return,

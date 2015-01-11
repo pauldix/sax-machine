@@ -9,8 +9,8 @@ module SAXMachine
       _initialize(*args)
     end
 
-    def sax_parse(xml_text)
-      Oga.sax_parse_xml(self, xml_text)
+    def sax_parse(xml_input)
+      Oga.sax_parse_xml(self, xml_input)
     end
 
     def on_element(namespace, name, attrs)

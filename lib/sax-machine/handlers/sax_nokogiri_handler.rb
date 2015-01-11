@@ -5,9 +5,9 @@ module SAXMachine
   class SAXNokogiriHandler < Nokogiri::XML::SAX::Document
     include SAXAbstractHandler
 
-    def sax_parse(xml_text)
+    def sax_parse(xml_input)
       parser = Nokogiri::XML::SAX::Parser.new(self)
-      parser.parse(xml_text) do |ctx|
+      parser.parse(xml_input) do |ctx|
         ctx.replace_entities = true
       end
     end
