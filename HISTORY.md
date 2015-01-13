@@ -1,5 +1,11 @@
 # HEAD
 
+# 1.3.0
+
+* Improve block modifiers to support all config options
+* Make block modifiers run in instance context
+* Make all handlers support IO as a input
+
 # 1.2.0
 
 * Add support for blocks as value modifiers [[#61](https://github.com/pauldix/sax-machine/pull/61)]
