@@ -21,7 +21,7 @@ module SAXMachine
 
       self.class.sax_config.top_level_elements.each do |_, configs|
         configs.each do |config|
-          next unless config.default
+          next if config.default.nil?
           next unless send(config.as).nil?
 
           send(config.setter, config.default)

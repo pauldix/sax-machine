@@ -207,6 +207,22 @@ describe "SAXMachine" do
           document = @klass.parse("<number></number>")
           expect(document.number).to eq(0)
         end
+
+        it "can be a Boolean" do
+          @klass = Class.new do
+            include SAXMachine
+            element(:bool, default: false) { |v| !!v }
+          end
+
+          document = @klass.parse("<no>bool</no>")
+          expect(document.bool).to be false
+
+          document = @klass.parse("<bool></bool>")
+          expect(document.bool).to be false
+
+          document = @klass.parse("<bool>1</bool>")
+          expect(document.bool).to be true
+        end
       end
 
       describe "the required attribute" do
