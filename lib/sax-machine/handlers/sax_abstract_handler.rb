@@ -186,25 +186,7 @@ module SAXMachine
 
       if config
         config.attribute_configs_for_element(attributes).each do |ac|
-          value = ac.value_from_attrs(attributes)
-          new_value =
-              case ac.data_class.to_s
-                when "String"  then value != NO_BUFFER ? value.to_s : value
-                when "Integer" then value != NO_BUFFER ? value.to_i : value
-                when "Float"   then value != NO_BUFFER ? value.to_f : value
-                when "Symbol"  then
-                  if value != NO_BUFFER
-                    value.to_s.empty? ? nil : value.to_s.downcase.to_sym
-                  else
-                    value
-                  end
-                # Assumes that time elements will be string-based and are not
-                # something else, e.g. seconds since epoch
-                when "Time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value
-                when ""        then value
-
-              end
-          object.send(ac.setter, new_value)
+          object.send(ac.setter, ac.value_from_attrs(attributes))
         end
       end
     end
