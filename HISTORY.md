@@ -1,5 +1,11 @@
 # HEAD
 
+# 1.3.1
+
+* Allow default value to be `false` [[#66](https://github.com/pauldix/sax-machine/pull/66)]
+* Support adding class to an attribute [[#68](https://github.com/pauldix/sax-machine/pull/68)]
+* Adjust Ox handler to skip empty text/cdata values
+
 # 1.3.0
 
 * Improve block modifiers to support all config options
