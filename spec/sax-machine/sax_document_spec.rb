@@ -143,96 +143,145 @@ describe "SAXMachine" do
           expect(@klass.data_class(:date)).to eq(DateTime)
         end
 
+        describe "string" do
+          before do
+            class TestString
+              include SAXMachine
+              element :number, class: String
+            end
+
+            class TestStringAttribute
+              include SAXMachine
+              attribute :sub_number, class: String
+            end
+
+            class TestStringWithAttribute
+              include SAXMachine
+              element :number, class: TestStringAttribute
+            end
+          end
+
+          it "is handled in an element" do
+            document = TestString.parse("<number>5.5</number>")
+            expect(document.number).to eq("5.5")
+          end
+
+          it "is handled in an attribute" do
+            document = TestStringWithAttribute.parse("<number sub_number='5.5'></number>")
+            expect(document.number.sub_number).to eq("5.5")
+          end
+        end
+
         describe "integer" do
           before do
-            class TestNumberAttribute
+            class TestInteger
+              include SAXMachine
+              element :number, class: Integer
+            end
+
+            class TestIntegerAttribute
               include SAXMachine
               attribute :sub_number, class: Integer
             end
 
-            class TestNumberWithAttribute
+            class TestIntegerWithAttribute
               include SAXMachine
-              element :number, class: TestNumberAttribute
-            end
-
-            class TestNumber
-              include SAXMachine
-              element :number, class: Integer
+              element :number, class: TestIntegerAttribute
             end
           end
+
           it "is handled in an element" do
-            document = TestNumber.parse("<number>5</number>")
+            document = TestInteger.parse("<number>5</number>")
             expect(document.number).to eq(5)
           end
 
           it "is handled in an attribute" do
-            document = TestNumberWithAttribute.parse("<number sub_number='5'></number>")
+            document = TestIntegerWithAttribute.parse("<number sub_number='5'></number>")
             expect(document.number.sub_number).to eq(5)
           end
-
         end
 
         describe "float" do
           before do
-            class TestNumberFloatAttribute
+            class TestFloat
+              include SAXMachine
+              element :number, class: Float
+            end
+
+            class TestFloatAttribute
               include SAXMachine
               attribute :sub_number, class: Float
             end
 
-            class TestNumberFloatWithAttribute
+            class TestFloatWithAttribute
               include SAXMachine
-              element :number, class: TestNumberFloatAttribute
-            end
-
-            class TestNumberFloat
-              include SAXMachine
-              element :number, class: Float
+              element :number, class: TestFloatAttribute
             end
           end
+
           it "is handled in an element with '.' delimiter" do
-            document = TestNumberFloat.parse("<number>5.5</number>")
+            document = TestFloat.parse("<number>5.5</number>")
             expect(document.number).to eq(5.5)
           end
 
           it "is handled in an element with ',' delimiter" do
-            document = TestNumberFloat.parse("<number>5,5</number>")
+            document = TestFloat.parse("<number>5,5</number>")
             expect(document.number).to eq(5.5)
           end
 
           it "is handled in an attribute" do
-            document = TestNumberFloatWithAttribute.parse("<number sub_number='5.5'>5.5</number>")
+            document = TestFloatWithAttribute.parse("<number sub_number='5.5'>5.5</number>")
             expect(document.number.sub_number).to eq(5.5)
           end
         end
 
-        it "handles an string class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, class: String
+        describe "symbol" do
+          before do
+            class TestSymbol
+              include SAXMachine
+              element :symbol, class: Symbol
+            end
+
+            class TestSymbolAttribute
+              include SAXMachine
+              attribute :sub_symbol, class: Symbol
+            end
+
+            class TestSymbolWithAttribute
+              include SAXMachine
+              element :symbol, class: TestSymbolAttribute
+            end
           end
 
-          document = @klass.parse("<number>5.5</number>")
-          expect(document.number).to eq("5.5")
+          it "is handled in an element" do
+            document = TestSymbol.parse("<symbol>MY_SYMBOL_VALUE</symbol>")
+            expect(document.symbol).to eq(:my_symbol_value)
+          end
+
+          it "is handled in an attribute" do
+            document = TestSymbolWithAttribute.parse("<symbol sub_symbol='MY_SYMBOL_VALUE'></symbol>")
+            expect(document.symbol.sub_symbol).to eq(:my_symbol_value)
+          end
         end
 
         describe "time" do
           before do
+            class TestTime
+              include SAXMachine
+              element :time, class: Time
+            end
+
             class TestTimeAttribute
               include SAXMachine
               attribute :sub_time, class: Time
-              value(:text) { |time| Time.parse(time) }
             end
 
             class TestTimeWithAttribute
               include SAXMachine
               element :time, class: TestTimeAttribute
             end
-
-            class TestTime
-              include SAXMachine
-              element :time, class: Time
-            end
           end
+
           it "is handled in an element" do
             document = TestTime.parse("<time>1994-02-04T06:20:00Z</time>")
             expect(document.time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
@@ -242,26 +291,6 @@ describe "SAXMachine" do
             document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
             expect(document.time.sub_time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
           end
-
-          it "handles time element value when attribute is classified too" do
-            document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
-            expect(document.time.text).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
-          end
-
-          it "handles time attribute value when element is classified too" do
-            document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
-            expect(document.time.sub_time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
-          end
-
-        end
-        it "handles a Symbol class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :symbol, class: Symbol
-          end
-
-          document = @klass.parse("<symbol>MY_SYMBOL_VALUE</symbol>")
-          expect(document.symbol).to eq(:my_symbol_value)
         end
       end
 
