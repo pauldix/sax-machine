@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-
 describe "SAXMachine" do
   describe "element" do
     describe "when parsing a single element" do
@@ -143,24 +142,66 @@ describe "SAXMachine" do
           expect(@klass.data_class(:date)).to eq(DateTime)
         end
 
-        it "handles an integer class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, class: Integer
+        describe "integer" do
+          before do
+            class TestNumberAttribute
+              include SAXMachine
+              attribute :sub_number, class: Integer
+            end
+
+            class TestNumberWithAttribute
+              include SAXMachine
+              element :number, class: TestNumberAttribute
+            end
+
+            class TestNumber
+              include SAXMachine
+              element :number, class: Integer
+            end
+          end
+          it "is handled in an element" do
+            document = TestNumber.parse("<number>5</number>")
+            expect(document.number).to eq(5)
           end
 
-          document = @klass.parse("<number>5</number>")
-          expect(document.number).to eq(5)
+          it "is handled in an attribute" do
+            document = TestNumberWithAttribute.parse("<number sub_number='5'></number>")
+            expect(document.number.sub_number).to eq(5)
+          end
+
         end
 
-        it "handles an float class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :number, class: Float
+        describe "float" do
+          before do
+            class TestNumberFloatAttribute
+              include SAXMachine
+              attribute :sub_number, class: Float
+            end
+
+            class TestNumberFloatWithAttribute
+              include SAXMachine
+              element :number, class: TestNumberFloatAttribute
+            end
+
+            class TestNumberFloat
+              include SAXMachine
+              element :number, class: Float
+            end
+          end
+          it "is handled in an element with '.' delimiter" do
+            document = TestNumberFloat.parse("<number>5.5</number>")
+            expect(document.number).to eq(5.5)
           end
 
-          document = @klass.parse("<number>5.5</number>")
-          expect(document.number).to eq(5.5)
+          it "is handled in an element with ',' delimiter" do
+            document = TestNumberFloat.parse("<number>5,5</number>")
+            expect(document.number).to eq(5.5)
+          end
+
+          it "is handled in an attribute" do
+            document = TestNumberFloatWithAttribute.parse("<number sub_number='5.5'>5.5</number>")
+            expect(document.number.sub_number).to eq(5.5)
+          end
         end
 
         it "handles an string class" do
@@ -173,16 +214,46 @@ describe "SAXMachine" do
           expect(document.number).to eq("5.5")
         end
 
-        it "handles a time class" do
-          @klass = Class.new do
-            include SAXMachine
-            element :time, class: Time
+        describe "time" do
+          before do
+            class TestTimeAttribute
+              include SAXMachine
+              attribute :sub_time, class: Time
+              value :text, class: Time
+            end
+
+            class TestTimeWithAttribute
+              include SAXMachine
+              element :time, class: TestTimeAttribute
+            end
+
+            class TestTime
+              include SAXMachine
+              element :time, class: Time
+            end
+          end
+          it "is handled in an element" do
+            document = TestTime.parse("<time>1994-02-04T06:20:00Z</time>")
+            expect(document.time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
           end
 
-          document = @klass.parse("<time>1994-02-04T06:20:00Z</time>")
-          expect(document.time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
-        end
+          it "is handled in an attribute" do
+            document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
+            expect(document.time.sub_time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
+          end
 
+          it "handles time element value when attribute is classified too" do
+            pending
+            document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
+            expect(document.time.text).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
+          end
+
+          it "handles time attribute value when element is classified too" do
+            document = TestTimeWithAttribute.parse("<time sub_time='1994-02-04T06:20:00Z'>1994-02-04T06:20:00Z</time>")
+            expect(document.time.sub_time).to eq(Time.utc(1994, 2, 4, 6, 20, 0, 0))
+          end
+
+        end
         it "handles a Symbol class" do
           @klass = Class.new do
             include SAXMachine
@@ -375,7 +446,7 @@ describe "SAXMachine" do
           before do
             @klass = Class.new do
               include SAXMachine
-              element :link, value: :href, with: { foo: "bar" }
+              element :link, value: :href, with: {foo: "bar"}
             end
           end
 
@@ -393,8 +464,8 @@ describe "SAXMachine" do
             before do
               @klass = Class.new do
                 include SAXMachine
-                element :link, value: :href, as: :url, with: { foo: "bar" }
-                element :link, value: :href, as: :second_url, with: { asdf: "jkl" }
+                element :link, value: :href, as: :url, with: {foo: "bar"}
+                element :link, value: :href, as: :second_url, with: {asdf: "jkl"}
               end
             end
 
@@ -410,7 +481,7 @@ describe "SAXMachine" do
           before do
             @klass = Class.new do
               include SAXMachine
-              element :link, with: { foo: "bar" }
+              element :link, with: {foo: "bar"}
             end
           end
 
@@ -439,8 +510,8 @@ describe "SAXMachine" do
           before do
             @klass = Class.new do
               include SAXMachine
-              element :link, as: :first, with: { foo: "bar" }
-              element :link, as: :second, with: { asdf: "jkl" }
+              element :link, as: :first, with: {foo: "bar"}
+              element :link, as: :second, with: {asdf: "jkl"}
             end
           end
 
@@ -459,7 +530,7 @@ describe "SAXMachine" do
           before do
             @klass = Class.new do
               include SAXMachine
-              element :link, with: { foo: /ar$/ }
+              element :link, with: {foo: /ar$/}
             end
           end
 
@@ -607,8 +678,8 @@ describe "SAXMachine" do
 
         @klass = Class.new do
           include SAXMachine
-          elements :item, as: :items, with: { type: "Bar" }, class: Bar
-          elements :item, as: :items, with: { type: /Foo/ }, class: Foo
+          elements :item, as: :items, with: {type: "Bar"}, class: Bar
+          elements :item, as: :items, with: {type: /Foo/}, class: Foo
         end
       end
 
@@ -706,7 +777,7 @@ describe "SAXMachine" do
         element :title
         element :name, as: :author
         element "feedburner:origLink", as: :url
-        element :link, as: :alternate, value: :href, with: { type: "text/html", rel: "alternate" }
+        element :link, as: :alternate, value: :href, with: {type: "text/html", rel: "alternate"}
         element :summary
         element :content
         element :published
@@ -715,8 +786,8 @@ describe "SAXMachine" do
       class Atom
         include SAXMachine
         element :title
-        element :link, value: :href, as: :url, with: { type: "text/html" }
-        element :link, value: :href, as: :feed_url, with: { type: "application/atom+xml" }
+        element :link, value: :href, as: :url, with: {type: "text/html"}
+        element :link, value: :href, as: :feed_url, with: {type: "application/atom+xml"}
         elements :entry, as: :entries, class: AtomEntry
       end
 
@@ -752,7 +823,8 @@ describe "SAXMachine" do
       </categories>
       ]
 
-      class CategoryCollection; end
+      class CategoryCollection;
+      end
 
       class Category
         include SAXMachine
@@ -1074,9 +1146,9 @@ describe "SAXMachine" do
       @errors = []
       @warnings = []
       @item = ItemElement5.parse(
-        @xml,
-        ->(x) { @errors << x },
-        ->(x) { @warnings << x },
+          @xml,
+          ->(x) { @errors << x },
+          ->(x) { @warnings << x },
       )
     end
 
