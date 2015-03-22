@@ -34,12 +34,16 @@ module SAXMachine
       @element = name
     end
 
+    def text(value)
+      _characters(value) if value && !value.empty?
+    end
+
+    alias_method :cdata, :text
+
     def error(message, line, column)
       _error("#{message} on line #{line} column #{column}")
     end
 
-    alias_method :text, :_characters
-    alias_method :cdata, :_characters
     alias_method :end_element, :_end_element
 
     private
