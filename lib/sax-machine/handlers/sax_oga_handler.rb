@@ -11,10 +11,12 @@ module SAXMachine
 
     def sax_parse(xml_input)
       Oga.sax_parse_xml(self, xml_input)
+    rescue LL::ParserError => e
+      on_error(e.message)
     end
 
     def on_element(namespace, name, attrs)
-      _start_element(node_name(namespace, name), attrs.map { |a| [a.name, a.value] })
+      _start_element(node_name(namespace, name), attrs)
     end
 
     def after_element(namespace, name)
@@ -31,7 +33,7 @@ module SAXMachine
     private
 
     def node_name(namespace, name)
-      namespace ? [namespace, name].join(":") : name
+      namespace ? "#{namespace}:#{name}" : name
     end
   end
 end
