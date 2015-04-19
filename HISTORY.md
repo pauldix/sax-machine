@@ -1,5 +1,9 @@
 # HEAD
 
+# 1.3.2
+
+* Compatibility with Oga 0.3
+
 # 1.3.1
 
 * Allow default value to be `false` [[#66](https://github.com/pauldix/sax-machine/pull/66)]
