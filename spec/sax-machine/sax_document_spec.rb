@@ -188,6 +188,11 @@ describe "SAXMachine" do
               include SAXMachine
               element :number, class: TestIntegerAttribute
             end
+
+            class IntegerInsideAttribute
+              include SAXMachine
+              element :number, value: :int_attr, as: :int_attr, class: Integer
+            end
           end
 
           it "is handled in an element" do
@@ -198,6 +203,11 @@ describe "SAXMachine" do
           it "is handled in an attribute" do
             document = TestIntegerWithAttribute.parse("<number sub_number='5'></number>")
             expect(document.number.sub_number).to eq(5)
+          end
+
+          it "is handled in an attribute with value option" do
+            document = IntegerInsideAttribute.parse("<number int_attr='2'></number>")
+            expect(document.int_attr).to eq(2)
           end
         end
 
