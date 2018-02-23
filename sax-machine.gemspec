@@ -16,5 +16,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.platform      = Gem::Platform::RUBY
 
-  s.add_development_dependency "rspec", "~> 3.0"
+  s.add_development_dependency "rspec", "~> 3.6"
 end
