@@ -2,13 +2,13 @@ require 'time'
 
 module SAXMachine
   module SAXAbstractHandler
-    NO_BUFFER = :no_buffer
-
-    class StackNode < Struct.new(:object, :config, :buffer)
-      def initialize(object, config = nil, buffer = NO_BUFFER)
+    ELEMENT = Class.new
+    class StackNode < Struct.new(:object, :config, :buffer, :value_given)
+      def initialize(object, config = nil, buffer = nil)
         self.object = object
         self.config = config
         self.buffer = buffer
+        self.value_given = false
       end
     end
 
@@ -26,11 +26,12 @@ module SAXMachine
     def _characters(data)
       node = stack.last
 
-      if node.buffer == NO_BUFFER
+      if !node.value_given
         node.buffer = data.dup
       else
         node.buffer << data
       end
+      node.value_given = true
     end
 
     def _start_element(name, attrs = [])
@@ -108,8 +109,13 @@ module SAXMachine
 
           object.send(config.accessor) << element
         else
-          value = data_class_value(config.data_class, value) || element
-          object.send(config.setter, value) if value != NO_BUFFER
+          value = data_class_value(config.data_class, value)
+          if ELEMENT == value
+            object.send(config.setter, element)
+          elsif close_tag.value_given
+            data_class_value(config.data_class, value)
+            object.send(config.setter, value)
+          end
           mark_as_parsed(object, config)
         end
 
@@ -177,19 +183,16 @@ module SAXMachine
 
     def data_class_value(data_class, value)
       case data_class.to_s
-      when "String"  then value != NO_BUFFER ? value.to_s : value
-      when "Integer" then value != NO_BUFFER ? value.to_i : value
-      when "Float"   then value != NO_BUFFER ? value.to_s.gsub(",",".").to_f : value
-      when "Symbol"  then
-        if value != NO_BUFFER
-          value.to_s.empty? ? nil : value.to_s.downcase.to_sym
-        else
-          value
-        end
+      when "String"  then value.to_s
+      when "Integer" then value.to_i
+      when "Float"   then value.to_s.gsub(",",".").to_f
+      when "Symbol"  then value.to_s.empty? ? nil : value.to_s.downcase.to_sym
       # Assumes that time elements will be string-based and are not
       # something else, e.g. seconds since epoch
-      when "Time"    then value != NO_BUFFER ? Time.parse(value.to_s) : value
+      when "Time"    then Time.parse(value.to_s)
       when ""        then value
+      else
+        ELEMENT
       end
     end
 

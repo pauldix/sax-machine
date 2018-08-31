@@ -155,9 +155,18 @@ describe "SAXMachine" do
               attribute :sub_number, class: String
             end
 
+            class TestStringAttributeAndValue < TestStringAttribute
+              value :something
+            end
+
             class TestStringWithAttribute
               include SAXMachine
               element :number, class: TestStringAttribute
+            end
+
+            class TestStringWithAttributeAndValue
+              include SAXMachine
+              element :number, class: TestStringAttributeAndValue
             end
           end
 
@@ -169,6 +178,18 @@ describe "SAXMachine" do
           it "is handled in an attribute" do
             document = TestStringWithAttribute.parse("<number sub_number='5.5'></number>")
             expect(document.number.sub_number).to eq("5.5")
+          end
+
+          it "is handled attribute and value" do
+            document = TestStringWithAttributeAndValue.parse("<number sub_number='5.5'>somevalue</number>")
+            expect(document.number.sub_number).to eq("5.5")
+            expect(document.number.something).to eq("somevalue")
+          end
+
+          it "is handled attribute and empty value" do
+            document = TestStringWithAttributeAndValue.parse("<number sub_number='5.5'></number>")
+            expect(document.number.sub_number).to eq("5.5")
+            expect(document.number.something).to eq(nil)
           end
         end
 
