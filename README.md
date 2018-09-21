@@ -5,8 +5,6 @@
 [![Gem Version](https://badge.fury.io/rb/sax-machine.svg)](http://badge.fury.io/rb/sax-machine)
 [![Build Status](https://secure.travis-ci.org/pauldix/sax-machine.svg?branch=master)](http://travis-ci.org/pauldix/sax-machine?branch=master)
 [![Coverage Status](https://img.shields.io/coveralls/pauldix/sax-machine.svg)](https://coveralls.io/r/pauldix/sax-machine?branch=master)
-[![Code Climate](https://img.shields.io/codeclimate/github/pauldix/sax-machine.svg)](https://codeclimate.com/github/pauldix/sax-machine)
-[![Dependencies](https://gemnasium.com/pauldix/sax-machine.svg)](https://gemnasium.com/pauldix/sax-machine)
 
 ## Description
 
