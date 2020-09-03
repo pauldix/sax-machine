@@ -3,7 +3,9 @@ require 'active_record'
 
 describe "SAXMachine ActiveRecord integration" do
   before do
-    class MySaxModel < ActiveRecord::Base
+    class MySaxModel
+      include ActiveModel::Model
+
       SAXMachine.configure(MySaxModel) do |c|
         c.element :title
       end
