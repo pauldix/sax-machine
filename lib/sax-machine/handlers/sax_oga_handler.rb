@@ -10,7 +10,7 @@ module SAXMachine
     end
 
     def sax_parse(xml_input)
-      Oga.sax_parse_xml(self, xml_input)
+      Oga.sax_parse_xml(self, xml_input, strict: true)
     rescue LL::ParserError => e
       on_error(e.message)
     end
