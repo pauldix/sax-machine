@@ -265,17 +265,17 @@ describe "SAXMachine" do
 
           it "is handled in an element with '.' delimiter" do
             document = TestBigDecimal.parse("<number>3.0000000000000021</number>")
-            expect(document.number).to eq(BigDecimal.new('3.0000000000000021'))
+            expect(document.number).to eq(BigDecimal('3.0000000000000021'))
           end
 
           it "is handled in an element with ',' delimiter" do
             document = TestBigDecimal.parse("<number>3,0000000000000021</number>")
-            expect(document.number).to eq(BigDecimal.new('3.0000000000000021'))
+            expect(document.number).to eq(BigDecimal('3.0000000000000021'))
           end
 
           it "is handled in an attribute" do
             document = TestBigDecimalWithAttribute.parse("<number sub_number='3.0000000000000021'>3.0000000000000021</number>")
-            expect(document.number.sub_number).to eq(BigDecimal.new('3.0000000000000021'))
+            expect(document.number.sub_number).to eq(BigDecimal('3.0000000000000021'))
           end
         end
 
