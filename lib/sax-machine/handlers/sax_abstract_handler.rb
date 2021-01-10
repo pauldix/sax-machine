@@ -65,6 +65,7 @@ module SAXMachine
             case element_config.data_class.to_s
             when "Integer" then 0
             when "Float"   then 0.0
+            when "BigDecimal" then BigDecimal("0.0")
             when "Symbol"  then nil
             when "Time"    then Time.at(0)
             when ""        then object
@@ -180,6 +181,7 @@ module SAXMachine
       when "String"  then value != NO_BUFFER ? value.to_s : value
       when "Integer" then value != NO_BUFFER ? value.to_i : value
       when "Float"   then value != NO_BUFFER ? value.to_s.gsub(",",".").to_f : value
+      when "BigDecimal"   then value != NO_BUFFER ? BigDecimal(value.to_s.gsub(",",".")) : value
       when "Symbol"  then
         if value != NO_BUFFER
           value.to_s.empty? ? nil : value.to_s.downcase.to_sym
